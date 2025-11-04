@@ -1,9 +1,16 @@
 Package: glyanno
-Title: What the Package Does (One Line, Title Case)
+Title: Hierarchical Glycan Annotation
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+    person("Bin", "Fu", , "23110220018@m.fudan.edu.cn", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-8567-2997"))
+Description: Hierarchical annotation of glycans based on molecule mass, composition, and structure.
+    Starting from a molecule mass, glyanno calculates possible glycan compositions.
+    Given a glycan composition, glyanno further deduces possible glycan structures.
+    For glycan structures with generic monosaccharides (e.g., "Hex", "HexNAc"), 
+    glyanno refines them into specific types (e.g., "Glc", "Gal").
+    For structures lacking linkage information (e.g., "Gal(??-?)GalNAc(??-"),
+    glyanno infers the most likely linkages (e.g., "Gal(b1-3)GalNAc(a1-").
 License: MIT + file LICENSE
 Suggests: 
     testthat (>= 3.0.0)
@@ -12,3 +19,10 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 URL: https://glycoverse.github.io/glyanno/
+Imports: 
+    glydb (>= 0.1.0),
+    glyparse (>= 0.5.2),
+    glyrepr (>= 0.7.5)
+Remotes:  
+    glycoverse/glyparse@*release,
+    glycoverse/glydb@*release
