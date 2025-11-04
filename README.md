@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# glyanno
+# glyanno <a href="https://glycoverse.github.io/glyanno/"><img src="man/figures/logo.png" align="right" height="138" /></a>
 
 <!-- badges: start -->
 
@@ -14,47 +14,38 @@ status](https://www.r-pkg.org/badges/version/glyanno)](https://CRAN.R-project.or
 coverage](https://codecov.io/gh/glycoverse/glyanno/graph/badge.svg)](https://app.codecov.io/gh/glycoverse/glyanno)
 <!-- badges: end -->
 
-The goal of glyanno is to …
+The goal of glyanno is to enhance the level of information and
+resolution for glycans through a hierarchical annotation approach.
+Starting from a molecule mass, glyanno calculates possible glycan
+compositions. Given a glycan composition, glyanno further deduces
+possible glycan structures. For glycan structures with generic
+monosaccharides (e.g., “Hex”, “HexNAc”), glyanno refines them into
+specific types (e.g., “Glc”, “Gal”). For structures lacking linkage
+information (e.g., “Gal(??-?)GalNAc(??-”), glyanno infers the most
+likely linkages (e.g., “Gal(b1-3)GalNAc(a1-”).
 
 ## Installation
 
-You can install the development version of glyanno from
-[GitHub](https://github.com/) with:
+You can install the development version from GitHub:
 
 ``` r
-# install.packages("pak")
-pak::pak("glycoverse/glyanno")
+remotes::install_github("glycoverse/glyanno")
 ```
+
+## Documentation
+
+-   📚 Reference:
+    [Here](https://glycoverse.github.io/glyanno/reference/index.html)
+
+## Role in `glycoverse`
+
+Glyanno enhances the precision of glycan structures, enabling the use of
+rough mass spectrometry results for detailed structural analysis. For
+instance, the `glyenzy` package requires fully determined glycan
+structures. Users can leverage glyanno to make educated guesses from
+incomplete data, thereby enabling downstream analysis with glyenzy and
+other tools that demand high-resolution structural information.
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-library(glyanno)
-## basic example code
-```
-
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
-
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
-
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+Coming soon!
