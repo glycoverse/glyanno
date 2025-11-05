@@ -1,8 +1,8 @@
 #' Default Mass Dictionary for Glycan Residues
 #'
 #' A named numeric vector of the mass of each monosaccharide residue.
-#' The names are the monosaccharide residues,
-#' including "Hex", "HexNAc", "dHex", "Pent", "NeuAc", "NeuGc", "HexA".
+#' The names are the monosaccharide residues and other necessary ions or molecules,
+#' including "Hex", "HexNAc", "dHex", "Pent", "NeuAc", "NeuGc", "HexA", "H+", "H", "H2O", "K+", "Na+".
 #' The values are the masses in Dalton, with 4 decimal places.
 #'
 #' @param deriv A character scalar of the derivative to use.
@@ -21,7 +21,7 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
   checkmate::assert_choice(deriv, c("none", "permethyl", "peracetyl"))
   checkmate::assert_choice(mass_type, c("mono", "average"))
 
-  switch(paste(deriv, mass_type, sep = "_"),
+  variable_mass <- switch(paste(deriv, mass_type, sep = "_"),
     "none_mono" = c(
       "Hex" = 162.0528,
       "HexNAc" = 203.0794,
@@ -77,4 +77,29 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "HexA" = 260.2005
     )
   )
+
+  fixed_mass <- switch(mass_type,
+    "mono" = c(
+      "H" = 1.00783,
+      "H2O" = 18.01056,
+      "H+" = 1.00727,
+      "K+" = 38.963707,
+      "Na+" = 22.989768,
+      "NH4+" = 18.033823,
+      "Cl-" = 34.96885271,
+      "HCO3-" = 60.98014364
+    ),
+    "average" = c(
+      "H" = 1.00794,
+      "H2O" = 18.01524,
+      "H+" = 1.00739,
+      "K+" = 39.0983,
+      "Na+" = 22.998977,
+      "NH4+" = 18.0385,
+      "Cl-" = 35.453,
+      "HCO3-" = 61.0168
+    )
+  )
+
+  c(fixed_mass, variable_mass)
 }
