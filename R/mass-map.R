@@ -141,3 +141,14 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
 
   c(fixed_mass, variable_mass)
 }
+
+#' Check the validity of a cumstom mass dictionary
+#'
+#' Check if a custom mass dictionary is valid.
+#' @param mass_dict A named numeric vector of the mass of each monosaccharide residue.
+#' @noRd
+.check_custom_mass_dict <- function(mass_dict) {
+  checkmate::assert_numeric(mass_dict)
+  checkmate::assert_named(mass_dict)
+  checkmate::assert_set_equal(names(mass_dict), names(glyanno_mass_dict()))
+}
