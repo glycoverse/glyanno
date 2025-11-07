@@ -19,7 +19,8 @@ A named numeric vector.
 \description{
 A named numeric vector of the mass of each monosaccharide residue.
 The names are the monosaccharide residues and other necessary ions or molecules,
-including "Hex", "HexNAc", "dHex", "Pent", "NeuAc", "NeuGc", "HexA", "H+", "H", "H2O", "K+", "Na+".
+including "Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pent", "HexA", "HexN",
+"NeuAc", "NeuGc", "Kdn", "Neu", "H+", "H", "H2O", "K+", "Na+", "NH4+", "Cl-", "HCO3-".
 The values are the masses in Dalton, with 4 decimal places.
 }
 \examples{

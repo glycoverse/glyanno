@@ -2,7 +2,8 @@
 #'
 #' A named numeric vector of the mass of each monosaccharide residue.
 #' The names are the monosaccharide residues and other necessary ions or molecules,
-#' including "Hex", "HexNAc", "dHex", "Pent", "NeuAc", "NeuGc", "HexA", "H+", "H", "H2O", "K+", "Na+".
+#' including "Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pent", "HexA", "HexN",
+#' "NeuAc", "NeuGc", "Kdn", "Neu", "H+", "H", "H2O", "K+", "Na+", "NH4+", "Cl-", "HCO3-".
 #' The values are the masses in Dalton, with 4 decimal places.
 #'
 #' @param deriv A character scalar of the derivative to use.
@@ -26,55 +27,85 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "Hex" = 162.0528,
       "HexNAc" = 203.0794,
       "dHex" = 146.0579,
+      "dHexNAc" = 187.0798,
+      "ddHex" = 130.0584,
       "Pent" = 132.0423,
+      "HexA" = 176.03209,
+      "HexN" = 143.0536,
       "NeuAc" = 291.0954,
       "NeuGc" = 307.0903,
-      "HexA" = 176.03209
+      "Kdn" = 250.0689,
+      "Neu" = 249.0802
     ),
     "none_average" = c(
       "Hex" = 162.1424,
       "HexNAc" = 203.195,
       "dHex" = 146.143,
+      "dHexNAc" = 187.1948,
+      "ddHex" = 130.1428,
       "Pent" = 132.1161,
+      "HexA" = 176.1259,
+      "HexN" = 143.1452,
       "NeuAc" = 291.2579,
       "NeuGc" = 307.2573,
-      "HexA" = 176.1259
+      "Kdn" = 250.2053,
+      "Neu" = 249.2188
     ),
     "permethyl_mono" = c(
       "Hex" = 204.0998,
       "HexNAc" = 245.1263,
       "dHex" = 174.0892,
+      "dHexNAc" = 215.1111,
+      "ddHex" = 144.074,
       "Pent" = 160.0736,
+      "HexA" = 218.079,
+      "HexN" = 217.1268,
       "NeuAc" = 361.1737,
       "NeuGc" = 391.1842,
-      "HexA" = 218.079
+      "Kdn" = 320.1472,
+      "Neu" = 333.1741
     ),
     "permethyl_average" = c(
       "Hex" = 204.223,
       "HexNAc" = 245.2756,
       "dHex" = 174.1968,
+      "dHexNAc" = 215.2488,
+      "ddHex" = 144.1698,
       "Pent" = 160.1699,
+      "HexA" = 218.2066,
+      "HexN" = 217.2648,
       "NeuAc" = 361.3923,
       "NeuGc" = 391.4186,
-      "HexA" = 218.2066
+      "Kdn" = 320.3397,
+      "Neu" = 333.3808
     ),
     "peracetyl_mono" = c(
       "Hex" = 288.0845,
       "HexNAc" = 287.1005,
       "dHex" = 230.079,
+      "dHexNAc" = 271.101,
+      "ddHex" = 172.0689,
       "Pent" = 216.0634,
+      "HexA" = 260.0532,
+      "HexN" = 329.1064,
       "NeuAc" = 417.1271,
       "NeuGc" = 475.1326,
-      "HexA" = 260.0532
+      "Kdn" = 376.1006,
+      "Neu" = 501.1436
     ),
     "peracetyl_average" = c(
       "Hex" = 288.2542,
       "HexNAc" = 287.2695,
       "dHex" = 230.2176,
+      "dHexNAc" = 271.2688,
+      "ddHex" = 172.1798,
       "Pent" = 216.1907,
+      "HexA" = 260.2005,
+      "HexN" = 329.3048,
       "NeuAc" = 417.3698,
       "NeuGc" = 475.4064,
-      "HexA" = 260.2005
+      "Kdn" = 376.3171,
+      "Neu" = 501.4408
     )
   )
 
