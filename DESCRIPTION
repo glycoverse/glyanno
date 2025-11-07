@@ -21,11 +21,10 @@ RoxygenNote: 7.3.3
 URL: https://glycoverse.github.io/glyanno/
 Imports: 
     checkmate,
+    cli,
     glue,
-    glydb (>= 0.1.0),
     glyparse (>= 0.5.2),
     glyrepr (>= 0.7.5),
-    tibble
+    purrr
 Remotes: 
-    glycoverse/glyparse@*release,
-    glycoverse/glydb@*release
+    glycoverse/glyparse@*release
