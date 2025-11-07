@@ -3,7 +3,7 @@ test_that("glyanno_mass_dict returns correct names", {
   expect_setequal(
     names(result),
     c("Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pent", "HexA", "HexN",
-      "NeuAc", "NeuGc", "Kdn", "Neu", "H+", "H", "H2O", "K+", "Na+", "NH4+", "Cl-", "HCO3-")
+      "NeuAc", "NeuGc", "Kdn", "Neu", "red_end", "H+", "H", "H2O", "K+", "Na+", "NH4+", "Cl-", "HCO3-")
   )
 })
 

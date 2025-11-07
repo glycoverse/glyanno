@@ -3,7 +3,8 @@
 #' A named numeric vector of the mass of each monosaccharide residue.
 #' The names are the monosaccharide residues and other necessary ions or molecules,
 #' including "Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pent", "HexA", "HexN",
-#' "NeuAc", "NeuGc", "Kdn", "Neu", "H+", "H", "H2O", "K+", "Na+", "NH4+", "Cl-", "HCO3-".
+#' "NeuAc", "NeuGc", "Kdn", "Neu", "H+", "H", "H2O", "K+", "Na+", "NH4+", "Cl-", "HCO3-", and "red_end".
+#' "red_end" is the additional mass of the reducing end of the glycan.
 #' The values are the masses in Dalton, with 4 decimal places.
 #'
 #' @param deriv A character scalar of the derivative to use.
@@ -35,7 +36,8 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "NeuAc" = 291.0954,
       "NeuGc" = 307.0903,
       "Kdn" = 250.0689,
-      "Neu" = 249.0802
+      "Neu" = 249.0802,
+      "red_end" = 18.01056
     ),
     "none_average" = c(
       "Hex" = 162.1424,
@@ -49,7 +51,8 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "NeuAc" = 291.2579,
       "NeuGc" = 307.2573,
       "Kdn" = 250.2053,
-      "Neu" = 249.2188
+      "Neu" = 249.2188,
+      "red_end" = 18.01524
     ),
     "permethyl_mono" = c(
       "Hex" = 204.0998,
@@ -63,7 +66,8 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "NeuAc" = 361.1737,
       "NeuGc" = 391.1842,
       "Kdn" = 320.1472,
-      "Neu" = 333.1741
+      "Neu" = 333.1741,
+      "red_end" = 46.0419
     ),
     "permethyl_average" = c(
       "Hex" = 204.223,
@@ -77,7 +81,8 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "NeuAc" = 361.3923,
       "NeuGc" = 391.4186,
       "Kdn" = 320.3397,
-      "Neu" = 333.3808
+      "Neu" = 333.3808,
+      "red_end" = 46.069
     ),
     "peracetyl_mono" = c(
       "Hex" = 288.0845,
@@ -91,7 +96,8 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "NeuAc" = 417.1271,
       "NeuGc" = 475.1326,
       "Kdn" = 376.1006,
-      "Neu" = 501.1436
+      "Neu" = 501.1436,
+      "red_end" = 102.0317
     ),
     "peracetyl_average" = c(
       "Hex" = 288.2542,
@@ -105,7 +111,8 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "NeuAc" = 417.3698,
       "NeuGc" = 475.4064,
       "Kdn" = 376.3171,
-      "Neu" = 501.4408
+      "Neu" = 501.4408,
+      "red_end" = 102.0898
     )
   )
 
