@@ -2,7 +2,7 @@
 #'
 #' A named numeric vector of the mass of each monosaccharide residue.
 #' The names are the monosaccharide residues and other necessary ions or molecules,
-#' including "Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pent", "HexA", "HexN",
+#' including "Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pen", "HexA", "HexN",
 #' "NeuAc", "NeuGc", "Kdn", "Neu", "H+", "H", "H2O", "K+", "Na+", "NH4+", "Cl-", "HCO3-", and "red_end".
 #' "red_end" is the additional mass of the reducing end of the glycan.
 #' The values are the masses in Dalton, with 4 decimal places.
@@ -30,7 +30,7 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "dHex" = 146.0579,
       "dHexNAc" = 187.0798,
       "ddHex" = 130.0584,
-      "Pent" = 132.0423,
+      "Pen" = 132.0423,
       "HexA" = 176.03209,
       "HexN" = 143.0536,
       "NeuAc" = 291.0954,
@@ -45,7 +45,7 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "dHex" = 146.143,
       "dHexNAc" = 187.1948,
       "ddHex" = 130.1428,
-      "Pent" = 132.1161,
+      "Pen" = 132.1161,
       "HexA" = 176.1259,
       "HexN" = 143.1452,
       "NeuAc" = 291.2579,
@@ -60,7 +60,7 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "dHex" = 174.0892,
       "dHexNAc" = 215.1111,
       "ddHex" = 144.074,
-      "Pent" = 160.0736,
+      "Pen" = 160.0736,
       "HexA" = 218.079,
       "HexN" = 217.1268,
       "NeuAc" = 361.1737,
@@ -75,7 +75,7 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "dHex" = 174.1968,
       "dHexNAc" = 215.2488,
       "ddHex" = 144.1698,
-      "Pent" = 160.1699,
+      "Pen" = 160.1699,
       "HexA" = 218.2066,
       "HexN" = 217.2648,
       "NeuAc" = 361.3923,
@@ -90,7 +90,7 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "dHex" = 230.079,
       "dHexNAc" = 271.101,
       "ddHex" = 172.0689,
-      "Pent" = 216.0634,
+      "Pen" = 216.0634,
       "HexA" = 260.0532,
       "HexN" = 329.1064,
       "NeuAc" = 417.1271,
@@ -105,7 +105,7 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "dHex" = 230.2176,
       "dHexNAc" = 271.2688,
       "ddHex" = 172.1798,
-      "Pent" = 216.1907,
+      "Pen" = 216.1907,
       "HexA" = 260.2005,
       "HexN" = 329.3048,
       "NeuAc" = 417.3698,

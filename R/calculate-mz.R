@@ -72,7 +72,7 @@ calculate_mz <- function(
   }
 
   # ===== m/z calculation =====
-  monos <- c("Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pent", "HexA", "HexN", "NeuAc", "NeuGc", "Kdn", "Neu")
+  monos <- c("Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pen", "HexA", "HexN", "NeuAc", "NeuGc", "Kdn", "Neu")
   safe_count_mono <- function(x, mono) {
     counts <- glyrepr::count_mono(x, mono)
     counts[is.na(counts)] <- 0
