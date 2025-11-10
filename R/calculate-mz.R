@@ -73,12 +73,18 @@ calculate_mz <- function(
 
   # ===== m/z calculation =====
   monos <- c("Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pen", "HexA", "HexN", "NeuAc", "NeuGc", "Kdn", "Neu")
-  safe_count_mono <- function(x, mono) {
-    counts <- glyrepr::count_mono(x, mono)
-    counts[is.na(counts)] <- 0
-    counts
+  unsupported_monos <- setdiff(glyrepr::available_monosaccharides("generic"), monos)
+  counts <- purrr::map(monos, ~ glyrepr::count_mono(comps, .))
+  unsupported_counts <- purrr::map(unsupported_monos, ~ glyrepr::count_mono(comps, .))
+  has_unsupported_monos <- purrr::map_int(unsupported_counts, sum) > 0
+  if (any(has_unsupported_monos)) {
+    cli::cli_abort(c(
+      "Unsupported monosaccharides found in the glycans.",
+      "x" = "Unsupported monosaccharides: {.val {unsupported_monos[has_unsupported_monos]}}",
+      "i" = "Supported monosaccharides: {.val {monos}}",
+      "i" = "Use {.fn glyrepr::count_mono} to find the invalid glycans."
+    ))
   }
-  counts <- purrr::map(monos, ~ safe_count_mono(comps, .))
   mono_masses <- purrr::map2(monos, counts, ~ mass_dict[.x] * .y)
   mz <- unname(colSums(do.call(rbind, mono_masses)) + mass_dict[adduct] * abs(charge) + mass_dict["red_end"])
   if (charge != 0) {

@@ -28,6 +28,11 @@ test_that("calculate_mz works for concrete monosaccharides", {
   expect_mass(calculate_mz(comp, charge = 0), 2368.84)
 })
 
+test_that("calculate_mz rejects unsupported monosaccharides", {
+  comp <- glyrepr::glycan_composition(c(Hep = 1, Hex = 1))
+  expect_error(calculate_mz(comp, charge = 0), "Unsupported monosaccharides found in the glycans")
+})
+
 # ===== Test vectorization =====
 test_that("calculate_mz works for vector input", {
   comps <- c("Hex(5)HexNAc(4)dHex(1)NeuAc(2)", "HexNAc(2)Hex(3)")
