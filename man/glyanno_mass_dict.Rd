@@ -18,6 +18,7 @@ A named numeric vector.
 }
 \description{
 A named numeric vector of the mass of each monosaccharide residue.
+Used by default as the \code{mass_dict} argument in \code{\link[=calculate_mz]{calculate_mz()}}.
 The names are the monosaccharide residues and other necessary ions or molecules,
 including "Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pen", "HexA", "HexN",
 "NeuAc", "NeuGc", "Kdn", "Neu", "H+", "H", "H2O", "K+", "Na+", "NH4+", "H-", "Cl-", "HCO3-", and "red_end".
