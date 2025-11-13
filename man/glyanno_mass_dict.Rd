@@ -7,7 +7,7 @@
 glyanno_mass_dict(deriv = "none", mass_type = "mono")
 }
 \arguments{
-\item{deriv}{A character scalar of the derivative to use.
+\item{deriv}{A character scalar of the derivatization method to use.
 Can be "none", "permethyl", or "peracetyl". Default is "none".}
 
 \item{mass_type}{"mono" for monoisotopic mass, "average" for average mass.
@@ -19,11 +19,14 @@ A named numeric vector.
 \description{
 A named numeric vector of the mass of each monosaccharide residue.
 Used by default as the \code{mass_dict} argument in \code{\link[=calculate_mz]{calculate_mz()}}.
-The names are the monosaccharide residues and other necessary ions or molecules,
-including "Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pen", "HexA", "HexN",
-"NeuAc", "NeuGc", "Kdn", "Neu", "H+", "H", "H2O", "K+", "Na+", "NH4+", "H-", "Cl-", "HCO3-", and "red_end".
-"red_end" is the additional mass of the reducing end of the glycan.
-The values are the masses in Dalton, with 4 decimal places.
+
+The names includes:
+\itemize{
+\item Monosaccharides: Hex, HexNAc, dHex, dHexNAc, ddHex, Pen, HexA, HexN, NeuAc, NeuGc, Kdn, Neu
+\item Ions: H+, H, H2O, K+, Na+, NH4+, H-, Cl-, HCO3-
+\item Substituents: S, P
+\item Reducing end: red_end, which is the additional mass of the reducing end of the glycan.
+}
 }
 \examples{
 glyanno_mass_dict(deriv = "none", mass_type = "mono")
