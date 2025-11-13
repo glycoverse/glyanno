@@ -3,7 +3,7 @@
 #' A named numeric vector of the mass of each monosaccharide residue.
 #' The names are the monosaccharide residues and other necessary ions or molecules,
 #' including "Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pen", "HexA", "HexN",
-#' "NeuAc", "NeuGc", "Kdn", "Neu", "H+", "H", "H2O", "K+", "Na+", "NH4+", "Cl-", "HCO3-", and "red_end".
+#' "NeuAc", "NeuGc", "Kdn", "Neu", "H+", "H", "H2O", "K+", "Na+", "NH4+", "H-", "Cl-", "HCO3-", and "red_end".
 #' "red_end" is the additional mass of the reducing end of the glycan.
 #' The values are the masses in Dalton, with 4 decimal places.
 #'
@@ -118,12 +118,13 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
 
   fixed_mass <- switch(mass_type,
     "mono" = c(
-      "H" = 1.00783,
+      "H" = 1.00728,
       "H2O" = 18.01056,
       "H+" = 1.00727,
       "K+" = 38.963707,
       "Na+" = 22.989768,
       "NH4+" = 18.033823,
+      "H-" = -1.00728,
       "Cl-" = 34.96885271,
       "HCO3-" = 60.98014364
     ),
@@ -134,6 +135,7 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "K+" = 39.0983,
       "Na+" = 22.998977,
       "NH4+" = 18.0385,
+      "H-" = -1.00794,
       "Cl-" = 35.453,
       "HCO3-" = 61.0168
     )

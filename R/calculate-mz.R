@@ -9,11 +9,11 @@
 #'   Byonic style composition strings (e.g. Hex(5)HexNAc(2)),
 #'   and any structure strings supported by [glyparse::auto_parse()].
 #' @param charge Charge to use. Can be 0, 1, 2, 3, -1, -2, -3, etc. 0 means neutral. Default is 1.
-#' @param adduct Adduct to use. Can be "H+", "K+", "Na+", "NH4+", "Cl-", "HCO3-".
+#' @param adduct Adduct to use. Can be "H+", "K+", "Na+", "NH4+", "H-", "Cl-", "HCO3-".
 #'   Default is "H+".
 #'   - When `charge` is 0, `adduct` is ignored.
 #'   - When `charge` is positive, `adduct` can only be "H+", "K+", "Na+", "NH4+".
-#'   - When `charge` is negative, `adduct` can only be "Cl-", "HCO3-".
+#'   - When `charge` is negative, `adduct` can only be "H-", "Cl-", "HCO3-".
 #' @param mass_dict A named numeric vector of the mass of each monosaccharide residue.
 #'   Default is `glyanno_mass_dict(deriv = "none", mass_type = "mono")`.
 #'   If a custom mass dictionary is provided,
@@ -61,8 +61,8 @@ calculate_mz <- function(
       cli::cli_abort("When {.arg charge} is positive, {.arg adduct} can only be 'H+', 'K+', 'Na+', or 'NH4+'.")
     }
   } else if (charge < 0) {
-    if (!checkmate::test_choice(adduct, c("Cl-", "HCO3-"))) {
-      cli::cli_abort("When {.arg charge} is negative, {.arg adduct} can only be 'Cl-' or 'HCO3-'.")
+    if (!checkmate::test_choice(adduct, c("H-", "Cl-", "HCO3-"))) {
+      cli::cli_abort("When {.arg charge} is negative, {.arg adduct} can only be 'H-', 'Cl-', or 'HCO3-'.")
     }
   }
   if (!is.null(mass_dict)) {

@@ -14,12 +14,12 @@ and any structure strings supported by \code{\link[glyparse:auto_parse]{glyparse
 
 \item{charge}{Charge to use. Can be 0, 1, 2, 3, -1, -2, -3, etc. 0 means neutral. Default is 1.}
 
-\item{adduct}{Adduct to use. Can be "H+", "K+", "Na+", "NH4+", "Cl-", "HCO3-".
+\item{adduct}{Adduct to use. Can be "H+", "K+", "Na+", "NH4+", "H-", "Cl-", "HCO3-".
 Default is "H+".
 \itemize{
 \item When \code{charge} is 0, \code{adduct} is ignored.
 \item When \code{charge} is positive, \code{adduct} can only be "H+", "K+", "Na+", "NH4+".
-\item When \code{charge} is negative, \code{adduct} can only be "Cl-", "HCO3-".
+\item When \code{charge} is negative, \code{adduct} can only be "H-", "Cl-", "HCO3-".
 }}
 
 \item{mass_dict}{A named numeric vector of the mass of each monosaccharide residue.

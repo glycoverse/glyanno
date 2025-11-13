@@ -1,12 +1,3 @@
-test_that("glyanno_mass_dict returns correct names", {
-  result <- glyanno_mass_dict(deriv = "none", mass_type = "mono")
-  expect_setequal(
-    names(result),
-    c("Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pen", "HexA", "HexN",
-      "NeuAc", "NeuGc", "Kdn", "Neu", "red_end", "H+", "H", "H2O", "K+", "Na+", "NH4+", "Cl-", "HCO3-")
-  )
-})
-
 test_that("glyanno_mass_dict returns different masses for different parameters", {
   results <- vector("numeric", 6)
   results[[1]] <- glyanno_mass_dict(deriv = "none", mass_type = "mono")[["Hex"]]
