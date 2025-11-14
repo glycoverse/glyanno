@@ -4,7 +4,7 @@
 \alias{calculate_mz}
 \title{Calculate m/z values of glycans}
 \usage{
-calculate_mz(glycans, charge = 1, adduct = "H+", mass_dict = NULL)
+calculate_mz(glycans, charge = 1, adduct = "H+", mass_dict = NULL, safe = TRUE)
 }
 \arguments{
 \item{glycans}{Glycans to calculate m/z values from.
@@ -26,6 +26,12 @@ Default is "H+".
 Default is \code{glyanno_mass_dict(deriv = "none", mass_type = "mono")}.
 If a custom mass dictionary is provided,
 please make sure the names of the vector are the same as the names in \code{\link[=glyanno_mass_dict]{glyanno_mass_dict()}}.}
+
+\item{safe}{Whether to raise an error when unsupported monosaccharides or substituents are found.
+\itemize{
+\item If \code{TRUE} (default), an error will be raised.
+\item If \code{FALSE}, a warning will be raised and m/z values for invalid glycans will be set to NA.
+}}
 }
 \value{
 A numeric vector of m/z values.

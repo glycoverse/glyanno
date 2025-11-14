@@ -30,7 +30,16 @@ test_that("calculate_mz works for concrete monosaccharides", {
 
 test_that("calculate_mz rejects unsupported monosaccharides", {
   comp <- glyrepr::glycan_composition(c(Hep = 1, Hex = 1))
-  expect_error(calculate_mz(comp, charge = 0), "Unsupported monosaccharides found in the glycans")
+  expect_error(calculate_mz(comp, charge = 0), "Unsupported monosaccharides or substituents found in the glycans")
+})
+
+test_that("calculate_mz works for unsupported monosaccharides with safe = FALSE", {
+  comp <- glyrepr::glycan_composition(c(Hep = 1), c(Hex = 5, HexNAc = 4, dHex = 1, NeuAc = 2))
+  expect_warning(
+    result <- calculate_mz(comp, charge = 0, safe = FALSE),
+    "Unsupported monosaccharides or substituents found in the glycans"
+  )
+  expect_mass(result, c(NA, 2368.84))
 })
 
 # ===== Test vectorization =====
@@ -52,7 +61,16 @@ test_that("calculate_mz works for structures with substituents", {
 
 test_that("calculate_mz rejects unsupported substituents", {
   comp <- glyrepr::glycan_composition(c(Glc = 1, Ac = 1))
-  expect_error(calculate_mz(comp, charge = 0), "Unsupported substituents found in the glycans")
+  expect_error(calculate_mz(comp, charge = 0), "Unsupported monosaccharides or substituents found in the glycans")
+})
+
+test_that("calculate_mz works for unsupported substituents with safe = FALSE", {
+  comp <- glyrepr::glycan_composition(c(Glc = 1, Ac = 1))
+  expect_warning(
+    result <- calculate_mz(comp, charge = 0, safe = FALSE),
+    "Unsupported monosaccharides or substituents found in the glycans"
+  )
+  expect_mass(result, NA_real_)
 })
 
 # ===== Test derivization and mass type =====

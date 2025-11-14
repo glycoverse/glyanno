@@ -18,6 +18,9 @@
 #'   Default is `glyanno_mass_dict(deriv = "none", mass_type = "mono")`.
 #'   If a custom mass dictionary is provided,
 #'   please make sure the names of the vector are the same as the names in [glyanno_mass_dict()].
+#' @param safe Whether to raise an error when unsupported monosaccharides or substituents are found.
+#'   - If `TRUE` (default), an error will be raised.
+#'   - If `FALSE`, a warning will be raised and m/z values for invalid glycans will be set to NA.
 #'
 #' @returns A numeric vector of m/z values.
 #' @seealso [glyanno_mass_dict()]
@@ -51,7 +54,8 @@ calculate_mz <- function(
   glycans,
   charge = 1,
   adduct = "H+",
-  mass_dict = NULL
+  mass_dict = NULL,
+  safe = TRUE
 ) {
   # ===== Argument processing =====
   comps <- .ensure_glycan_composition(glycans)
@@ -68,26 +72,26 @@ calculate_mz <- function(
   counts <- purrr::map(c(monos, subs), ~ glyrepr::count_mono(comps, .))
 
   bad_monos <- setdiff(glyrepr::available_monosaccharides("generic"), monos)
-  bad_mono_counts <- purrr::map(bad_monos, ~ glyrepr::count_mono(comps, .))
-  has_bad_monos <- purrr::map_int(bad_mono_counts, sum) > 0
-  if (any(has_bad_monos)) {
-    cli::cli_abort(c(
-      "Unsupported monosaccharides found in the glycans.",
-      "x" = "Unsupported monosaccharides: {.val {bad_monos[has_bad_monos]}}",
-      "i" = "Supported monosaccharides: {.val {monos}}",
-      "i" = "Use {.fn glyrepr::count_mono} to find the invalid glycans."
-    ))
-  }
-
   bad_subs <- setdiff(glyrepr::available_substituents(), subs)
-  bad_sub_counts <- purrr::map(bad_subs, ~ glyrepr::count_mono(comps, .))
-  has_bad_subs <- purrr::map_int(bad_sub_counts, sum) > 0
-  if (any(has_bad_subs)) {
-    cli::cli_abort(c(
-      "Unsupported substituents found in the glycans.",
-      "x" = "Unsupported substituents: {.val {bad_subs[has_bad_subs]}}",
-      "i" = "Supported substituents: {.val {subs}}",
-      "i" = "Use {.fn glyrepr::count_mono} to find the invalid glycans."
+  bad_components <- c(bad_monos, bad_subs)
+  bad_component_counts <- purrr::map(bad_components, ~ glyrepr::count_mono(comps, .))
+  if (safe) {
+    has_bad_components <- purrr::map_int(bad_component_counts, sum) > 0
+    if (any(has_bad_components)) {
+      cli::cli_abort(c(
+        "Unsupported monosaccharides or substituents found in the glycans.",
+        "x" = "Unsupported monosaccharides or substituents: {.val {bad_components[has_bad_components]}}",
+        "i" = "Supported monosaccharides or substituents: {.val {c(monos, subs)}}",
+        "i" = "Use {.fn glyrepr::count_mono} to find the invalid glycans."
+      ))
+    }
+  } else {
+    cli::cli_warn(c(
+      "Unsupported monosaccharides or substituents found in the glycans.",
+      "x" = "Unsupported monosaccharides or substituents: {.val {bad_components}}",
+      "i" = "Supported monosaccharides or substituents: {.val {c(monos, subs)}}",
+      "i" = "Use {.fn glyrepr::count_mono} to find the invalid glycans.",
+      "i" = "m/z values for invalid glycans are set to NA."
     ))
   }
 
@@ -95,6 +99,9 @@ calculate_mz <- function(
   mz <- unname(colSums(do.call(rbind, mono_masses)) + mass_dict[adduct] * abs(charge) + mass_dict["red_end"])
   if (charge != 0) {
     mz <- mz / abs(charge)
+  }
+  if (!safe) {
+    mz[rowSums(do.call(cbind, bad_component_counts)) > 0] <- NA
   }
   mz
 }
