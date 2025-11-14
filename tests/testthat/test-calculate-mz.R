@@ -39,6 +39,22 @@ test_that("calculate_mz works for vector input", {
   expect_mass(calculate_mz(comps, charge = 0), c(2368.84, 910.33))
 })
 
+# ===== Test substituents =====
+test_that("calculate_mz works for compositions with substituents", {
+  comp <- glyrepr::glycan_composition(c(Glc = 1, S = 1))
+  expect_mass(calculate_mz(comp, charge = 0), 260.02)
+})
+
+test_that("calculate_mz works for structures with substituents", {
+  struc <- glyrepr::as_glycan_structure("Glc6S(a1-")
+  expect_mass(calculate_mz(struc, charge = 0), 260.02)
+})
+
+test_that("calculate_mz rejects unsupported substituents", {
+  comp <- glyrepr::glycan_composition(c(Glc = 1, Ac = 1))
+  expect_error(calculate_mz(comp, charge = 0), "Unsupported substituents found in the glycans")
+})
+
 # ===== Test derivization and mass type =====
 test_that("calculate_mz works for permethylated glycans", {
   mz <- calculate_mz("HexNAc(2)Hex(3)", charge = 0, mass_dict = glyanno_mass_dict(deriv = "permethyl"))

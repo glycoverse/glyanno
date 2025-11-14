@@ -72,20 +72,35 @@ calculate_mz <- function(
   }
 
   # ===== m/z calculation =====
-  monos <- c("Hex", "HexNAc", "dHex", "dHexNAc", "ddHex", "Pen", "HexA", "HexN", "NeuAc", "NeuGc", "Kdn", "Neu")
-  unsupported_monos <- setdiff(glyrepr::available_monosaccharides("generic"), monos)
-  counts <- purrr::map(monos, ~ glyrepr::count_mono(comps, .))
-  unsupported_counts <- purrr::map(unsupported_monos, ~ glyrepr::count_mono(comps, .))
-  has_unsupported_monos <- purrr::map_int(unsupported_counts, sum) > 0
-  if (any(has_unsupported_monos)) {
+  monos <- intersect(glyrepr::available_monosaccharides("generic"), names(mass_dict))
+  subs <- intersect(glyrepr::available_substituents(), names(mass_dict))
+  counts <- purrr::map(c(monos, subs), ~ glyrepr::count_mono(comps, .))
+
+  bad_monos <- setdiff(glyrepr::available_monosaccharides("generic"), monos)
+  bad_mono_counts <- purrr::map(bad_monos, ~ glyrepr::count_mono(comps, .))
+  has_bad_monos <- purrr::map_int(bad_mono_counts, sum) > 0
+  if (any(has_bad_monos)) {
     cli::cli_abort(c(
       "Unsupported monosaccharides found in the glycans.",
-      "x" = "Unsupported monosaccharides: {.val {unsupported_monos[has_unsupported_monos]}}",
+      "x" = "Unsupported monosaccharides: {.val {bad_monos[has_bad_monos]}}",
       "i" = "Supported monosaccharides: {.val {monos}}",
       "i" = "Use {.fn glyrepr::count_mono} to find the invalid glycans."
     ))
   }
-  mono_masses <- purrr::map2(monos, counts, ~ mass_dict[.x] * .y)
+
+  bad_subs <- setdiff(glyrepr::available_substituents(), subs)
+  bad_sub_counts <- purrr::map(bad_subs, ~ glyrepr::count_mono(comps, .))
+  has_bad_subs <- purrr::map_int(bad_sub_counts, sum) > 0
+  if (any(has_bad_subs)) {
+    cli::cli_abort(c(
+      "Unsupported substituents found in the glycans.",
+      "x" = "Unsupported substituents: {.val {bad_subs[has_bad_subs]}}",
+      "i" = "Supported substituents: {.val {subs}}",
+      "i" = "Use {.fn glyrepr::count_mono} to find the invalid glycans."
+    ))
+  }
+
+  mono_masses <- purrr::map2(c(monos, subs), counts, ~ mass_dict[.x] * .y)
   mz <- unname(colSums(do.call(rbind, mono_masses)) + mass_dict[adduct] * abs(charge) + mass_dict["red_end"])
   if (charge != 0) {
     mz <- mz / abs(charge)
