@@ -55,16 +55,7 @@ calculate_mz <- function(
 ) {
   # ===== Argument processing =====
   comps <- .ensure_glycan_composition(glycans)
-  checkmate::assert_int(charge)
-  if (charge > 0) {
-    if (!checkmate::test_choice(adduct, c("H+", "K+", "Na+", "NH4+"))) {
-      cli::cli_abort("When {.arg charge} is positive, {.arg adduct} can only be 'H+', 'K+', 'Na+', or 'NH4+'.")
-    }
-  } else if (charge < 0) {
-    if (!checkmate::test_choice(adduct, c("H-", "Cl-", "HCO3-"))) {
-      cli::cli_abort("When {.arg charge} is negative, {.arg adduct} can only be 'H-', 'Cl-', or 'HCO3-'.")
-    }
-  }
+  .check_charge_and_adduct(charge, adduct)
   if (!is.null(mass_dict)) {
     .check_custom_mass_dict(mass_dict)
   } else {
@@ -106,6 +97,19 @@ calculate_mz <- function(
     mz <- mz / abs(charge)
   }
   mz
+}
+
+.check_charge_and_adduct <- function(charge, adduct) {
+  checkmate::assert_int(charge)
+  if (charge > 0) {
+    if (!checkmate::test_choice(adduct, c("H+", "K+", "Na+", "NH4+"))) {
+      cli::cli_abort("When {.arg charge} is positive, {.arg adduct} can only be 'H+', 'K+', 'Na+', or 'NH4+'.")
+    }
+  } else if (charge < 0) {
+    if (!checkmate::test_choice(adduct, c("H-", "Cl-", "HCO3-"))) {
+      cli::cli_abort("When {.arg charge} is negative, {.arg adduct} can only be 'H-', 'Cl-', or 'HCO3-'.")
+    }
+  }
 }
 
 #' Ensure the glycans is a [glyrepr::glycan_composition()]
