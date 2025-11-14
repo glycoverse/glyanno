@@ -8,15 +8,16 @@
 #' @param mz A numeric vector of m/z values.
 #' @param tol A numeric scalar of the tolerance for the m/z value in Da or a [ppm()] object for dynamic tolerance.
 #'   Default is `ppm(10)`.
-#' @param method A character scalar of the method to use. Can be "denovo" or "database".
-#'   If "denovo", compositions with generic monosaccharides (e.g. "Hex", "HexNAc") will be returned.
-#'   If "database", compositions with concrete monosaccharides (e.g. "Glc", "Gal") will be returned.
-#'   Default is "database".
+#' @param method A character scalar of the method to use. Can be "denovo" or "database". Default is "database".
+#' @param db A [glyrepr::glycan_composition()] vector of glycan compositions to match against.
+#'   If not provided, unique generic glycan compositions (e.g., Hex(5)HexNAc(2), Hex(5)HexNAc(4)dHex(2))
+#'   in [glydb::fully_determined_glycans] will be used.
+#'   Only used when `method` is "database".
 #' @inheritParams calculate_mz
 #'
 #' @returns A tibble with the following columns:
 #'   - `mass`: The molecule mass.
-#'   - `composition`: The possible glycan compositions, as [glyrepr::glycan_composition()] objects.
+#'   - `composition`: The possible glycan compositions, as [glyrepr::glycan_composition()] vector.
 #'   Note that one mass value can have multiple rows in the result,
 #'   corresponding to different possible glycan compositions.
 #'
@@ -29,6 +30,7 @@ mz_to_comp <- function(
   mz,
   tol = ppm(10),
   method = "database",
+  db = NULL,
   charge = 1,
   adduct = "H+",
   mass_dict = NULL
@@ -39,6 +41,7 @@ mz_to_comp <- function(
     checkmate::check_class(tol, "ppm"),
     combine = "or"
   )
+  checkmate::assert_class(db, "glyrepr_composition", null.ok = TRUE)
   .check_charge_and_adduct(charge, adduct)
   checkmate::assert_choice(method, c("denovo", "database"))
   if (!is.null(mass_dict)) {
@@ -49,7 +52,7 @@ mz_to_comp <- function(
 
   res <- switch(method,
     "denovo" = .mz_to_comp_denovo(mz, tol, charge, adduct, mass_dict),
-    "database" = .mz_to_comp_database(mz, tol, charge, adduct, mass_dict)
+    "database" = .mz_to_comp_database(mz, tol, db, charge, adduct, mass_dict)
   )
   res
 }
@@ -58,8 +61,24 @@ mz_to_comp <- function(
   stop("Not implemented")
 }
 
-.mz_to_comp_database <- function(mz, tol, charge, adduct, mass_dict) {
-  db <- .mz_comp_db(charge, adduct, mass_dict) |>
+.mz_to_comp_database <- function(mz, tol, db, charge, adduct, mass_dict) {
+  if (is.null(db)) {
+    comps <- unique(glyrepr::convert_to_generic(glydb::fully_determined_glycans$glycan_composition))
+    suppressWarnings(db_mz <- calculate_mz(comps, charge = charge, adduct = adduct, mass_dict = mass_dict, safe = FALSE))
+  } else {
+    comps <- unique(db)
+    suppressWarnings(db_mz <- calculate_mz(comps, charge = charge, adduct = adduct, mass_dict = mass_dict, safe = FALSE))
+    na_count <- sum(is.na(db_mz))
+    if (na_count > 0) {
+      cli::cli_warn(c(
+        "Cannot calculate m/z values for {.val {na_count}} glycans in the database.",
+        "i" = "They will be dropped before matching."
+      ))
+    }
+  }
+  comps <- comps[!is.na(db_mz)]
+  db_mz <- db_mz[!is.na(db_mz)]
+  db_df <- tibble::tibble(composition = comps, mz = db_mz) |>
     dplyr::mutate(
       tol = ifelse(is.numeric(.env$tol), .env$tol, .env$tol(.data$mz)),
       upper = .data$mz + .data$tol,
@@ -67,31 +86,9 @@ mz_to_comp <- function(
     )
 
   find_one <- function(mz) {
-    dplyr::filter(db, .env$mz > .data$lower & .env$mz < .data$upper)
+    dplyr::filter(db_df, .env$mz > .data$lower & .env$mz < .data$upper)
   }
 
   purrr::list_rbind(purrr::map(mz, find_one)) |>
     dplyr::select(all_of(c("composition", "mz")))
-}
-
-#' Database of glycan compositions
-#'
-#' A refined version of `glydb::fully_determined_glycans`.
-#' Used in `mz_to_comp_database()`.
-#'
-#' @param charge The charge.
-#' @param adduct The adduct.
-#' @param mass_dict The mass dictionary.
-#'
-#' @returns A tibble with the following columns:
-#'   - `mz`: The m/z value.
-#'   - `composition`: The glycan composition.
-#'
-#' @noRd
-.mz_comp_db <- function(charge, adduct, mass_dict) {
-  comps <- unique(glydb::fully_determined_glycans$glycan_composition)
-  generic_comps <- glyrepr::convert_to_generic(comps)
-  suppressWarnings(mz <- calculate_mz(generic_comps, charge = charge, adduct = adduct, mass_dict = mass_dict, safe = FALSE))
-  tibble::tibble(composition = comps, mz = mz) |>
-    dplyr::filter(!is.na(mz))
 }
