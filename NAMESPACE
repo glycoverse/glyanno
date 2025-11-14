@@ -3,4 +3,8 @@
 S3method(print,ppm)
 export(calculate_mz)
 export(glyanno_mass_dict)
+export(mz_to_comp)
 export(ppm)
+importFrom(rlang,.data)
+importFrom(rlang,.env)
+importFrom(tidyselect,all_of)

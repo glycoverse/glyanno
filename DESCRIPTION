@@ -22,9 +22,13 @@ URL: https://glycoverse.github.io/glyanno/
 Imports: 
     checkmate,
     cli,
+    dplyr,
     glue,
     glyparse (>= 0.5.2),
     glyrepr (>= 0.7.5),
-    purrr
+    memoise,
+    purrr,
+    rlang,
+    tidyselect
 Remotes: 
     glycoverse/glyparse@*release
