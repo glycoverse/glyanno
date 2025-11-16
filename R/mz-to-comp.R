@@ -10,8 +10,7 @@
 #'   Default is `ppm(10)`.
 #' @param method A character scalar of the method to use. Can be "denovo" or "database". Default is "database".
 #' @param db A [glyrepr::glycan_composition()] vector of glycan compositions to match against.
-#'   If not provided, unique generic glycan compositions (e.g., Hex(5)HexNAc(2), Hex(5)HexNAc(4)dHex(2))
-#'   in [glydb::fully_determined_glycans] will be used.
+#'   If not provided, `glydb::glydb_compositions(mono_type = "concrete")` will be used.
 #'   Only used when `method` is "database".
 #' @inheritParams calculate_mz
 #'
@@ -63,7 +62,7 @@ mz_to_comp <- function(
 
 .mz_to_comp_database <- function(mz, tol, db, charge, adduct, mass_dict) {
   if (is.null(db)) {
-    comps <- unique(glyrepr::convert_to_generic(glydb::fully_determined_glycans$glycan_composition))
+    comps <- glydb::glydb_compositions(mono_type = "concrete")
     suppressWarnings(db_mz <- calculate_mz(comps, charge = charge, adduct = adduct, mass_dict = mass_dict, safe = FALSE))
   } else {
     comps <- unique(db)

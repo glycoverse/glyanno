@@ -26,9 +26,11 @@ Imports:
     glue,
     glyparse (>= 0.5.2),
     glyrepr (>= 0.7.5),
+    glydb (>= 0.2.0),
     memoise,
     purrr,
     rlang,
     tidyselect
 Remotes: 
-    glycoverse/glyparse@*release
+    glycoverse/glyparse@*release,
+    glycoverse/glydb@*release

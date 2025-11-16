@@ -8,6 +8,7 @@ mz_to_comp(
   mz,
   tol = ppm(10),
   method = "database",
+  db = NULL,
   charge = 1,
   adduct = "H+",
   mass_dict = NULL
@@ -19,10 +20,11 @@ mz_to_comp(
 \item{tol}{A numeric scalar of the tolerance for the m/z value in Da or a \code{\link[=ppm]{ppm()}} object for dynamic tolerance.
 Default is \code{ppm(10)}.}
 
-\item{method}{A character scalar of the method to use. Can be "denovo" or "database".
-If "denovo", compositions with generic monosaccharides (e.g. "Hex", "HexNAc") will be returned.
-If "database", compositions with concrete monosaccharides (e.g. "Glc", "Gal") will be returned.
-Default is "database".}
+\item{method}{A character scalar of the method to use. Can be "denovo" or "database". Default is "database".}
+
+\item{db}{A \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector of glycan compositions to match against.
+If not provided, \code{glydb::glydb_compositions(mono_type = "concrete")} will be used.
+Only used when \code{method} is "database".}
 
 \item{charge}{Charge to use. Can be 0, 1, 2, 3, -1, -2, -3, etc. 0 means neutral. Default is 1.}
 
@@ -43,7 +45,7 @@ please make sure the names of the vector are the same as the names in \code{\lin
 A tibble with the following columns:
 \itemize{
 \item \code{mass}: The molecule mass.
-\item \code{composition}: The possible glycan compositions, as \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} objects.
+\item \code{composition}: The possible glycan compositions, as \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector.
 Note that one mass value can have multiple rows in the result,
 corresponding to different possible glycan compositions.
 }
