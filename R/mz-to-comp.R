@@ -5,7 +5,9 @@
 #' @param mz A numeric vector of m/z values.
 #' @param tol A numeric scalar of the tolerance for the m/z value in Da or a [ppm()] object for dynamic tolerance.
 #'   Default is `ppm(10)`.
-#' @param db A [glyrepr::glycan_composition()] vector of glycan compositions to match against.
+#' @param db Glycan compositions to match against.
+#'   Can be a [glyrepr::glycan_composition()] vector or glycan composition strings
+#'   in Byonic style (e.g. Hex(5)HexNAc(2)) or simple style (e.g. H5N4F1S1).
 #'   If not provided, `glydb::glydb_compositions(mono_type = "concrete")` will be used.
 #' @inheritParams calculate_mz
 #'
@@ -38,7 +40,7 @@ mz_to_comp <- function(
     checkmate::check_class(tol, "ppm"),
     combine = "or"
   )
-  checkmate::assert_class(db, "glyrepr_composition", null.ok = TRUE)
+  db <- .ensure_glycan_composition(db, allow_structure = FALSE)
   .check_charge_and_adduct(charge, adduct)
   if (!is.null(mass_dict)) {
     .check_custom_mass_dict(mass_dict)

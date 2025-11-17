@@ -19,7 +19,9 @@ mz_to_comp(
 \item{tol}{A numeric scalar of the tolerance for the m/z value in Da or a \code{\link[=ppm]{ppm()}} object for dynamic tolerance.
 Default is \code{ppm(10)}.}
 
-\item{db}{A \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector of glycan compositions to match against.
+\item{db}{Glycan compositions to match against.
+Can be a \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector or glycan composition strings
+in Byonic style (e.g. Hex(5)HexNAc(2)) or simple style (e.g. H5N4F1S1).
 If not provided, \code{glydb::glydb_compositions(mono_type = "concrete")} will be used.}
 
 \item{charge}{Charge to use. Can be 0, 1, 2, 3, -1, -2, -3, etc. 0 means neutral. Default is 1.}
