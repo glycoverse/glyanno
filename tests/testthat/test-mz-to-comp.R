@@ -125,7 +125,3 @@ test_that("mz_to_comp rejects wrong input types", {
   expect_error(mz_to_comp(365, db = simple_db, method = "wrong"))
   expect_error(mz_to_comp(365, db = simple_db, mass_dict = c("Hex" = 1)))
 })
-
-test_that("de-novo method is not implemented for mz_to_comp yet", {
-  expect_error(mz_to_comp(365, method = "denovo"), "Not implemented")
-})

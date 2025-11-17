@@ -1,17 +1,12 @@
 #' Convert m/z values to glycan composition
 #'
-#' Given m/z values, this function calculates all possible glycan compositions.
-#' Two methods are supported: "denovo" and "database".
-#' The "denovo" method uses residues masses to calculate all possible glycan compositions.
-#' The "database" method matches the m/z value to the glycan composition in `glydb`.
+#' Given m/z values, this function matches them to all possible glycan compositions in the `glydb` database.
 #'
 #' @param mz A numeric vector of m/z values.
 #' @param tol A numeric scalar of the tolerance for the m/z value in Da or a [ppm()] object for dynamic tolerance.
 #'   Default is `ppm(10)`.
-#' @param method A character scalar of the method to use. Can be "denovo" or "database". Default is "database".
 #' @param db A [glyrepr::glycan_composition()] vector of glycan compositions to match against.
 #'   If not provided, `glydb::glydb_compositions(mono_type = "concrete")` will be used.
-#'   Only used when `method` is "database".
 #' @inheritParams calculate_mz
 #'
 #' @returns A tibble with the following columns:
@@ -28,7 +23,6 @@
 mz_to_comp <- function(
   mz,
   tol = ppm(10),
-  method = "database",
   db = NULL,
   charge = 1,
   adduct = "H+",
@@ -46,22 +40,13 @@ mz_to_comp <- function(
   )
   checkmate::assert_class(db, "glyrepr_composition", null.ok = TRUE)
   .check_charge_and_adduct(charge, adduct)
-  checkmate::assert_choice(method, c("denovo", "database"))
   if (!is.null(mass_dict)) {
     .check_custom_mass_dict(mass_dict)
   } else {
     mass_dict <- glyanno_mass_dict(deriv = "none", mass_type = "mono")
   }
 
-  res <- switch(method,
-    "denovo" = .mz_to_comp_denovo(mz, tol, charge, adduct, mass_dict),
-    "database" = .mz_to_comp_database(mz, tol, db, charge, adduct, mass_dict)
-  )
-  res
-}
-
-.mz_to_comp_denovo <- function(mz, tol, charge, adduct, mass_dict) {
-  stop("Not implemented")
+  .mz_to_comp_database(mz, tol, db, charge, adduct, mass_dict)
 }
 
 .mz_to_comp_database <- function(mz, tol, db, charge, adduct, mass_dict) {

@@ -7,7 +7,6 @@
 mz_to_comp(
   mz,
   tol = ppm(10),
-  method = "database",
   db = NULL,
   charge = 1,
   adduct = "H+",
@@ -20,11 +19,8 @@ mz_to_comp(
 \item{tol}{A numeric scalar of the tolerance for the m/z value in Da or a \code{\link[=ppm]{ppm()}} object for dynamic tolerance.
 Default is \code{ppm(10)}.}
 
-\item{method}{A character scalar of the method to use. Can be "denovo" or "database". Default is "database".}
-
 \item{db}{A \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector of glycan compositions to match against.
-If not provided, \code{glydb::glydb_compositions(mono_type = "concrete")} will be used.
-Only used when \code{method} is "database".}
+If not provided, \code{glydb::glydb_compositions(mono_type = "concrete")} will be used.}
 
 \item{charge}{Charge to use. Can be 0, 1, 2, 3, -1, -2, -3, etc. 0 means neutral. Default is 1.}
 
@@ -51,10 +47,7 @@ corresponding to different possible glycan compositions.
 }
 }
 \description{
-Given m/z values, this function calculates all possible glycan compositions.
-Two methods are supported: "denovo" and "database".
-The "denovo" method uses residues masses to calculate all possible glycan compositions.
-The "database" method matches the m/z value to the glycan composition in \code{glydb}.
+Given m/z values, this function matches them to all possible glycan compositions in the \code{glydb} database.
 }
 \examples{
 mz_to_comp(2368.84)
