@@ -15,9 +15,9 @@
 #' @inheritParams calculate_mz
 #'
 #' @returns A tibble with the following columns:
-#'   - `mass`: The molecule mass.
+#'   - `mz`: The molecule m/z values, same as the input `mz`.
 #'   - `composition`: The possible glycan compositions, as [glyrepr::glycan_composition()] vector.
-#'   Note that one mass value can have multiple rows in the result,
+#'   Note that one m/z value can have multiple rows in the result,
 #'   corresponding to different possible glycan compositions.
 #'
 #' @examples
@@ -35,6 +35,10 @@ mz_to_comp <- function(
   mass_dict = NULL
 ) {
   checkmate::assert_numeric(mz)
+  mz <- mz[!is.na(mz)]
+  if (length(mz) == 0) {
+    return(tibble::tibble(mz = numeric(0), composition = glyrepr::glycan_composition()))
+  }
   checkmate::assert(
     checkmate::check_number(tol),
     checkmate::check_class(tol, "ppm"),
@@ -85,9 +89,12 @@ mz_to_comp <- function(
     )
 
   find_one <- function(mz) {
-    dplyr::filter(db_df, .env$mz > .data$lower & .env$mz < .data$upper)
+    db_df |>
+      dplyr::filter(.env$mz > .data$lower & .env$mz < .data$upper) |>
+      dplyr::pull(.data$composition)
   }
 
-  purrr::list_rbind(purrr::map(mz, find_one)) |>
-    dplyr::select(all_of(c("composition", "mz")))
+  res_comps <- purrr::map(mz, find_one)
+  res_df <- tibble::tibble(mz = mz, composition = res_comps)
+  tidyr::unnest(res_df, all_of("composition"))
 }

@@ -30,7 +30,8 @@ Imports:
     memoise,
     purrr,
     rlang,
-    tidyselect
+    tidyselect,
+    tidyr
 Remotes: 
     glycoverse/glyparse@*release,
     glycoverse/glydb@*release

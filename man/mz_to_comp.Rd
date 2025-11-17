@@ -44,9 +44,9 @@ please make sure the names of the vector are the same as the names in \code{\lin
 \value{
 A tibble with the following columns:
 \itemize{
-\item \code{mass}: The molecule mass.
+\item \code{mz}: The molecule m/z values, same as the input \code{mz}.
 \item \code{composition}: The possible glycan compositions, as \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector.
-Note that one mass value can have multiple rows in the result,
+Note that one m/z value can have multiple rows in the result,
 corresponding to different possible glycan compositions.
 }
 }
