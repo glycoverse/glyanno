@@ -7,10 +7,14 @@
 calculate_mz(glycans, charge = 1, adduct = "H+", mass_dict = NULL, safe = TRUE)
 }
 \arguments{
-\item{glycans}{Glycans to calculate m/z values from.
-Supported inputs include \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}}, \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}},
-Byonic style composition strings (e.g. Hex(5)HexNAc(2)),
-and any structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.}
+\item{glycans}{Glycans to calculate m/z values from. Valid inputs include:
+\itemize{
+\item A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector.
+\item A \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector.
+\item Byonic style composition strings (e.g. Hex(5)HexNAc(2)).
+\item Simple style composition strings (e.g. H5N4F1S1).
+\item Any structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
+}}
 
 \item{charge}{Charge to use. Can be 0, 1, 2, 3, -1, -2, -3, etc. 0 means neutral. Default is 1.}
 

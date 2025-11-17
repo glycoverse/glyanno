@@ -4,10 +4,12 @@
 #' Different adducts, mass types, and derivatives are supported.
 #' Custom mass dictionaries are also supported.
 #'
-#' @param glycans Glycans to calculate m/z values from.
-#'   Supported inputs include [glyrepr::glycan_structure()], [glyrepr::glycan_composition()],
-#'   Byonic style composition strings (e.g. Hex(5)HexNAc(2)),
-#'   and any structure strings supported by [glyparse::auto_parse()].
+#' @param glycans Glycans to calculate m/z values from. Valid inputs include:
+#'   - A [glyrepr::glycan_structure()] vector.
+#'   - A [glyrepr::glycan_composition()] vector.
+#'   - Byonic style composition strings (e.g. Hex(5)HexNAc(2)).
+#'   - Simple style composition strings (e.g. H5N4F1S1).
+#'   - Any structure strings supported by [glyparse::auto_parse()].
 #' @param charge Charge to use. Can be 0, 1, 2, 3, -1, -2, -3, etc. 0 means neutral. Default is 1.
 #' @param adduct Adduct to use. Can be "H+", "K+", "Na+", "NH4+", "H-", "Cl-", "HCO3-".
 #'   Default is "H+".
