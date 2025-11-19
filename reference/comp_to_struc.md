@@ -1,0 +1,84 @@
+# Convert glycan composition to glycan structure
+
+Given glycan compositions, this function matches them to all possible
+glycan structures in the `glydb` database.
+
+## Usage
+
+``` r
+comp_to_struc(comps, db = NULL)
+```
+
+## Arguments
+
+- comps:
+
+  Glycan compositions to match against. Can be either:
+
+  - A
+    [`glyrepr::glycan_composition()`](https://glycoverse.github.io/glyrepr/reference/glycan_composition.html)
+    vector.
+
+  - Byonic style composition strings (e.g. Hex(5)HexNAc(2)).
+
+  - Simple style composition strings (e.g. H5N4F1S1).
+
+- db:
+
+  Glycan structures to match against. Can be a
+  [`glyrepr::glycan_structure()`](https://glycoverse.github.io/glyrepr/reference/glycan_structure.html)
+  vector or any structure strings supported by
+  [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
+  If not provided, `glydb::glydb_structures(structure_level = "intact")`
+  will be used.
+
+## Value
+
+A tibble with the following columns:
+
+- `composition`: The glycan compositions, as
+  [`glyrepr::glycan_composition()`](https://glycoverse.github.io/glyrepr/reference/glycan_composition.html)
+  vector.
+
+- `structure`: The possible glycan structures, as
+  [`glyrepr::glycan_structure()`](https://glycoverse.github.io/glyrepr/reference/glycan_structure.html)
+  vector. Note that one glycan composition can have multiple rows in the
+  result, corresponding to different possible glycan structures.
+
+## Note about monosaccharide types
+
+See
+[`glyrepr::get_mono_type()`](https://glycoverse.github.io/glyrepr/reference/get_mono_type.html)
+for the definition of monosaccharide types. This function is designed to
+work with glycans with both generic and concrete monosaccharides. It
+follows the rules:
+
+- Generic compositions in `comps` can match both generic and concrete
+  structures in `db`.
+
+- Concrete compositions in `comps` can only match concrete structures in
+  `db`.
+
+## See also
+
+[`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html)
+
+## Examples
+
+``` r
+comp_to_struc("H5N2")
+#> # A tibble: 77 × 2
+#>    composition     structure                                                    
+#>    <comp>          <struct>                                                     
+#>  1 Hex(5)HexNAc(2) Man(b1-2)Man(b1-3)[Man(b1-3)Man(b1-6)]Man(b1-4)GlcNAc(b1-4)G…
+#>  2 Hex(5)HexNAc(2) GlcNAc(b1-2)Man(a1-3)[Man(a1-3)[Man(a1-6)]Man(a1-6)]Man(b1-4…
+#>  3 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)[Man(a1-3)Man(a1-6)]Man(b1-4)GlcNAc(b1-4)G…
+#>  4 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)[Man(a1-3)]Man(a1-4)GlcNAc(b1-4…
+#>  5 Hex(5)HexNAc(2) Man(a1-2)Man(a1-2)Man(a1-3)[Glc(a1-6)]Man(b1-4)GlcNAc(b1-4)G…
+#>  6 Hex(5)HexNAc(2) Man(a1-3)Man(a1-3)[Man(a1-3)Man(a1-6)]Man(b1-4)GlcNAc(b1-4)G…
+#>  7 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)Man(a1-3)Man(b1-4)GlcNAc(b1-4)G…
+#>  8 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)[Man(a1-6)Man(a1-6)]Man(a1-4)GlcNAc(b1-4)G…
+#>  9 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)Man(a1-6)[Man(a1-3)]Man(b1-4)GlcNAc(b1-4)G…
+#> 10 Hex(5)HexNAc(2) Gal(a1-6)Man(b1-3)[Man(b1-6)Man(a1-6)]Man(b1-4)GlcNAc(b1-4)G…
+#> # ℹ 67 more rows
+```
