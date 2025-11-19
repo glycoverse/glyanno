@@ -2,6 +2,7 @@
 
 S3method(print,ppm)
 export(calculate_mz)
+export(comp_to_struc)
 export(glyanno_mass_dict)
 export(mz_to_comp)
 export(ppm)

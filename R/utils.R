@@ -56,3 +56,27 @@
 
   }
 }
+
+#' Ensure the glycan structure is a [glyrepr::glycan_structure()]
+#'
+#' Convert all supported inputs into a [glyrepr::glycan_structure()].
+#' @param strucs Glycan structures to process.
+#' @returns A [glyrepr::glycan_structure()].
+#' @noRd
+.ensure_glycan_structure <- function(strucs) {
+  if (is.character(strucs)) {
+    tryCatch(
+      return(glyparse::auto_parse(strucs)),
+      error = function(e) {
+        cli::cli_abort("Cannot parse {.arg strucs} as glycan structure strings.")
+      }
+    )
+  } else if (glyrepr::is_glycan_structure(strucs)) {
+    strucs
+  } else {
+    cli::cli_abort(c(
+      "{.arg strucs} must be a character vector or a {.fn glyrepr::glycan_structure} vector.",
+      "x" = "Got {.cls {class(strucs)}}."
+    ))
+  }
+}
