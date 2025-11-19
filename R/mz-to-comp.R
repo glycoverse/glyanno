@@ -18,7 +18,7 @@
 #'   corresponding to different possible glycan compositions.
 #'
 #' @examples
-#' mz_to_comp(2368.84)
+#' mz_to_comp(933.3175, charge = 1, adduct = "Na+")
 #'
 #' @seealso [ppm()], [glyanno_mass_dict()]
 #' @export
@@ -40,7 +40,6 @@ mz_to_comp <- function(
     checkmate::check_class(tol, "ppm"),
     combine = "or"
   )
-  db <- .ensure_glycan_composition(db, allow_structure = FALSE)
   .check_charge_and_adduct(charge, adduct)
   if (!is.null(mass_dict)) {
     .check_custom_mass_dict(mass_dict)
@@ -48,14 +47,11 @@ mz_to_comp <- function(
     mass_dict <- glyanno_mass_dict(deriv = "none", mass_type = "mono")
   }
 
-  .mz_to_comp_database(mz, tol, db, charge, adduct, mass_dict)
-}
-
-.mz_to_comp_database <- function(mz, tol, db, charge, adduct, mass_dict) {
   if (is.null(db)) {
     comps <- glydb::glydb_compositions(mono_type = "concrete")
     suppressWarnings(db_mz <- calculate_mz(comps, charge = charge, adduct = adduct, mass_dict = mass_dict, safe = FALSE))
   } else {
+    db <- .ensure_glycan_composition(db, allow_structure = FALSE)
     comps <- unique(db)
     suppressWarnings(db_mz <- calculate_mz(comps, charge = charge, adduct = adduct, mass_dict = mass_dict, safe = FALSE))
     na_count <- sum(is.na(db_mz))

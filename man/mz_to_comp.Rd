@@ -52,7 +52,7 @@ corresponding to different possible glycan compositions.
 Given m/z values, this function matches them to all possible glycan compositions in the \code{glydb} database.
 }
 \examples{
-mz_to_comp(2368.84)
+mz_to_comp(933.3175, charge = 1, adduct = "Na+")
 
 }
 \seealso{
