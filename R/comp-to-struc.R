@@ -12,6 +12,8 @@
 #' - Generic compositions in `comps` can match both generic and concrete structures in `db`.
 #' - Concrete compositions in `comps` can only match concrete structures in `db`.
 #'
+#' @inheritSection mz_to_comp How to set `db`
+#'
 #' @param comps Glycan compositions to match against. Can be either:
 #'   - A [glyrepr::glycan_composition()] vector.
 #'   - Byonic style composition strings (e.g. Hex(5)HexNAc(2)).
@@ -45,7 +47,7 @@ comp_to_struc <- function(comps, db = NULL) {
   comps_df <- tibble::tibble(
     composition = comps,
     mono_type = glyrepr::get_mono_type(comps),
-    row_id = seq_along(comps)  # for ordering the result
+    row_id = seq_along(comps) # for ordering the result
   )
 
   # 1. For concrete compositions, we only need to match them to the concrete structures in `db`.

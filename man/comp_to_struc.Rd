@@ -42,6 +42,27 @@ It follows the rules:
 }
 }
 
+\section{How to set \code{db}}{
+The \code{db} parameter is very important for all functions in this package.
+By default, it uses all available glycans in the \code{glydb} package,
+which is usually larger than what you need.
+You can use helper functions in \code{glydb} to narrow down the database,
+e.g. \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} or \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.
+
+You can use the \code{species} and \code{glycan_type} parameters to focus on specific species and glycan type.
+For example, if you are only interested in N-glycan compositions in human,
+you can use \code{glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")}.
+Also, you can decide the level of information in the database by setting \code{mono_type}
+of \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} and \code{structure_level} of \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.
+
+You can then pass the result to the \code{db} parameter of this function.
+For example,
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{my_db <- glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")
+mz_to_comp(mz, db = my_db)
+}\if{html}{\out{</div>}}
+}
+
 \examples{
 comp_to_struc("H5N2")
 

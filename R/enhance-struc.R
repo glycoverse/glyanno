@@ -3,6 +3,8 @@
 #' Given a glycan structure of any resolution level (see [glyrepr::get_structure_level()] for details),
 #' this function gives all possible glycan structures of higher resolution level.
 #'
+#' @inheritSection mz_to_comp How to set `db`
+#'
 #' @param strucs A [glyrepr::glycan_structure()] vector,
 #'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
 #'   Glycan structures with level higher or same as `to_level` will be returned as is.

@@ -2,6 +2,29 @@
 #'
 #' Given m/z values, this function matches them to all possible glycan compositions in the `glydb` database.
 #'
+#' @details
+#' # How to set `db`
+#'
+#' The `db` parameter is very important for all functions in this package.
+#' By default, it uses all available glycans in the `glydb` package,
+#' which is usually larger than what you need.
+#' You can use helper functions in `glydb` to narrow down the database,
+#' e.g. [glydb::glydb_compositions()] or [glydb::glydb_structures()].
+#'
+#' You can use the `species` and `glycan_type` parameters to focus on specific species and glycan type.
+#' For example, if you are only interested in N-glycan compositions in human,
+#' you can use `glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")`.
+#' Also, you can decide the level of information in the database by setting `mono_type`
+#' of [glydb::glydb_compositions()] and `structure_level` of [glydb::glydb_structures()].
+#'
+#' You can then pass the result to the `db` parameter of this function.
+#' For example,
+#'
+#' ```
+#' my_db <- glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")
+#' mz_to_comp(mz, db = my_db)
+#' ```
+#'
 #' @param mz A numeric vector of m/z values.
 #' @param tol A numeric scalar of the tolerance for the m/z value in Da or a [ppm()] object for dynamic tolerance.
 #'   Default is `ppm(10)`.

@@ -3,6 +3,8 @@
 #' Given a generic glycan composition (e.g. Hex(5)HexNAc(2)),
 #' this function gives all possible concrete glycan compositions (e.g. Man(5)GlcNAc(2)).
 #'
+#' @inheritSection mz_to_comp How to set `db`
+#'
 #' @param comps A [glyrepr::glycan_composition()] vector,
 #'   or a character vector of glycan composition strings of Byonic or simple style
 #'   (e.g. "Hex(5)HexNAc(2)", "H5N4F1S1").
@@ -46,7 +48,7 @@ enhance_comp <- function(comps, db = NULL) {
   comps_df <- tibble::tibble(
     composition = comps,
     mono_type = glyrepr::get_mono_type(comps),
-    row_id = seq_along(comps)  # for ordering the result
+    row_id = seq_along(comps) # for ordering the result
   )
 
   # Process generic compositions
