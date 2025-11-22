@@ -26,6 +26,7 @@ Imports:
     glue,
     glyparse (>= 0.5.2),
     glyrepr (>= 0.8.0.9000),
+    glymotif,
     glydb (>= 0.2.0),
     purrr,
     rlang,
