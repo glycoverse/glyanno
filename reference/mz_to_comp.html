@@ -15,7 +15,8 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/glyanno.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
       </ul></div>
@@ -92,6 +93,23 @@ please make sure the names of the vector are the same as the names in <code><a h
 Note that one m/z value can have multiple rows in the result,
 corresponding to different possible glycan compositions.</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="how-to-set-db">How to set <code>db</code><a class="anchor" aria-label="anchor" href="#how-to-set-db"></a></h2>
+    <p>The <code>db</code> parameter is very important for all functions in this package.
+By default, it uses all available glycans in the <code>glydb</code> package,
+which is usually larger than what you need.
+You can use helper functions in <code>glydb</code> to narrow down the database,
+e.g. <code><a href="https://glycoverse.github.io/glydb/reference/glydb_compositions.html" class="external-link">glydb::glydb_compositions()</a></code> or <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code>.</p>
+<p>You can use the <code>species</code> and <code>glycan_type</code> parameters to focus on specific species and glycan type.
+For example, if you are only interested in N-glycan compositions in human,
+you can use <code>glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")</code>.
+Also, you can decide the level of information in the database by setting <code>mono_type</code>
+of <code><a href="https://glycoverse.github.io/glydb/reference/glydb_compositions.html" class="external-link">glydb::glydb_compositions()</a></code> and <code>structure_level</code> of <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code>.</p>
+<p>You can then pass the result to the <code>db</code> parameter of this function.
+For example,</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>my_db <span class="ot">&lt;-</span> glydb<span class="sc">::</span><span class="fu">glydb_compositions</span>(<span class="at">species =</span> <span class="st">"Homo sapiens"</span>, <span class="at">glycan_type =</span> <span class="st">"N"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">mz_to_comp</span>(mz, <span class="at">db =</span> my_db)</span></code></pre><p></p></div>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="ppm.html">ppm()</a></code>, <code><a href="glyanno_mass_dict.html">glyanno_mass_dict()</a></code></p></div>
