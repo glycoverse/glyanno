@@ -36,7 +36,7 @@ Imports:
     tidyr,
     tibble
 Remotes: 
-    glycoverse/glyparse@*release,
+    glycoverse/glymotif@*release,
     glycoverse/glydb@*release,
     glycoverse/glyrepr
 VignetteBuilder: knitr
