@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">glyanno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="articles/glyanno.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -58,14 +59,20 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version from GitHub:</p>
+<p>You can install the latest release of glyanno from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"glycoverse/glyanno@*release"</span><span class="op">)</span></span></code></pre></div>
+<p>Or install the development version:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"glycoverse/glyanno"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
 <ul>
+<li>🚀 Get started: <a href="https://glycoverse.github.io/glyanno/articles/glyanno.html">Here</a>
+</li>
 <li>📚 Reference: <a href="https://glycoverse.github.io/glyanno/reference/index.html">Here</a>
 </li>
 </ul>
@@ -79,7 +86,52 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>Coming soon!</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glycoverse.github.io/glyanno/">glyanno</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glycoverse.github.io/glyrepr/" class="external-link">glyrepr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glycoverse.github.io/glydb/" class="external-link">glydb</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/mz_to_comp.html">mz_to_comp</a></span><span class="op">(</span><span class="fl">406.1325</span>, charge <span class="op">=</span> <span class="fl">1</span>, adduct <span class="op">=</span> <span class="st">"Na+"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 4 × 2</span></span>
+<span><span class="co">#&gt;      mz composition    </span></span>
+<span><span class="co">#&gt;   &lt;dbl&gt; &lt;comp&gt;         </span></span>
+<span><span class="co">#&gt; 1  406. Gal(1)GalNAc(1)</span></span>
+<span><span class="co">#&gt; 2  406. Gal(1)GlcNAc(1)</span></span>
+<span><span class="co">#&gt; 3  406. Glc(1)GlcNAc(1)</span></span>
+<span><span class="co">#&gt; 4  406. Man(1)GlcNAc(1)</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 19 × 2</span></span>
+<span><span class="co">#&gt;    composition     structure          </span></span>
+<span><span class="co">#&gt;    &lt;comp&gt;          &lt;struct&gt;           </span></span>
+<span><span class="co">#&gt;  1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-</span></span>
+<span><span class="co">#&gt;  2 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-</span></span>
+<span><span class="co">#&gt;  3 Gal(1)GalNAc(1) GalNAc(a1-3)Gal(a1-</span></span>
+<span><span class="co">#&gt;  4 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(b1-</span></span>
+<span><span class="co">#&gt;  5 Gal(1)GalNAc(1) Gal(b1-4)GalNAc(b1-</span></span>
+<span><span class="co">#&gt;  6 Gal(1)GalNAc(1) GalNAc(a1-4)Gal(b1-</span></span>
+<span><span class="co">#&gt;  7 Gal(1)GalNAc(1) GalNAc(a1-2)Gal(b1-</span></span>
+<span><span class="co">#&gt;  8 Gal(1)GalNAc(1) GalNAc(b1-2)Gal(a1-</span></span>
+<span><span class="co">#&gt;  9 Gal(1)GalNAc(1) GalNAc(b1-4)Gal(b1-</span></span>
+<span><span class="co">#&gt; 10 Gal(1)GalNAc(1) Gal(a1-6)GalNAc(a1-</span></span>
+<span><span class="co">#&gt; 11 Gal(1)GalNAc(1) Gal(b1-6)GalNAc(a1-</span></span>
+<span><span class="co">#&gt; 12 Gal(1)GalNAc(1) GalNAc(a1-3)Gal(b1-</span></span>
+<span><span class="co">#&gt; 13 Gal(1)GalNAc(1) GalNAc(b1-3)Gal(b1-</span></span>
+<span><span class="co">#&gt; 14 Gal(1)GalNAc(1) Gal(b1-6)GalNAc(b1-</span></span>
+<span><span class="co">#&gt; 15 Gal(1)GalNAc(1) GalNAc(b1-3)Gal(a1-</span></span>
+<span><span class="co">#&gt; 16 Gal(1)GalNAc(1) GalNAc(b1-4)Gal(a1-</span></span>
+<span><span class="co">#&gt; 17 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-</span></span>
+<span><span class="co">#&gt; 18 Gal(1)GalNAc(1) GalNAc(b1-2)Gal(b1-</span></span>
+<span><span class="co">#&gt; 19 Gal(1)GalNAc(1) Gal(b1-4)GalNAc(a1-</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Use custom db to narrow down the search space</span></span>
+<span><span class="va">my_db</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb_structures</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, db <span class="op">=</span> <span class="va">my_db</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 2 × 2</span></span>
+<span><span class="co">#&gt;   composition     structure          </span></span>
+<span><span class="co">#&gt;   &lt;comp&gt;          &lt;struct&gt;           </span></span>
+<span><span class="co">#&gt; 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-</span></span>
+<span><span class="co">#&gt; 2 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
