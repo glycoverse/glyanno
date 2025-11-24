@@ -38,9 +38,7 @@ four core functions:
   Resolves low-resolution glycan structures into high-resolution
   structures with linkage information.
 
-![diagram](diagram.png)
-
-diagram
+![](diagram.png)
 
 ``` r
 library(glyanno)
