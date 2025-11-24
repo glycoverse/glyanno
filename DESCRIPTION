@@ -27,7 +27,7 @@ Imports:
     dplyr,
     glue,
     glyparse (>= 0.5.2),
-    glyrepr (>= 0.8.0.9000),
+    glyrepr (>= 0.9.0),
     glymotif,
     glydb (>= 0.2.0),
     purrr,
@@ -37,6 +37,5 @@ Imports:
     tibble
 Remotes: 
     glycoverse/glymotif@*release,
-    glycoverse/glydb@*release,
-    glycoverse/glyrepr
+    glycoverse/glydb@*release
 VignetteBuilder: knitr
