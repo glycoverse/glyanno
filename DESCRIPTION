@@ -29,7 +29,7 @@ Imports:
     glyparse (>= 0.5.2),
     glyrepr (>= 0.9.0),
     glymotif,
-    glydb (>= 0.2.0),
+    glydb (>= 0.3.1),
     purrr,
     rlang,
     tidyselect,
