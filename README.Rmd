@@ -33,7 +33,14 @@ glyanno infers the most likely linkages (e.g., "Gal(b1-3)GalNAc(a1-").
 
 ## Installation
 
-You can install the development version from GitHub:
+You can install the latest release of glyanno from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("remotes")
+remotes::install_github("glycoverse/glyanno@*release")
+```
+
+Or install the development version:
 
 ``` r
 remotes::install_github("glycoverse/glyanno")
@@ -41,6 +48,7 @@ remotes::install_github("glycoverse/glyanno")
 
 ## Documentation
 
+- 🚀 Get started: [Here](https://glycoverse.github.io/glyanno/articles/glyanno.html)
 - 📚 Reference: [Here](https://glycoverse.github.io/glyanno/reference/index.html)
 
 ## Role in `glycoverse`
@@ -49,7 +57,22 @@ Glyanno enhances the precision of glycan structures, enabling the use of rough m
 For instance, the `glyenzy` package requires fully determined glycan structures.
 Users can leverage glyanno to make educated guesses from incomplete data, thereby enabling downstream analysis with glyenzy and other tools that demand high-resolution structural information.
 
-
 ## Example
 
-Coming soon!
+```{r}
+library(glyanno)
+library(glyrepr)
+library(glydb)
+
+mz_to_comp(406.1325, charge = 1, adduct = "Na+")
+```
+
+```{r}
+comp_to_struc("Gal(1)GalNAc(1)")
+```
+
+```{r}
+# Use custom db to narrow down the search space
+my_db <- glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
+comp_to_struc("Gal(1)GalNAc(1)", db = my_db)
+```
