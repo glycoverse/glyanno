@@ -36,6 +36,11 @@ enhance_comp <- function(comps, db = NULL) {
   }
   db <- unique(db)
 
+  # Validate: all compositions in db must be concrete
+  if (glyrepr::get_mono_type(db) == "generic") {
+    cli::cli_abort("All compositions in `db` must be concrete.")
+  }
+
   # Prepare tibbles for matching
   db_df <- tibble::tibble(
     generic = glyrepr::convert_to_generic(db),
