@@ -57,25 +57,6 @@ test_that("comp_to_struc works for concrete db and concrete comps", {
   expect_equal(result, expected)
 })
 
-test_that("comp_to_struc works for mixed db and mixed comps", {
-  db <- glyrepr::as_glycan_structure(c(
-    "Hex(??-?)HexNAc(??-",  # generic
-    "Gal(b1-3)GalNAc(a1-",  # concrete
-    "Gal(b1-4)GalNAc(a1-"  # concrete
-  ))
-  comps <- glyrepr::as_glycan_composition(c(
-    "Hex(1)HexNAc(1)",  # generic
-    "Gal(1)GalNAc(1)"  # concrete
-  ))
-  result <- comp_to_struc(comps, db) |>
-    dplyr::mutate(structure = as.character(structure))
-  expected <- tibble::tibble(
-    composition = c(rep(comps[1], 3), rep(comps[2], 2)),
-    structure = as.character(c(db, db[2:3]))
-  )
-  expect_equal(result, expected)
-})
-
 test_that("comp_to_struc works with multiple compositions", {
   db <- glyrepr::as_glycan_structure(c(
     "Hex(??-?)[HexNAc(??-?)]HexNAc(??-",

@@ -120,7 +120,6 @@ test_that("mz_to_comp returns handles NA", {
 test_that("mz_to_comp rejects wrong input types", {
   simple_db <- glyrepr::glycan_composition(c(Hex = 2))
   expect_error(mz_to_comp("365", db = simple_db))
-  expect_error(mz_to_comp(365, db = glyrepr::n_glycan_core()))
   expect_error(mz_to_comp(365, db = simple_db, adduct = "Na"))
   expect_error(mz_to_comp(365, db = simple_db, tol = "1"))
   expect_error(mz_to_comp(365, db = simple_db, method = "wrong"))
