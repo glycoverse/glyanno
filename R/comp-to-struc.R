@@ -3,15 +3,6 @@
 #' Given glycan compositions, this function matches them to
 #' all possible glycan structures in the `glydb` database.
 #'
-#' @details
-#' # Note about monosaccharide types
-#'
-#' See [glyrepr::get_mono_type()] for the definition of monosaccharide types.
-#' This function is designed to work with glycans with both generic and concrete monosaccharides.
-#' It follows the rules:
-#' - Generic compositions in `comps` can match both generic and concrete structures in `db`.
-#' - Concrete compositions in `comps` can only match concrete structures in `db`.
-#'
 #' @inheritSection mz_to_comp How to set `db`
 #'
 #' @param comps Glycan compositions to match against. Can be either:

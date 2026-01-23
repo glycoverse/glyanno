@@ -32,16 +32,6 @@ corresponding to different possible glycan structures.
 Given glycan compositions, this function matches them to
 all possible glycan structures in the \code{glydb} database.
 }
-\section{Note about monosaccharide types}{
-See \code{\link[glyrepr:get_mono_type]{glyrepr::get_mono_type()}} for the definition of monosaccharide types.
-This function is designed to work with glycans with both generic and concrete monosaccharides.
-It follows the rules:
-\itemize{
-\item Generic compositions in \code{comps} can match both generic and concrete structures in \code{db}.
-\item Concrete compositions in \code{comps} can only match concrete structures in \code{db}.
-}
-}
-
 \section{How to set \code{db}}{
 The \code{db} parameter is very important for all functions in this package.
 By default, it uses all available glycans in the \code{glydb} package,
