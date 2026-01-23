@@ -46,9 +46,3 @@ test_that("enhance_comp works with concrete compositions", {
   )
   expect_equal(result, expected)
 })
-
-test_that("enhance_comp issues a warning when some compositions in db are generic", {
-  comps <- "Hex(1)HexNAc(1)"
-  db <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)")
-  expect_warning(enhance_comp(comps, db), "Some compositions in `db` are generic, which will be dropped.")
-})

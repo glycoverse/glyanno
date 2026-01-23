@@ -35,10 +35,6 @@ enhance_comp <- function(comps, db = NULL) {
     db <- .ensure_glycan_composition(db, allow_structure = FALSE)
   }
   db <- unique(db)
-  if (any(glyrepr::get_mono_type(db) == "generic")) {
-    cli::cli_warn("Some compositions in `db` are generic, which will be dropped.")
-    db <- db[glyrepr::get_mono_type(db) == "concrete"]
-  }
 
   # Prepare tibbles for matching
   db_df <- tibble::tibble(
