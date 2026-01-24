@@ -61,12 +61,19 @@ comp_to_struc <- function(comps, db = NULL) {
       dplyr::arrange(.data$row_id) |>
       dplyr::select(all_of(c("composition", "structure")))
   } else {
-    # For concrete compositions, match directly to concrete structures
+    # For concrete compositions, match directly to concrete structures only
+    # After glyrepr 0.9.0.9000, db must be homogeneous (all generic or all concrete)
+    if (glyrepr::get_mono_type(db) == "generic") {
+      # Concrete comps cannot match generic structures
+      return(tibble::tibble(
+        composition = glyrepr::glycan_composition(),
+        structure = glyrepr::glycan_structure()
+      ))
+    }
     db_concrete_df <- tibble::tibble(
       composition = glyrepr::as_glycan_composition(db),
       structure = db
-    ) |>
-      dplyr::filter(glyrepr::get_mono_type(.data$composition) == "concrete")
+    )
     comps_df <- tibble::tibble(
       composition = comps,
       row_id = seq_along(comps)
