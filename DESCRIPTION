@@ -26,16 +26,18 @@ Imports:
     cli,
     dplyr,
     glue,
-    glyparse (>= 0.5.2),
-    glyrepr (>= 0.9.0),
+    glyparse (>= 0.5.3.9000),
+    glyrepr (>= 0.9.0.9000),
     glymotif,
-    glydb (>= 0.3.1),
+    glydb (>= 0.3.1.9000),
     purrr,
     rlang,
     tidyselect,
     tidyr,
     tibble
 Remotes: 
-    glycoverse/glymotif@*release,
-    glycoverse/glydb@*release
+    glycoverse/glyparse,
+    glycoverse/glyrepr,
+    glycoverse/glymotif,
+    glycoverse/glydb
 VignetteBuilder: knitr

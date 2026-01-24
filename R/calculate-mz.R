@@ -69,14 +69,20 @@ calculate_mz <- function(
   }
 
   # ===== m/z calculation =====
-  monos <- intersect(glyrepr::available_monosaccharides("generic"), names(mass_dict))
+  monos <- intersect(
+    glyrepr::available_monosaccharides("generic"),
+    names(mass_dict)
+  )
   subs <- intersect(glyrepr::available_substituents(), names(mass_dict))
   counts <- purrr::map(c(monos, subs), ~ glyrepr::count_mono(comps, .))
 
   bad_monos <- setdiff(glyrepr::available_monosaccharides("generic"), monos)
   bad_subs <- setdiff(glyrepr::available_substituents(), subs)
   bad_components <- c(bad_monos, bad_subs)
-  bad_component_counts <- purrr::map(bad_components, ~ glyrepr::count_mono(comps, .))
+  bad_component_counts <- purrr::map(
+    bad_components,
+    ~ glyrepr::count_mono(comps, .)
+  )
   if (safe) {
     has_bad_components <- purrr::map_int(bad_component_counts, sum) > 0
     if (any(has_bad_components)) {
@@ -98,7 +104,11 @@ calculate_mz <- function(
   }
 
   mono_masses <- purrr::map2(c(monos, subs), counts, ~ mass_dict[.x] * .y)
-  mz <- unname(colSums(do.call(rbind, mono_masses)) + mass_dict[adduct] * abs(charge) + mass_dict["red_end"])
+  mz <- unname(
+    colSums(do.call(rbind, mono_masses)) +
+      mass_dict[adduct] * abs(charge) +
+      mass_dict["red_end"]
+  )
   if (charge != 0) {
     mz <- mz / abs(charge)
   }
@@ -112,11 +122,15 @@ calculate_mz <- function(
   checkmate::assert_int(charge)
   if (charge > 0) {
     if (!checkmate::test_choice(adduct, c("H+", "K+", "Na+", "NH4+"))) {
-      cli::cli_abort("When {.arg charge} is positive, {.arg adduct} can only be 'H+', 'K+', 'Na+', or 'NH4+'.")
+      cli::cli_abort(
+        "When {.arg charge} is positive, {.arg adduct} can only be 'H+', 'K+', 'Na+', or 'NH4+'."
+      )
     }
   } else if (charge < 0) {
     if (!checkmate::test_choice(adduct, c("H-", "Cl-", "HCO3-"))) {
-      cli::cli_abort("When {.arg charge} is negative, {.arg adduct} can only be 'H-', 'Cl-', or 'HCO3-'.")
+      cli::cli_abort(
+        "When {.arg charge} is negative, {.arg adduct} can only be 'H-', 'Cl-', or 'HCO3-'."
+      )
     }
   }
 }

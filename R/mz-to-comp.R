@@ -56,7 +56,10 @@ mz_to_comp <- function(
   checkmate::assert_numeric(mz)
   mz <- mz[!is.na(mz)]
   if (length(mz) == 0) {
-    return(tibble::tibble(mz = numeric(0), composition = glyrepr::glycan_composition()))
+    return(tibble::tibble(
+      mz = numeric(0),
+      composition = glyrepr::glycan_composition()
+    ))
   }
   checkmate::assert(
     checkmate::check_number(tol),
@@ -72,11 +75,27 @@ mz_to_comp <- function(
 
   if (is.null(db)) {
     comps <- glydb::glydb_compositions(mono_type = "concrete")
-    suppressWarnings(db_mz <- calculate_mz(comps, charge = charge, adduct = adduct, mass_dict = mass_dict, safe = FALSE))
+    suppressWarnings(
+      db_mz <- calculate_mz(
+        comps,
+        charge = charge,
+        adduct = adduct,
+        mass_dict = mass_dict,
+        safe = FALSE
+      )
+    )
   } else {
     db <- .ensure_glycan_composition(db, allow_structure = FALSE)
     comps <- unique(db)
-    suppressWarnings(db_mz <- calculate_mz(comps, charge = charge, adduct = adduct, mass_dict = mass_dict, safe = FALSE))
+    suppressWarnings(
+      db_mz <- calculate_mz(
+        comps,
+        charge = charge,
+        adduct = adduct,
+        mass_dict = mass_dict,
+        safe = FALSE
+      )
+    )
     na_count <- sum(is.na(db_mz))
     if (na_count > 0) {
       cli::cli_warn(c(

@@ -35,42 +35,57 @@ enhance_comp <- function(comps, db = NULL) {
     db <- .ensure_glycan_composition(db, allow_structure = FALSE)
   }
   db <- unique(db)
-  if (any(glyrepr::get_mono_type(db) == "generic")) {
-    cli::cli_warn("Some compositions in `db` are generic, which will be dropped.")
-    db <- db[glyrepr::get_mono_type(db) == "concrete"]
+
+  # Handle empty composition case
+  if (length(comps) == 0) {
+    return(tibble::tibble(
+      raw = glyrepr::glycan_composition(),
+      enhanced = glyrepr::glycan_composition()
+    ))
   }
 
-  # Prepare tibbles for matching
-  db_df <- tibble::tibble(
-    generic = glyrepr::convert_to_generic(db),
-    concrete = db
-  )
-  comps_df <- tibble::tibble(
-    composition = comps,
-    mono_type = glyrepr::get_mono_type(comps),
-    row_id = seq_along(comps) # for ordering the result
-  )
+  # Validate: all compositions in db must be concrete
+  if (glyrepr::get_mono_type(db) == "generic") {
+    cli::cli_abort("All compositions in `db` must be concrete.")
+  }
 
-  # Process generic compositions
-  generic_res <- comps_df |>
-    dplyr::filter(.data$mono_type == "generic") |>
-    dplyr::inner_join(db_df, by = c("composition" = "generic")) |>
-    dplyr::select(all_of(c("raw" = "composition", "enhanced" = "concrete", "row_id")))
+  # Check if comps are generic or concrete (all same type)
+  comps_type <- glyrepr::get_mono_type(comps)
 
-  # Process concrete compositions
-  concrete_res <- comps_df |>
-    dplyr::filter(.data$mono_type == "concrete") |>
-    dplyr::mutate(enhanced = .data$composition) |>
-    dplyr::select(all_of(c("raw" = "composition", "enhanced", "row_id")))
+  if (comps_type == "generic") {
+    # Generic compositions: match via generic conversion
+    db_df <- tibble::tibble(
+      generic = glyrepr::convert_to_generic(db),
+      concrete = db
+    )
+    comps_df <- tibble::tibble(
+      composition = glyrepr::convert_to_generic(comps),
+      row_id = seq_along(comps)
+    )
 
-  # Combine the results
-  res <- dplyr::bind_rows(generic_res, concrete_res) |>
-    dplyr::arrange(.data$row_id) |>
-    dplyr::select(all_of(c("raw", "enhanced")))
+    res <- comps_df |>
+      dplyr::inner_join(db_df, by = c("composition" = "generic")) |>
+      dplyr::select(all_of(c(
+        "raw" = "composition",
+        "enhanced" = "concrete",
+        "row_id"
+      ))) |>
+      dplyr::arrange(.data$row_id) |>
+      dplyr::select(all_of(c("raw", "enhanced")))
+  } else {
+    # Concrete compositions: enhanced = raw
+    res <- tibble::tibble(
+      raw = comps,
+      enhanced = comps
+    )
+  }
 
-  # Ensure zero-row result has the expected glycan vector types
+  # Handle zero-row result
   if (nrow(res) == 0) {
-    res <- tibble::tibble(raw = glyrepr::glycan_composition(), enhanced = glyrepr::glycan_composition())
+    res <- tibble::tibble(
+      raw = glyrepr::glycan_composition(),
+      enhanced = glyrepr::glycan_composition()
+    )
   }
   res
 }

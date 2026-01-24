@@ -79,17 +79,32 @@ test_that("mz_to_comp works for custom numeric tol", {
   simple_db <- glyrepr::glycan_composition(c(Hex = 2))
   mz <- c(365.5, 366.5, 366)
   expect_equal(
-    mz_to_comp(mz = mz, tol = 1, db = simple_db, adduct = "Na+", mass_dict = mass_dict_for_test()),
-    tibble::tibble(mz = 365.5, composition = glyrepr::glycan_composition(c(Hex = 2)))
+    mz_to_comp(
+      mz = mz,
+      tol = 1,
+      db = simple_db,
+      adduct = "Na+",
+      mass_dict = mass_dict_for_test()
+    ),
+    tibble::tibble(
+      mz = 365.5,
+      composition = glyrepr::glycan_composition(c(Hex = 2))
+    )
   )
 })
 
 test_that("mz_to_comp works for custom ppm tol", {
   simple_db <- glyrepr::glycan_composition(c(Hex = 2))
-  mz1 <- 365 + 365 / 1e6 * 51  # outsite tol
-  mz2 <- 365 + 365 / 1e6 * 49  # within tol
+  mz1 <- 365 + 365 / 1e6 * 51 # outsite tol
+  mz2 <- 365 + 365 / 1e6 * 49 # within tol
   expect_equal(
-    mz_to_comp(mz = c(mz1, mz2), tol = ppm(50), db = simple_db, adduct = "Na+", mass_dict = mass_dict_for_test()),
+    mz_to_comp(
+      mz = c(mz1, mz2),
+      tol = ppm(50),
+      db = simple_db,
+      adduct = "Na+",
+      mass_dict = mass_dict_for_test()
+    ),
     tibble::tibble(mz = c(mz2), composition = simple_db)
   )
 })
@@ -97,30 +112,53 @@ test_that("mz_to_comp works for custom ppm tol", {
 test_that("mz_to_comp handles db with glycans that cannot be calculated m/z values", {
   simple_db <- glyrepr::glycan_composition(c(Glc = 1), c(Mur = 1))
   expect_warning(
-    result <- mz_to_comp(mz = 203, db = simple_db, adduct = "Na+", mass_dict = mass_dict_for_test()),
+    result <- mz_to_comp(
+      mz = 203,
+      db = simple_db,
+      adduct = "Na+",
+      mass_dict = mass_dict_for_test()
+    ),
     "Cannot calculate m/z values for 1 glycans in the database."
   )
-  expect_equal(result, tibble::tibble(mz = 203, composition = glyrepr::glycan_composition(c(Glc = 1))))
+  expect_equal(
+    result,
+    tibble::tibble(
+      mz = 203,
+      composition = glyrepr::glycan_composition(c(Glc = 1))
+    )
+  )
 })
 
 test_that("mz_to_comp returns empty tibble with empty mz", {
   expect_equal(
-    mz_to_comp(mz = numeric(0), db = glyrepr::glycan_composition(c(Hex = 2)), adduct = "Na+", mass_dict = mass_dict_for_test()),
+    mz_to_comp(
+      mz = numeric(0),
+      db = glyrepr::glycan_composition(c(Hex = 2)),
+      adduct = "Na+",
+      mass_dict = mass_dict_for_test()
+    ),
     tibble::tibble(mz = numeric(0), composition = glyrepr::glycan_composition())
   )
 })
 
 test_that("mz_to_comp returns handles NA", {
   expect_equal(
-    mz_to_comp(mz = c(365, NA), db = glyrepr::glycan_composition(c(Hex = 2)), adduct = "Na+", mass_dict = mass_dict_for_test()),
-    tibble::tibble(mz = 365, composition = glyrepr::glycan_composition(c(Hex = 2)))
+    mz_to_comp(
+      mz = c(365, NA),
+      db = glyrepr::glycan_composition(c(Hex = 2)),
+      adduct = "Na+",
+      mass_dict = mass_dict_for_test()
+    ),
+    tibble::tibble(
+      mz = 365,
+      composition = glyrepr::glycan_composition(c(Hex = 2))
+    )
   )
 })
 
 test_that("mz_to_comp rejects wrong input types", {
   simple_db <- glyrepr::glycan_composition(c(Hex = 2))
   expect_error(mz_to_comp("365", db = simple_db))
-  expect_error(mz_to_comp(365, db = glyrepr::n_glycan_core()))
   expect_error(mz_to_comp(365, db = simple_db, adduct = "Na"))
   expect_error(mz_to_comp(365, db = simple_db, tol = "1"))
   expect_error(mz_to_comp(365, db = simple_db, method = "wrong"))

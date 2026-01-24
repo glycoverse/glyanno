@@ -26,7 +26,8 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
   checkmate::assert_choice(deriv, c("none", "permethyl", "peracetyl"))
   checkmate::assert_choice(mass_type, c("mono", "average"))
 
-  variable_mass <- switch(paste(deriv, mass_type, sep = "_"),
+  variable_mass <- switch(
+    paste(deriv, mass_type, sep = "_"),
     "none_mono" = c(
       "Hex" = 162.0528,
       "HexNAc" = 203.0794,
@@ -131,7 +132,8 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
     )
   )
 
-  fixed_mass <- switch(mass_type,
+  fixed_mass <- switch(
+    mass_type,
     "mono" = c(
       "H" = 1.00728,
       "H2O" = 18.01056,

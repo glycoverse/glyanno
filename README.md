@@ -27,7 +27,13 @@ likely linkages (e.g., “Gal(b1-3)GalNAc(a1-”).
 ## Installation
 
 You can install the latest release of glyanno from
-[GitHub](https://github.com/) with:
+[r-universe](https://glycoverse.r-universe.dev/glyanno):
+
+``` r
+install.packages('glyanno', repos = c('https://glycoverse.r-universe.dev', 'https://cloud.r-project.org'))
+```
+
+Or from [GitHub](https://github.com/glycoverse/glyanno):
 
 ``` r
 # install.packages("remotes")

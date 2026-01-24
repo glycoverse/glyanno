@@ -46,7 +46,9 @@ enhance_struc <- function(strucs, to_level = "intact", db = NULL) {
   db <- unique(db)
   db_struc_level <- glyrepr::get_structure_level(db)
   if (any(db_struc_level != to_level)) {
-    cli::cli_warn("Some structures in `db` are not at the same resolution level as `to_level`, which will be dropped.")
+    cli::cli_warn(
+      "Some structures in `db` are not at the same resolution level as `to_level`, which will be dropped."
+    )
     db <- db[db_struc_level == to_level]
   }
 

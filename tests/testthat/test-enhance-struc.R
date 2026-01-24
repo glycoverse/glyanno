@@ -14,7 +14,10 @@ test_that("enhance_struc enhances topological to intact level", {
   input_topo <- "Gal(??-?)GalNAc(??-"
   res <- enhance_struc(input_topo, to_level = "intact", db = db_intact)
   # Should match both
-  expect_equal(as.character(res$enhanced), c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-"))
+  expect_equal(
+    as.character(res$enhanced),
+    c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
+  )
 })
 
 test_that("enhance_struc enhances partial to intact level with wildcard", {
@@ -24,7 +27,10 @@ test_that("enhance_struc enhances partial to intact level with wildcard", {
   )
   input_partial <- "Gal(b1-?)GalNAc(a1-"
   res <- enhance_struc(input_partial, to_level = "intact", db = db_intact)
-  expect_equal(as.character(res$enhanced), c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-"))
+  expect_equal(
+    as.character(res$enhanced),
+    c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
+  )
 })
 
 test_that("enhance_struc enhances specific partial to intact level", {
@@ -33,7 +39,11 @@ test_that("enhance_struc enhances specific partial to intact level", {
     "Gal(b1-4)GalNAc(a1-"
   )
   input_partial_specific <- "Gal(b1-3)GalNAc(a1-"
-  res <- enhance_struc(input_partial_specific, to_level = "intact", db = db_intact)
+  res <- enhance_struc(
+    input_partial_specific,
+    to_level = "intact",
+    db = db_intact
+  )
   expect_equal(as.character(res$enhanced), "Gal(b1-3)GalNAc(a1-")
 })
 
