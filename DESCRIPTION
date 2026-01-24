@@ -38,5 +38,6 @@ Imports:
 Remotes: 
     glycoverse/glyparse,
     glycoverse/glyrepr,
+    glycoverse/glymotif,
     glycoverse/glydb
 VignetteBuilder: knitr
