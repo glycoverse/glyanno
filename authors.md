@@ -7,13 +7,13 @@
 
 ## Citation
 
-Fu B (2025). *glyanno: Hierarchical Glycan Annotation*. R package
-version 0.1.0, <https://glycoverse.github.io/glyanno/>.
+Fu B (2026). *glyanno: Hierarchical Glycan Annotation*. R package
+version 0.1.0.9000, <https://glycoverse.github.io/glyanno/>.
 
     @Manual{,
       title = {glyanno: Hierarchical Glycan Annotation},
       author = {Bin Fu},
-      year = {2025},
-      note = {R package version 0.1.0},
+      year = {2026},
+      note = {R package version 0.1.0.9000},
       url = {https://glycoverse.github.io/glyanno/},
     }

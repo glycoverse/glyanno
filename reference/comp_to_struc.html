@@ -9,7 +9,7 @@ all possible glycan structures in the glydb database."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">glyanno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,13 +68,6 @@ If not provided, <code>glydb::glydb_structures(structure_level = "intact")</code
 <li><p><code>structure</code>: The possible glycan structures, as <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_structure.html" class="external-link">glyrepr::glycan_structure()</a></code> vector.
 Note that one glycan composition can have multiple rows in the result,
 corresponding to different possible glycan structures.</p></li>
-</ul></div>
-    <div class="section level2">
-    <h2 id="note-about-monosaccharide-types">Note about monosaccharide types<a class="anchor" aria-label="anchor" href="#note-about-monosaccharide-types"></a></h2>
-    <p>See <code><a href="https://glycoverse.github.io/glyrepr/reference/get_mono_type.html" class="external-link">glyrepr::get_mono_type()</a></code> for the definition of monosaccharide types.
-This function is designed to work with glycans with both generic and concrete monosaccharides.
-It follows the rules:</p><ul><li><p>Generic compositions in <code>comps</code> can match both generic and concrete structures in <code>db</code>.</p></li>
-<li><p>Concrete compositions in <code>comps</code> can only match concrete structures in <code>db</code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="how-to-set-db">How to set <code>db</code><a class="anchor" aria-label="anchor" href="#how-to-set-db"></a></h2>

@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">glyanno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,12 +59,15 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the latest release of glyanno from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>You can install the latest release of glyanno from <a href="https://glycoverse.r-universe.dev/glyanno" class="external-link">r-universe</a>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'glyanno'</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'https://glycoverse.r-universe.dev'</span>, <span class="st">'https://cloud.r-project.org'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Or from <a href="https://github.com/glycoverse/glyanno" class="external-link">GitHub</a>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"glycoverse/glyanno@*release"</span><span class="op">)</span></span></code></pre></div>
 <p>Or install the development version:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"glycoverse/glyanno"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -86,7 +89,7 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glycoverse.github.io/glyanno/">glyanno</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glycoverse.github.io/glyrepr/" class="external-link">glyrepr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glycoverse.github.io/glydb/" class="external-link">glydb</a></span><span class="op">)</span></span>
@@ -99,7 +102,7 @@
 <span><span class="co">#&gt; 2  406. Gal(1)GlcNAc(1)</span></span>
 <span><span class="co">#&gt; 3  406. Glc(1)GlcNAc(1)</span></span>
 <span><span class="co">#&gt; 4  406. Man(1)GlcNAc(1)</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 19 × 2</span></span>
 <span><span class="co">#&gt;    composition     structure          </span></span>
@@ -123,7 +126,7 @@
 <span><span class="co">#&gt; 17 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-</span></span>
 <span><span class="co">#&gt; 18 Gal(1)GalNAc(1) GalNAc(b1-2)Gal(b1-</span></span>
 <span><span class="co">#&gt; 19 Gal(1)GalNAc(1) Gal(b1-4)GalNAc(a1-</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Use custom db to narrow down the search space</span></span>
 <span><span class="va">my_db</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb_structures</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, db <span class="op">=</span> <span class="va">my_db</span><span class="op">)</span></span>

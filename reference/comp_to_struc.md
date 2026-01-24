@@ -45,20 +45,6 @@ A tibble with the following columns:
   vector. Note that one glycan composition can have multiple rows in the
   result, corresponding to different possible glycan structures.
 
-## Note about monosaccharide types
-
-See
-[`glyrepr::get_mono_type()`](https://glycoverse.github.io/glyrepr/reference/get_mono_type.html)
-for the definition of monosaccharide types. This function is designed to
-work with glycans with both generic and concrete monosaccharides. It
-follows the rules:
-
-- Generic compositions in `comps` can match both generic and concrete
-  structures in `db`.
-
-- Concrete compositions in `comps` can only match concrete structures in
-  `db`.
-
 ## How to set `db`
 
 The `db` parameter is very important for all functions in this package.
