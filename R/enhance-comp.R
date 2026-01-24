@@ -38,7 +38,10 @@ enhance_comp <- function(comps, db = NULL) {
 
   # Handle empty composition case
   if (length(comps) == 0) {
-    return(tibble::tibble(raw = glyrepr::glycan_composition(), enhanced = glyrepr::glycan_composition()))
+    return(tibble::tibble(
+      raw = glyrepr::glycan_composition(),
+      enhanced = glyrepr::glycan_composition()
+    ))
   }
 
   # Validate: all compositions in db must be concrete
@@ -62,7 +65,11 @@ enhance_comp <- function(comps, db = NULL) {
 
     res <- comps_df |>
       dplyr::inner_join(db_df, by = c("composition" = "generic")) |>
-      dplyr::select(all_of(c("raw" = "composition", "enhanced" = "concrete", "row_id"))) |>
+      dplyr::select(all_of(c(
+        "raw" = "composition",
+        "enhanced" = "concrete",
+        "row_id"
+      ))) |>
       dplyr::arrange(.data$row_id) |>
       dplyr::select(all_of(c("raw", "enhanced")))
   } else {
@@ -75,7 +82,10 @@ enhance_comp <- function(comps, db = NULL) {
 
   # Handle zero-row result
   if (nrow(res) == 0) {
-    res <- tibble::tibble(raw = glyrepr::glycan_composition(), enhanced = glyrepr::glycan_composition())
+    res <- tibble::tibble(
+      raw = glyrepr::glycan_composition(),
+      enhanced = glyrepr::glycan_composition()
+    )
   }
   res
 }

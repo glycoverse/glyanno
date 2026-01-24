@@ -47,7 +47,9 @@ comp_to_struc <- function(comps, db = NULL) {
 
   if (mono_type == "generic") {
     # For generic compositions, convert both to generic for matching
-    db_comps_generic <- glyrepr::convert_to_generic(glyrepr::as_glycan_composition(db))
+    db_comps_generic <- glyrepr::convert_to_generic(glyrepr::as_glycan_composition(
+      db
+    ))
     db_df <- tibble::tibble(
       composition = db_comps_generic,
       structure = db

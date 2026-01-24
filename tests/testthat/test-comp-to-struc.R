@@ -7,7 +7,10 @@ test_that("comp_to_struc works for generic db and generic comps", {
   comps <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)")
   result <- comp_to_struc(comps, db) |>
     dplyr::mutate(structure = as.character(structure))
-  expected <- tibble::tibble(composition = comps, structure = "Hex(??-?)HexNAc(??-")
+  expected <- tibble::tibble(
+    composition = comps,
+    structure = "Hex(??-?)HexNAc(??-"
+  )
   expect_equal(result, expected)
 })
 
@@ -94,7 +97,11 @@ test_that("comp_to_struc handles duplicate compositions", {
     "Hex(??-?)HexNAc(??-",
     "HexNAc(??-"
   ))
-  comps <- glyrepr::as_glycan_composition(c("Hex(1)HexNAc(1)", "HexNAc(1)", "Hex(1)HexNAc(1)"))
+  comps <- glyrepr::as_glycan_composition(c(
+    "Hex(1)HexNAc(1)",
+    "HexNAc(1)",
+    "Hex(1)HexNAc(1)"
+  ))
   result <- comp_to_struc(comps, db) |>
     dplyr::mutate(structure = as.character(structure))
   expected <- tibble::tibble(

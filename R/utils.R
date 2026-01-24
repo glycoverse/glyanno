@@ -26,9 +26,13 @@
     }
     # If both fail, raise an error
     if (allow_structure) {
-      cli::cli_abort("Cannot parse {.arg glycans} as glycan composition or structure strings.")
+      cli::cli_abort(
+        "Cannot parse {.arg glycans} as glycan composition or structure strings."
+      )
     } else {
-      cli::cli_abort("Cannot parse {.arg glycans} as glycan composition strings.")
+      cli::cli_abort(
+        "Cannot parse {.arg glycans} as glycan composition strings."
+      )
     }
   } else if (glyrepr::is_glycan_composition(glycans)) {
     # ===== Glycan Composition =====
@@ -53,7 +57,6 @@
         "x" = "Got {.cls {class(glycans)}}."
       ))
     }
-
   }
 }
 
@@ -68,7 +71,9 @@
     tryCatch(
       return(glyparse::auto_parse(strucs)),
       error = function(e) {
-        cli::cli_abort("Cannot parse {.arg strucs} as glycan structure strings.")
+        cli::cli_abort(
+          "Cannot parse {.arg strucs} as glycan structure strings."
+        )
       }
     )
   } else if (glyrepr::is_glycan_structure(strucs)) {
