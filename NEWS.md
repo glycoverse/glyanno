@@ -1,4 +1,4 @@
-# glyanno (development version)
+# glyanno 0.1.1
 
 ## Minor improvements and fixes
 
