@@ -1,6 +1,10 @@
 # Changelog
 
-## glyanno (development version)
+## glyanno 0.1.2
+
+### Minor improvements and fixes
+
+- Update dependency strategy to use the r-universe repo.
 
 ## glyanno 0.1.1
 
