@@ -80,7 +80,7 @@ you might want to limit the search to only human O-GalNAc glycans.
 ``` r
 my_db <- glydb_compositions(species = "Homo sapiens", glycan_type = "O-GalNAc")
 my_db
-#> <glycan_composition[128]>
+#> <glycan_composition[124]>
 #> [1] Gal(1)GalNAc(1)
 #> [2] Gal(1)GlcNAc(1)GalNAc(1)
 #> [3] GlcNAc(1)GalNAc(1)
@@ -91,7 +91,7 @@ my_db
 #> [8] Gal(1)GalNAc(1)Fuc(1)
 #> [9] Gal(2)GlcNAc(2)GalNAc(2)Fuc(1)
 #> [10] Gal(2)GlcNAc(1)GalNAc(1)
-#> ... (118 more not shown)
+#> ... (114 more not shown)
 ```
 
 `my_db` is simply a

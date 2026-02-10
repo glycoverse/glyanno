@@ -79,7 +79,7 @@ example,
 
 ``` r
 comp_to_struc("H5N2")
-#> # A tibble: 77 × 2
+#> # A tibble: 79 × 2
 #>    composition     structure                                                    
 #>    <comp>          <struct>                                                     
 #>  1 Hex(5)HexNAc(2) Man(b1-2)Man(b1-3)[Man(b1-3)Man(b1-6)]Man(b1-4)GlcNAc(b1-4)G…
@@ -92,5 +92,5 @@ comp_to_struc("H5N2")
 #>  8 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)[Man(a1-6)Man(a1-6)]Man(a1-4)GlcNAc(b1-4)G…
 #>  9 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)Man(a1-6)[Man(a1-3)]Man(b1-4)GlcNAc(b1-4)G…
 #> 10 Hex(5)HexNAc(2) Gal(a1-6)Man(b1-3)[Man(b1-6)Man(a1-6)]Man(b1-4)GlcNAc(b1-4)G…
-#> # ℹ 67 more rows
+#> # ℹ 69 more rows
 ```

@@ -76,6 +76,6 @@ enhance_comp("Hex(5)HexNAc(2)")
 #> 1 Hex(5)HexNAc(2) Man(5)GlcNAc(2)      
 #> 2 Hex(5)HexNAc(2) Glc(1)Man(4)GlcNAc(2)
 #> 3 Hex(5)HexNAc(2) Man(4)Gal(1)GlcNAc(2)
-#> 4 Hex(5)HexNAc(2) Glc(1)Gal(4)GlcNAc(2)
-#> 5 Hex(5)HexNAc(2) Man(3)Gal(2)GlcNAc(2)
+#> 4 Hex(5)HexNAc(2) Man(3)Gal(2)GlcNAc(2)
+#> 5 Hex(5)HexNAc(2) Glc(1)Gal(4)GlcNAc(2)
 ```
