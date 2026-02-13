@@ -12,6 +12,10 @@ likely linkages (e.g., “Gal(b1-3)GalNAc(a1-”).
 
 ## Installation
 
+The glyanno package is not a core glycoverse package. You need to
+install it individually even if you have installed the meta-package
+[glycoverse](https://github.com/glycoverse/glycoverse).
+
 You can install the latest release of glyanno from
 [r-universe](https://glycoverse.r-universe.dev/glyanno)
 (**recommended**):
@@ -34,6 +38,11 @@ Or install the development version (NOT recommended):
 pak::pkg_install("glycoverse/glyanno")
 ```
 
+**Note:** Tips and troubleshooting for the meta-package
+[glycoverse](https://github.com/glycoverse/glycoverse) are also
+applicable here: [Installation of
+glycoverse](https://github.com/glycoverse/glycoverse#installation).
+
 ## Documentation
 
 - 🚀 Get started:
@@ -55,7 +64,6 @@ other tools that demand high-resolution structural information.
 ``` r
 library(glyanno)
 library(glyrepr)
-#> Warning: 程序包'glyrepr'是用R版本4.5.2 来建造的
 library(glydb)
 
 mz_to_comp(406.1325, charge = 1, adduct = "Na+")
