@@ -32,6 +32,9 @@
 #'   Can be a [glyrepr::glycan_composition()] vector or glycan composition strings
 #'   in Byonic style (e.g. Hex(5)HexNAc(2)) or simple style (e.g. H5N4F1S1).
 #'   If not provided, `glydb::glydb_compositions(mono_type = "concrete")` will be used.
+#' @param return_best A logical scalar. If `TRUE`, only the match with the highest confidence
+#'   score is returned for each m/z value. The `db` must have a `confidence` attribute.
+#'   Default is `FALSE`.
 #' @inheritParams calculate_mz
 #'
 #' @returns A tibble with the following columns:
@@ -49,11 +52,13 @@ mz_to_comp <- function(
   mz,
   tol = ppm(10),
   db = NULL,
+  return_best = FALSE,
   charge = 1,
   adduct = "H+",
   mass_dict = NULL
 ) {
   checkmate::assert_numeric(mz)
+  checkmate::assert_flag(return_best)
   mz <- mz[!is.na(mz)]
   if (length(mz) == 0) {
     return(tibble::tibble(
@@ -84,8 +89,12 @@ mz_to_comp <- function(
         safe = FALSE
       )
     )
+    # Store confidence BEFORE filtering NA compositions
+    confidences <- attr(comps, "confidence")
   } else {
     db <- .ensure_glycan_composition(db, allow_structure = FALSE)
+    # Store confidence BEFORE calling unique() (which strips attributes)
+    confidences <- attr(db, "confidence")
     comps <- unique(db)
     suppressWarnings(
       db_mz <- calculate_mz(
@@ -104,9 +113,17 @@ mz_to_comp <- function(
       ))
     }
   }
-  comps <- comps[!is.na(db_mz)]
-  db_mz <- db_mz[!is.na(db_mz)]
-  db_df <- tibble::tibble(composition = comps, mz = db_mz) |>
+  # Store the NA mask before filtering
+  na_mask <- is.na(db_mz)
+  # Check confidence attribute after filtering
+  .check_confidence_attr(confidences, return_best)
+  comps <- comps[!na_mask]
+  db_mz <- db_mz[!na_mask]
+  # Filter confidences along with comps
+  if (!is.null(confidences)) {
+    confidences <- confidences[!na_mask]
+  }
+  db_df <- tibble::tibble(composition = comps, mz = db_mz, confidence = confidences) |>
     dplyr::mutate(
       tol = ifelse(is.numeric(.env$tol), .env$tol, .env$tol(.data$mz)),
       upper = .data$mz + .data$tol,
@@ -114,9 +131,17 @@ mz_to_comp <- function(
     )
 
   find_one <- function(mz) {
-    db_df |>
-      dplyr::filter(.env$mz > .data$lower & .env$mz < .data$upper) |>
-      dplyr::pull(.data$composition)
+    matches <- db_df |>
+      dplyr::filter(.env$mz > .data$lower & .env$mz < .data$upper)
+    if (return_best && nrow(matches) > 1) {
+      # Arrange by desc(confidence), treating NA as lowest
+      matches <- matches |>
+        dplyr::mutate(conf_sort = ifelse(is.na(.data$confidence), -Inf, .data$confidence)) |>
+        dplyr::arrange(dplyr::desc(.data$conf_sort)) |>
+        dplyr::select(-"conf_sort")
+      matches <- matches[1, ]
+    }
+    matches |> dplyr::pull(.data$composition)
   }
 
   res_comps <- purrr::map(mz, find_one)
