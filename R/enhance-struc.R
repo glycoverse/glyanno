@@ -16,6 +16,9 @@
 #'   All structures in `db` must be at the same resolution level as `to_level`.
 #'   If not provided, a default structure vector is loaded from [glydb::glydb_structures()]
 #'   with the specified `to_level`.
+#' @param return_best Logical. If `TRUE`, only return the best matching structure
+#'   (highest confidence) for each input structure. Requires `db` to have a
+#'   `confidence` attribute. Default is `FALSE`.
 #'
 #' @returns A tibble with the following columns:
 #'   - `raw`: The original glycan structures.
@@ -34,16 +37,36 @@
 #' enhance_struc("Gal(b1-?)GalNAc(a1-", to_level = "intact")
 #'
 #' @export
-enhance_struc <- function(strucs, to_level = "intact", db = NULL) {
+enhance_struc <- function(
+  strucs,
+  to_level = "intact",
+  db = NULL,
+  return_best = FALSE
+) {
   # Input validation and preparation
   strucs <- .ensure_glycan_structure(strucs)
   checkmate::assert_choice(to_level, c("intact", "topological"))
+  checkmate::assert_flag(return_best)
+  # Store confidence before any transformations
+  confidences <- if (is.null(db)) NULL else attr(db, "confidence")
+
   if (is.null(db)) {
     db <- glydb::glydb_structures(structure_level = to_level)
   } else {
     db <- .ensure_glycan_structure(db)
   }
-  db <- unique(db)
+
+  # If confidences was lost during transformation, try to get from db
+  if (is.null(confidences)) {
+    confidences <- attr(db, "confidence")
+  }
+  # Deduplicate db while preserving corresponding confidences
+  dup_idx <- duplicated(db)
+  db <- db[!dup_idx]
+  if (!is.null(confidences)) {
+    confidences <- confidences[!dup_idx]
+  }
+  .check_confidence_attr(confidences, return_best)
   db_struc_level <- glyrepr::get_structure_level(db)
   if (any(db_struc_level != to_level)) {
     cli::cli_warn(
@@ -113,6 +136,19 @@ enhance_struc <- function(strucs, to_level = "intact", db = NULL) {
           enhanced = matched_enhanced,
           row_id = matched_row_ids
         )
+
+        # Filter by confidence if return_best is TRUE
+        if (return_best) {
+          matched_confidences <- confidences[match_indices[, "row"]]
+          res_enhanced$confidence <- matched_confidences
+
+          res_enhanced <- res_enhanced |>
+            dplyr::arrange(.data$row_id, dplyr::desc(.data$confidence)) |>
+            dplyr::group_by(.data$row_id) |>
+            dplyr::slice(1) |>
+            dplyr::ungroup() |>
+            dplyr::select(-"confidence")
+        }
       } else {
         # No matches found
         res_enhanced <- tibble::tibble(
