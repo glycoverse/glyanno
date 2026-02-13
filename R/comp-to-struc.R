@@ -13,6 +13,8 @@
 #'   Can be a [glyrepr::glycan_structure()] vector or any structure strings
 #'   supported by [glyparse::auto_parse()].
 #'   If not provided, `glydb::glydb_structures(structure_level = "intact")` will be used.
+#' @param return_best If `TRUE`, only return the highest confidence match for each
+#'   composition. Requires `db` to have a `confidence` attribute. Default is `FALSE`.
 #'
 #' @returns A tibble with the following columns:
 #'   - `composition`: The glycan compositions, as [glyrepr::glycan_composition()] vector.
@@ -25,14 +27,27 @@
 #'
 #' @seealso [glyparse::auto_parse()]
 #' @export
-comp_to_struc <- function(comps, db = NULL) {
+comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
+  checkmate::assert_flag(return_best)
   comps <- .ensure_glycan_composition(comps, allow_structure = FALSE)
+
+  # Store confidence attribute before any transformations
+  confidences <- if (is.null(db)) NULL else attr(db, "confidence")
+
   if (is.null(db)) {
     db <- glydb::glydb_structures(structure_level = "intact")
+    # glydb_structures already has confidence attribute
   } else {
     db <- .ensure_glycan_structure(db)
   }
   db <- unique(db)
+
+  # Use stored confidences if available (before unique() stripped them),
+  # otherwise get from db (for glydb_structures)
+  if (is.null(confidences)) {
+    confidences <- attr(db, "confidence")
+  }
+  .check_confidence_attr(confidences, return_best)
 
   # Handle empty compositions early (before calling get_mono_type)
   if (length(comps) == 0) {
@@ -52,14 +67,24 @@ comp_to_struc <- function(comps, db = NULL) {
     ))
     db_df <- tibble::tibble(
       composition = db_comps_generic,
-      structure = db
+      structure = db,
+      confidence = confidences
     )
     comps_df <- tibble::tibble(
       composition = glyrepr::convert_to_generic(comps),
       row_id = seq_along(comps)
     )
     res <- comps_df |>
-      dplyr::inner_join(db_df, by = "composition") |>
+      dplyr::inner_join(db_df, by = "composition")
+    # Filter to best match if requested
+    if (return_best) {
+      res <- res |>
+        dplyr::arrange(.data$row_id, dplyr::desc(.data$confidence)) |>
+        dplyr::group_by(.data$row_id) |>
+        dplyr::slice(1) |>
+        dplyr::ungroup()
+    }
+    res <- res |>
       dplyr::arrange(.data$row_id) |>
       dplyr::select(all_of(c("composition", "structure")))
   } else {
@@ -74,14 +99,24 @@ comp_to_struc <- function(comps, db = NULL) {
     }
     db_concrete_df <- tibble::tibble(
       composition = glyrepr::as_glycan_composition(db),
-      structure = db
+      structure = db,
+      confidence = confidences
     )
     comps_df <- tibble::tibble(
       composition = comps,
       row_id = seq_along(comps)
     )
     res <- comps_df |>
-      dplyr::inner_join(db_concrete_df, by = "composition") |>
+      dplyr::inner_join(db_concrete_df, by = "composition")
+    # Filter to best match if requested
+    if (return_best) {
+      res <- res |>
+        dplyr::arrange(.data$row_id, dplyr::desc(.data$confidence)) |>
+        dplyr::group_by(.data$row_id) |>
+        dplyr::slice(1) |>
+        dplyr::ungroup()
+    }
+    res <- res |>
       dplyr::arrange(.data$row_id) |>
       dplyr::select(all_of(c("composition", "structure")))
   }

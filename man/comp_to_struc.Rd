@@ -4,7 +4,7 @@
 \alias{comp_to_struc}
 \title{Convert glycan composition to glycan structure}
 \usage{
-comp_to_struc(comps, db = NULL)
+comp_to_struc(comps, db = NULL, return_best = FALSE)
 }
 \arguments{
 \item{comps}{Glycan compositions to match against. Can be either:
@@ -18,6 +18,9 @@ comp_to_struc(comps, db = NULL)
 Can be a \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector or any structure strings
 supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
 If not provided, \code{glydb::glydb_structures(structure_level = "intact")} will be used.}
+
+\item{return_best}{If \code{TRUE}, only return the highest confidence match for each
+composition. Requires \code{db} to have a \code{confidence} attribute. Default is \code{FALSE}.}
 }
 \value{
 A tibble with the following columns:

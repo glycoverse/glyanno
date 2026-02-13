@@ -89,8 +89,8 @@
 
 #' Check if db has confidence attribute when return_best is TRUE
 #' @noRd
-.check_confidence_attr <- function(db, return_best) {
-  if (isTRUE(return_best) && is.null(attr(db, "confidence"))) {
+.check_confidence_attr <- function(confidences, return_best) {
+  if (isTRUE(return_best) && is.null(confidences)) {
     cli::cli_abort(c(
       "`db` must have a {.val confidence} attribute when {.val return_best} is {.val TRUE}.",
       "i" = "Use {.fun glydb::glydb_compositions} or {.fun glydb::glydb_structures} to get a database with confidence scores."
