@@ -34,6 +34,7 @@
 #'   If not provided, `glydb::glydb_compositions(mono_type = "concrete")` will be used.
 #' @param return_best A logical scalar. If `TRUE`, only the match with the highest confidence
 #'   score is returned for each m/z value. The `db` must have a `confidence` attribute.
+#'   Use [glydb::glydb_compositions()] for `db` to enable this feature.
 #'   Default is `FALSE`.
 #' @inheritParams calculate_mz
 #'

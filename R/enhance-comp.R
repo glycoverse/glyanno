@@ -17,6 +17,7 @@
 #'   If not provided, `glydb::glydb_compositions(mono_type = "concrete")` will be used.
 #' @param return_best Logical. If `TRUE`, only return the highest confidence match
 #'   for each input composition. Requires `db` to have a `confidence` attribute.
+#'   Use [glydb::glydb_compositions()] for `db` to enable this feature.
 #'   Defaults to `FALSE`.
 #'
 #' @returns A tibble with the following columns:

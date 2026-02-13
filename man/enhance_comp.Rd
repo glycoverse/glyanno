@@ -21,6 +21,7 @@ If not provided, \code{glydb::glydb_compositions(mono_type = "concrete")} will b
 
 \item{return_best}{Logical. If \code{TRUE}, only return the highest confidence match
 for each input composition. Requires \code{db} to have a \code{confidence} attribute.
+Use \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} for \code{db} to enable this feature.
 Defaults to \code{FALSE}.}
 }
 \value{

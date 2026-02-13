@@ -27,6 +27,7 @@ If not provided, \code{glydb::glydb_compositions(mono_type = "concrete")} will b
 
 \item{return_best}{A logical scalar. If \code{TRUE}, only the match with the highest confidence
 score is returned for each m/z value. The \code{db} must have a \code{confidence} attribute.
+Use \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} for \code{db} to enable this feature.
 Default is \code{FALSE}.}
 
 \item{charge}{Charge to use. Can be 0, 1, 2, 3, -1, -2, -3, etc. 0 means neutral. Default is 1.}

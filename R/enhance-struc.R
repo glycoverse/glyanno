@@ -18,7 +18,8 @@
 #'   with the specified `to_level`.
 #' @param return_best Logical. If `TRUE`, only return the best matching structure
 #'   (highest confidence) for each input structure. Requires `db` to have a
-#'   `confidence` attribute. Default is `FALSE`.
+#'   `confidence` attribute. Use [glydb::glydb_structures()] for `db` to enable this feature.
+#'   Default is `FALSE`.
 #'
 #' @returns A tibble with the following columns:
 #'   - `raw`: The original glycan structures.

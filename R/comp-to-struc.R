@@ -14,7 +14,9 @@
 #'   supported by [glyparse::auto_parse()].
 #'   If not provided, `glydb::glydb_structures(structure_level = "intact")` will be used.
 #' @param return_best If `TRUE`, only return the highest confidence match for each
-#'   composition. Requires `db` to have a `confidence` attribute. Default is `FALSE`.
+#'   composition. Requires `db` to have a `confidence` attribute.
+#'   Use [glydb::glydb_structures()] for `db` to enable this feature.
+#'   Default is `FALSE`.
 #'
 #' @returns A tibble with the following columns:
 #'   - `composition`: The glycan compositions, as [glyrepr::glycan_composition()] vector.

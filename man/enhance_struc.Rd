@@ -23,7 +23,8 @@ with the specified \code{to_level}.}
 
 \item{return_best}{Logical. If \code{TRUE}, only return the best matching structure
 (highest confidence) for each input structure. Requires \code{db} to have a
-\code{confidence} attribute. Default is \code{FALSE}.}
+\code{confidence} attribute. Use \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} for \code{db} to enable this feature.
+Default is \code{FALSE}.}
 }
 \value{
 A tibble with the following columns:

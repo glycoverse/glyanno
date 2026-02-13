@@ -20,7 +20,9 @@ supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
 If not provided, \code{glydb::glydb_structures(structure_level = "intact")} will be used.}
 
 \item{return_best}{If \code{TRUE}, only return the highest confidence match for each
-composition. Requires \code{db} to have a \code{confidence} attribute. Default is \code{FALSE}.}
+composition. Requires \code{db} to have a \code{confidence} attribute.
+Use \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} for \code{db} to enable this feature.
+Default is \code{FALSE}.}
 }
 \value{
 A tibble with the following columns:
