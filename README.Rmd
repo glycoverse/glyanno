@@ -34,6 +34,9 @@ glyanno infers the most likely linkages (e.g., "Gal(b1-3)GalNAc(a1-").
 
 ## Installation
 
+The glyanno package is not a core glycoverse package.
+You need to install it individually even if you have installed the meta-package [glycoverse](https://github.com/glycoverse/glycoverse).
+
 You can install the latest release of glyanno from [r-universe](https://glycoverse.r-universe.dev/glyanno) (**recommended**):
 
 ```r
@@ -44,15 +47,18 @@ pak::pkg_install("glyanno")
 
 Or from [GitHub](https://github.com/glycoverse/glyanno):
 
-``` r
+```r
 pak::pkg_install("glycoverse/glyanno@*release")
 ```
 
 Or install the development version (NOT recommended):
 
-``` r
+```r
 pak::pkg_install("glycoverse/glyanno")
 ```
+
+**Note:** Tips and troubleshooting for the meta-package [glycoverse](https://github.com/glycoverse/glycoverse)
+are also applicable here: [Installation of glycoverse](https://github.com/glycoverse/glycoverse#installation).
 
 ## Documentation
 
