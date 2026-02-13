@@ -123,7 +123,11 @@ mz_to_comp <- function(
   if (!is.null(confidences)) {
     confidences <- confidences[!na_mask]
   }
-  db_df <- tibble::tibble(composition = comps, mz = db_mz, confidence = confidences) |>
+  db_df <- tibble::tibble(
+    composition = comps,
+    mz = db_mz,
+    confidence = confidences
+  ) |>
     dplyr::mutate(
       tol = ifelse(is.numeric(.env$tol), .env$tol, .env$tol(.data$mz)),
       upper = .data$mz + .data$tol,
@@ -136,7 +140,9 @@ mz_to_comp <- function(
     if (return_best && nrow(matches) > 1) {
       # Arrange by desc(confidence), treating NA as lowest
       matches <- matches |>
-        dplyr::mutate(conf_sort = ifelse(is.na(.data$confidence), -Inf, .data$confidence)) |>
+        dplyr::mutate(
+          conf_sort = ifelse(is.na(.data$confidence), -Inf, .data$confidence)
+        ) |>
         dplyr::arrange(dplyr::desc(.data$conf_sort)) |>
         dplyr::select(-"conf_sort")
       matches <- matches[1, ]
