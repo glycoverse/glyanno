@@ -38,12 +38,14 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
   if (is.null(db)) {
     db <- glydb::glydb_compositions(mono_type = "concrete")
   } else {
-    db <- .ensure_glycan_composition(db, allow_structure = FALSE)
+    confidences <- attr(db, "confidence")
+    is_from_glydb <- !is.null(confidences)
+    if (!is_from_glydb) {
+      db <- .ensure_glycan_composition(db, allow_structure = FALSE)
+      db <- unique(db)
+    }
   }
 
-  # Store confidence before deduplication
-  confidences <- attr(db, "confidence")
-  db <- unique(db)
   .check_confidence_attr(confidences, return_best)
 
   # Handle empty composition case
