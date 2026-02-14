@@ -48,26 +48,20 @@ enhance_struc <- function(
   strucs <- .ensure_glycan_structure(strucs)
   checkmate::assert_choice(to_level, c("intact", "topological"))
   checkmate::assert_flag(return_best)
-  # Store confidence before any transformations
-  confidences <- if (is.null(db)) NULL else attr(db, "confidence")
 
   if (is.null(db)) {
     db <- glydb::glydb_structures(structure_level = to_level)
   } else {
-    db <- .ensure_glycan_structure(db)
+    confidences <- attr(db, "confidence")
+    is_from_glydb <- !is.null(confidences)
+    if (!is_from_glydb) {
+      db <- .ensure_glycan_structure(db)
+      db <- unique(db)
+    }
   }
 
-  # If confidences was lost during transformation, try to get from db
-  if (is.null(confidences)) {
-    confidences <- attr(db, "confidence")
-  }
-  # Deduplicate db while preserving corresponding confidences
-  dup_idx <- duplicated(db)
-  db <- db[!dup_idx]
-  if (!is.null(confidences)) {
-    confidences <- confidences[!dup_idx]
-  }
   .check_confidence_attr(confidences, return_best)
+
   db_struc_level <- glyrepr::get_structure_level(db)
   if (any(db_struc_level != to_level)) {
     cli::cli_warn(
