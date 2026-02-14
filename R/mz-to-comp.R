@@ -80,26 +80,27 @@ mz_to_comp <- function(
   }
 
   if (is.null(db)) {
-    comps <- glydb::glydb_compositions(mono_type = "concrete")
+    db <- glydb::glydb_compositions(mono_type = "concrete")
     suppressWarnings(
       db_mz <- calculate_mz(
-        comps,
+        db,
         charge = charge,
         adduct = adduct,
         mass_dict = mass_dict,
         safe = FALSE
       )
     )
-    # Store confidence BEFORE filtering NA compositions
-    confidences <- attr(comps, "confidence")
-  } else {
-    db <- .ensure_glycan_composition(db, allow_structure = FALSE)
-    # Store confidence BEFORE calling unique() (which strips attributes)
     confidences <- attr(db, "confidence")
-    comps <- unique(db)
+  } else {
+    confidences <- attr(db, "confidence")
+    is_from_glydb <- !is.null(confidences)
+    if (!is_from_glydb) {
+      db <- .ensure_glycan_composition(db, allow_structure = FALSE)
+      db <- unique(db)
+    }
     suppressWarnings(
       db_mz <- calculate_mz(
-        comps,
+        db,
         charge = charge,
         adduct = adduct,
         mass_dict = mass_dict,
@@ -114,18 +115,18 @@ mz_to_comp <- function(
       ))
     }
   }
+
+  .check_confidence_attr(confidences, return_best)
   # Store the NA mask before filtering
   na_mask <- is.na(db_mz)
-  # Check confidence attribute after filtering
-  .check_confidence_attr(confidences, return_best)
-  comps <- comps[!na_mask]
+  db <- db[!na_mask]
   db_mz <- db_mz[!na_mask]
-  # Filter confidences along with comps
+  # Filter confidences along with db
   if (!is.null(confidences)) {
     confidences <- confidences[!na_mask]
   }
   db_df <- tibble::tibble(
-    composition = comps,
+    composition = db,
     mz = db_mz,
     confidence = confidences
   ) |>
