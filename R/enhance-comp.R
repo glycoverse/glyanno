@@ -15,6 +15,10 @@
 #'   (e.g. "Man(5)GlcNAc(2)", "H5N4F1S1").
 #'   All compositions in `db` must be concrete (e.g. Man(5)GlcNAc(2)).
 #'   If not provided, `glydb::glydb_compositions(mono_type = "concrete")` will be used.
+#' @param return_best Logical. If `TRUE`, only return the highest confidence match
+#'   for each input composition. Requires `db` to have a `confidence` attribute.
+#'   Use [glydb::glydb_compositions()] for `db` to enable this feature.
+#'   Defaults to `FALSE`.
 #'
 #' @returns A tibble with the following columns:
 #'   - `raw`: The original compositions.
@@ -26,15 +30,24 @@
 #' enhance_comp("Hex(5)HexNAc(2)")
 #'
 #' @export
-enhance_comp <- function(comps, db = NULL) {
+enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
+  checkmate::assert_flag(return_best)
+
   # Input validation and preparation
   comps <- .ensure_glycan_composition(comps, allow_structure = FALSE)
   if (is.null(db)) {
     db <- glydb::glydb_compositions(mono_type = "concrete")
+    confidences <- attr(db, "confidence")
   } else {
-    db <- .ensure_glycan_composition(db, allow_structure = FALSE)
+    confidences <- attr(db, "confidence")
+    is_from_glydb <- !is.null(confidences)
+    if (!is_from_glydb) {
+      db <- .ensure_glycan_composition(db, allow_structure = FALSE)
+      db <- unique(db)
+    }
   }
-  db <- unique(db)
+
+  .check_confidence_attr(confidences, return_best)
 
   # Handle empty composition case
   if (length(comps) == 0) {
@@ -56,7 +69,8 @@ enhance_comp <- function(comps, db = NULL) {
     # Generic compositions: match via generic conversion
     db_df <- tibble::tibble(
       generic = glyrepr::convert_to_generic(db),
-      concrete = db
+      concrete = db,
+      confidence = confidences %||% NA_real_
     )
     comps_df <- tibble::tibble(
       composition = glyrepr::convert_to_generic(comps),
@@ -68,8 +82,19 @@ enhance_comp <- function(comps, db = NULL) {
       dplyr::select(all_of(c(
         "raw" = "composition",
         "enhanced" = "concrete",
-        "row_id"
-      ))) |>
+        "row_id",
+        "confidence"
+      )))
+
+    if (return_best) {
+      res <- res |>
+        dplyr::arrange(.data$row_id, dplyr::desc(.data$confidence)) |>
+        dplyr::group_by(.data$row_id) |>
+        dplyr::slice(1) |>
+        dplyr::ungroup()
+    }
+
+    res <- res |>
       dplyr::arrange(.data$row_id) |>
       dplyr::select(all_of(c("raw", "enhanced")))
   } else {
@@ -88,4 +113,25 @@ enhance_comp <- function(comps, db = NULL) {
     )
   }
   res
+}
+
+
+#' Check confidence attribute when return_best is TRUE
+#'
+#' @param confidences The confidence attribute value
+#' @param return_best Whether return_best is TRUE
+#' @noRd
+.check_confidence_attr <- function(confidences, return_best) {
+  if (!return_best) {
+    return(invisible(NULL))
+  }
+
+  if (is.null(confidences)) {
+    cli::cli_abort(c(
+      "Database must have a {.val confidence} attribute when {.arg return_best} is {.val TRUE}.",
+      "i" = "Add confidence scores to the database using {.code attr(db, \"confidence\") <- values}."
+    ))
+  }
+
+  invisible(NULL)
 }

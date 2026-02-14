@@ -179,3 +179,72 @@ test_that("mz_to_comp accepts glycan composition strings as db", {
   )
   expect_equal(result, expected)
 })
+
+test_that("mz_to_comp with return_best=TRUE keeps highest confidence match", {
+  db <- glyrepr::glycan_composition(
+    c(Glc = 2),
+    c(Gal = 2)
+  )
+  attr(db, "confidence") <- c(1.0, 2.0)
+
+  result <- mz_to_comp(
+    mz = 365,
+    adduct = "Na+",
+    db = db,
+    mass_dict = mass_dict_for_test(),
+    return_best = TRUE
+  )
+
+  expect_equal(nrow(result), 1)
+  expect_equal(as.character(result$composition), "Gal(2)")
+})
+
+test_that("mz_to_comp with return_best=TRUE errors without confidence attr", {
+  db <- glyrepr::glycan_composition(c(Hex = 2))
+
+  expect_error(
+    mz_to_comp(
+      mz = 365,
+      db = db,
+      adduct = "Na+",
+      mass_dict = mass_dict_for_test(),
+      return_best = TRUE
+    ),
+    "must have a .*confidence.* attribute"
+  )
+})
+
+test_that("mz_to_comp treats NA confidence as lowest", {
+  db <- glyrepr::glycan_composition(
+    c(Glc = 2),
+    c(Gal = 2)
+  )
+  attr(db, "confidence") <- c(NA_real_, 2.0)
+
+  result <- mz_to_comp(
+    mz = 365,
+    adduct = "Na+",
+    db = db,
+    mass_dict = mass_dict_for_test(),
+    return_best = TRUE
+  )
+
+  expect_equal(as.character(result$composition), "Gal(2)")
+})
+
+test_that("mz_to_comp works with db=NULL (regression: confidences undefined)", {
+  # This test ensures confidences variable is defined when db=NULL
+  # Should not error even without return_best
+  expect_no_error(
+    result <- mz_to_comp(
+      mz = 933.3175,
+      adduct = "Na+",
+      db = NULL,
+      return_best = FALSE
+    )
+  )
+  # Result should be a tibble with mz and composition columns
+  expect_named(result, c("mz", "composition"))
+  # Should have at least one match from default glydb
+  expect_gt(nrow(result), 0)
+})

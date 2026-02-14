@@ -73,3 +73,51 @@ test_that("enhance_comp errors when db has generic compositions", {
     "All compositions in `db` must be concrete"
   )
 })
+
+test_that("enhance_comp with return_best=TRUE keeps highest confidence match", {
+  db <- glyrepr::glycan_composition(
+    c(Glc = 2),
+    c(Glc = 1, Gal = 1)
+  )
+  attr(db, "confidence") <- c(1.0, 2.0)
+
+  comps <- glyrepr::as_glycan_composition("Hex(2)")
+  result <- enhance_comp(comps, db, return_best = TRUE)
+
+  expect_equal(nrow(result), 1)
+  expect_equal(as.character(result$enhanced), "Glc(1)Gal(1)")
+})
+
+test_that("enhance_comp with return_best=TRUE errors without confidence attr", {
+  db <- glyrepr::glycan_composition(c(Glc = 1))
+  comps <- glyrepr::as_glycan_composition("Hex(1)")
+
+  expect_error(
+    enhance_comp(comps, db, return_best = TRUE),
+    "must have a .*confidence.* attribute"
+  )
+})
+
+test_that("enhance_comp treats NA confidence as lowest", {
+  db <- glyrepr::glycan_composition(
+    c(Glc = 2),
+    c(Glc = 1, Gal = 1)
+  )
+  attr(db, "confidence") <- c(NA_real_, 2.0)
+
+  comps <- glyrepr::as_glycan_composition("Hex(2)")
+  result <- enhance_comp(comps, db, return_best = TRUE)
+
+  expect_equal(as.character(result$enhanced), "Glc(1)Gal(1)")
+})
+
+test_that("enhance_comp works with db=NULL (regression: confidences undefined)", {
+  # This test ensures confidences variable is defined when db=NULL
+  comps <- glyrepr::as_glycan_composition("Hex(1)")
+  # Should not error even without return_best
+  expect_no_error(
+    result <- enhance_comp(comps, db = NULL, return_best = FALSE)
+  )
+  # Result should be a tibble with raw and enhanced columns
+  expect_named(result, c("raw", "enhanced"))
+})

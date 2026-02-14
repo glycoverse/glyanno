@@ -4,7 +4,7 @@
 \alias{enhance_struc}
 \title{Enhance glycan structure}
 \usage{
-enhance_struc(strucs, to_level = "intact", db = NULL)
+enhance_struc(strucs, to_level = "intact", db = NULL, return_best = FALSE)
 }
 \arguments{
 \item{strucs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector,
@@ -20,6 +20,11 @@ or a character vector of glycan structure strings supported by \code{\link[glypa
 All structures in \code{db} must be at the same resolution level as \code{to_level}.
 If not provided, a default structure vector is loaded from \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}
 with the specified \code{to_level}.}
+
+\item{return_best}{Logical. If \code{TRUE}, only return the best matching structure
+(highest confidence) for each input structure. Requires \code{db} to have a
+\code{confidence} attribute. Use \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} for \code{db} to enable this feature.
+Default is \code{FALSE}.}
 }
 \value{
 A tibble with the following columns:

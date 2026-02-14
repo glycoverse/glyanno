@@ -4,7 +4,7 @@
 \alias{enhance_comp}
 \title{Enhance glycan composition}
 \usage{
-enhance_comp(comps, db = NULL)
+enhance_comp(comps, db = NULL, return_best = FALSE)
 }
 \arguments{
 \item{comps}{A \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector,
@@ -18,6 +18,11 @@ or a character vector of glycan composition strings of Byonic or simple style
 (e.g. "Man(5)GlcNAc(2)", "H5N4F1S1").
 All compositions in \code{db} must be concrete (e.g. Man(5)GlcNAc(2)).
 If not provided, \code{glydb::glydb_compositions(mono_type = "concrete")} will be used.}
+
+\item{return_best}{Logical. If \code{TRUE}, only return the highest confidence match
+for each input composition. Requires \code{db} to have a \code{confidence} attribute.
+Use \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} for \code{db} to enable this feature.
+Defaults to \code{FALSE}.}
 }
 \value{
 A tibble with the following columns:

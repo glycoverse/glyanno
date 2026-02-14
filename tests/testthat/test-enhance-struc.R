@@ -96,3 +96,91 @@ test_that("enhance_struc works with multiple glycans", {
   expect_equal(as.character(res$raw), as.character(expected$raw))
   expect_equal(as.character(res$enhanced), as.character(expected$enhanced))
 })
+
+test_that("enhance_struc with return_best=TRUE filters enhanced structures by confidence", {
+  db <- glyrepr::as_glycan_structure(c(
+    "Gal(b1-3)GalNAc(a1-",
+    "Gal(b1-4)GalNAc(a1-"
+  ))
+  attr(db, "confidence") <- c(1.0, 2.0)
+
+  struc <- glyrepr::as_glycan_structure("Hex(??-?)HexNAc(??-")
+  result <- enhance_struc(
+    struc,
+    to_level = "intact",
+    db = db,
+    return_best = TRUE
+  ) |>
+    dplyr::mutate(enhanced = as.character(enhanced))
+
+  expect_equal(nrow(result), 1)
+  expect_equal(result$enhanced, "Gal(b1-4)GalNAc(a1-")
+})
+
+test_that("enhance_struc with return_best=TRUE keeps all already-at-level structures", {
+  db <- glyrepr::as_glycan_structure(c(
+    "Gal(b1-3)GalNAc(a1-",
+    "Gal(b1-4)GalNAc(a1-"
+  ))
+  attr(db, "confidence") <- c(1.0, 2.0)
+
+  struc <- glyrepr::as_glycan_structure(c(
+    "Gal(b1-3)GalNAc(a1-",
+    "Gal(b1-4)GalNAc(a1-"
+  ))
+  result <- enhance_struc(
+    struc,
+    to_level = "intact",
+    db = db,
+    return_best = TRUE
+  )
+
+  expect_equal(nrow(result), 2)
+})
+
+test_that("enhance_struc with return_best=TRUE errors without confidence attr", {
+  db <- glyrepr::as_glycan_structure("HexNAc(??-")
+  struc <- glyrepr::as_glycan_structure("HexNAc(??-")
+
+  expect_error(
+    enhance_struc(struc, to_level = "intact", db = db, return_best = TRUE),
+    "must have a .*confidence.* attribute"
+  )
+})
+
+test_that("enhance_struc treats NA confidence as lowest for enhancement", {
+  db <- glyrepr::as_glycan_structure(c(
+    "Gal(b1-3)GalNAc(a1-",
+    "Gal(b1-4)GalNAc(a1-"
+  ))
+  attr(db, "confidence") <- c(NA_real_, 2.0)
+
+  struc <- glyrepr::as_glycan_structure("Hex(??-?)HexNAc(??-")
+  result <- enhance_struc(
+    struc,
+    to_level = "intact",
+    db = db,
+    return_best = TRUE
+  ) |>
+    dplyr::mutate(enhanced = as.character(enhanced))
+
+  expect_equal(result$enhanced, "Gal(b1-4)GalNAc(a1-")
+})
+
+test_that("enhance_struc works with db=NULL (regression: confidences undefined)", {
+  # This test ensures confidences variable is defined when db=NULL
+  struc <- glyrepr::as_glycan_structure("Hex(??-?)HexNAc(??-")
+  # Should not error even without return_best
+  expect_no_error(
+    result <- enhance_struc(
+      struc,
+      to_level = "intact",
+      db = NULL,
+      return_best = FALSE
+    )
+  )
+  # Result should be a tibble with raw and enhanced columns
+  expect_named(result, c("raw", "enhanced"))
+  # Should have at least one match from default glydb
+  expect_gt(nrow(result), 0)
+})
