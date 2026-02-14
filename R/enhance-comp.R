@@ -37,6 +37,7 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
   comps <- .ensure_glycan_composition(comps, allow_structure = FALSE)
   if (is.null(db)) {
     db <- glydb::glydb_compositions(mono_type = "concrete")
+    confidences <- attr(db, "confidence")
   } else {
     confidences <- attr(db, "confidence")
     is_from_glydb <- !is.null(confidences)

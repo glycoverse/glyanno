@@ -110,3 +110,14 @@ test_that("enhance_comp treats NA confidence as lowest", {
 
   expect_equal(as.character(result$enhanced), "Glc(1)Gal(1)")
 })
+
+test_that("enhance_comp works with db=NULL (regression: confidences undefined)", {
+  # This test ensures confidences variable is defined when db=NULL
+  comps <- glyrepr::as_glycan_composition("Hex(1)")
+  # Should not error even without return_best
+  expect_no_error(
+    result <- enhance_comp(comps, db = NULL, return_best = FALSE)
+  )
+  # Result should be a tibble with raw and enhanced columns
+  expect_named(result, c("raw", "enhanced"))
+})

@@ -231,3 +231,20 @@ test_that("mz_to_comp treats NA confidence as lowest", {
 
   expect_equal(as.character(result$composition), "Gal(2)")
 })
+
+test_that("mz_to_comp works with db=NULL (regression: confidences undefined)", {
+  # This test ensures confidences variable is defined when db=NULL
+  # Should not error even without return_best
+  expect_no_error(
+    result <- mz_to_comp(
+      mz = 933.3175,
+      adduct = "Na+",
+      db = NULL,
+      return_best = FALSE
+    )
+  )
+  # Result should be a tibble with mz and composition columns
+  expect_named(result, c("mz", "composition"))
+  # Should have at least one match from default glydb
+  expect_gt(nrow(result), 0)
+})

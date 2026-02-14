@@ -51,6 +51,7 @@ enhance_struc <- function(
 
   if (is.null(db)) {
     db <- glydb::glydb_structures(structure_level = to_level)
+    confidences <- attr(db, "confidence")
   } else {
     confidences <- attr(db, "confidence")
     is_from_glydb <- !is.null(confidences)

@@ -202,3 +202,16 @@ test_that("comp_to_struc treats NA confidence as lowest", {
 
   expect_equal(result$structure, "Gal(b1-4)GalNAc(a1-")
 })
+
+test_that("comp_to_struc works with db=NULL (regression: confidences undefined)", {
+  # This test ensures confidences variable is defined when db=NULL
+  comps <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)")
+  # Should not error even without return_best
+  expect_no_error(
+    result <- comp_to_struc(comps, db = NULL, return_best = FALSE)
+  )
+  # Result should be a tibble with composition and structure columns
+  expect_named(result, c("composition", "structure"))
+  # Should have at least one match from default glydb
+  expect_gt(nrow(result), 0)
+})
