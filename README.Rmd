@@ -90,3 +90,9 @@ comp_to_struc("Gal(1)GalNAc(1)")
 my_db <- glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
 comp_to_struc("Gal(1)GalNAc(1)", db = my_db)
 ```
+
+```{r}
+# Use `return_best` to pick the most likely match
+# Core 1 is more likely than Core 5
+comp_to_struc("Gal(1)GalNAc(1)", db = my_db, return_best = TRUE)
+```
