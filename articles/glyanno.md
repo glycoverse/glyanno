@@ -115,10 +115,8 @@ structures. The m/z value 406.1325 corresponds to the composition
 Gal(1)GalNAc(1). What are the possible structures for this composition?
 
 ``` r
-comp_to_struc(
-  "Gal(1)GalNAc(1)",
-  db = glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
-)
+struc_db <- glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
+comp_to_struc("Gal(1)GalNAc(1)", db = struc_db)
 #> # A tibble: 2 × 2
 #>   composition     structure          
 #>   <comp>          <struct>           
@@ -131,6 +129,45 @@ Note that here we use
 instead of
 [`glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html)
 to create a structure-specific database.
+
+Two structures are possible, one is Core 1, the other is Core 5.
+Sometimes we just want a “most possible” result. In this case, you can
+set `return_best` to `TRUE`:
+
+``` r
+comp_to_struc("Gal(1)GalNAc(1)", db = struc_db, return_best = TRUE)
+#> # A tibble: 1 × 2
+#>   composition     structure          
+#>   <comp>          <struct>           
+#> 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-
+```
+
+Core 1 is more common than Core 5, so it was kept. The function keeps
+the structure with most citations for multiple matches.
+
+Note that all functions in `glyanno` works vectorizedly:
+
+``` r
+comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)
+#> # A tibble: 2 × 2
+#>   composition        structure             
+#>   <comp>             <struct>              
+#> 1 Gal(1)GalNAc(1)    Gal(b1-3)GalNAc(a1-   
+#> 2 GlcNAc(1)GalNAc(1) GlcNAc(b1-3)GalNAc(a1-
+```
+
+If you set `return_best` to `TRUE`, a common pattern is to directly
+fetch the second column from the result:
+
+``` r
+comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)[[2]]
+#> <glycan_structure[2]>
+#> [1] Gal(b1-3)GalNAc(a1-
+#> [2] GlcNAc(b1-3)GalNAc(a1-
+#> # Unique structures: 2
+```
+
+This vector always has the same length as the input.
 
 ## Enhancing Compositions and Structures
 
@@ -191,6 +228,20 @@ enhance_struc("Gal(??-?)GalNAc(??-", db = glydb_structures(species = "Homo sapie
 #>   <struct>            <struct>           
 #> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-
 #> 2 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-
+```
+
+You can set `return_best` to `TRUE` as well.
+
+``` r
+enhance_struc(
+  "Gal(??-?)GalNAc(??-",
+  db = glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc"),
+  return_best = TRUE
+)
+#> # A tibble: 1 × 2
+#>   raw                 enhanced           
+#>   <struct>            <struct>           
+#> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-
 ```
 
 ## Bidirectional Conversion
