@@ -1,5 +1,7 @@
 # Changelog
 
+## glyanno (development version)
+
 ## glyanno 0.2.0
 
 ### New features
