@@ -6,7 +6,7 @@ gives all possible concrete glycan compositions (e.g. Man(5)GlcNAc(2)).
 ## Usage
 
 ``` r
-enhance_comp(comps, db = NULL)
+enhance_comp(comps, db = NULL, return_best = FALSE)
 ```
 
 ## Arguments
@@ -29,6 +29,13 @@ enhance_comp(comps, db = NULL)
   or simple style (e.g. "Man(5)GlcNAc(2)", "H5N4F1S1"). All compositions
   in `db` must be concrete (e.g. Man(5)GlcNAc(2)). If not provided,
   `glydb::glydb_compositions(mono_type = "concrete")` will be used.
+
+- return_best:
+
+  Logical. If `TRUE`, only return the highest confidence match for each
+  input composition. Requires `db` to have a `confidence` attribute. Use
+  [`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html)
+  for `db` to enable this feature. Defaults to `FALSE`.
 
 ## Value
 

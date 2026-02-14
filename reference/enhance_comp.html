@@ -41,7 +41,7 @@ this function gives all possible concrete glycan compositions (e.g. Man(5)GlcNAc
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">enhance_comp</span><span class="op">(</span><span class="va">comps</span>, db <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">enhance_comp</span><span class="op">(</span><span class="va">comps</span>, db <span class="op">=</span> <span class="cn">NULL</span>, return_best <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -62,6 +62,13 @@ or a character vector of glycan composition strings of Byonic or simple style
 (e.g. "Man(5)GlcNAc(2)", "H5N4F1S1").
 All compositions in <code>db</code> must be concrete (e.g. Man(5)GlcNAc(2)).
 If not provided, <code>glydb::glydb_compositions(mono_type = "concrete")</code> will be used.</p></dd>
+
+
+<dt id="arg-return-best">return_best<a class="anchor" aria-label="anchor" href="#arg-return-best"></a></dt>
+<dd><p>Logical. If <code>TRUE</code>, only return the highest confidence match
+for each input composition. Requires <code>db</code> to have a <code>confidence</code> attribute.
+Use <code><a href="https://glycoverse.github.io/glydb/reference/glydb_compositions.html" class="external-link">glydb::glydb_compositions()</a></code> for <code>db</code> to enable this feature.
+Defaults to <code>FALSE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

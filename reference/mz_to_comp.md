@@ -10,6 +10,7 @@ mz_to_comp(
   mz,
   tol = ppm(10),
   db = NULL,
+  return_best = FALSE,
   charge = 1,
   adduct = "H+",
   mass_dict = NULL
@@ -35,6 +36,14 @@ mz_to_comp(
   vector or glycan composition strings in Byonic style (e.g.
   Hex(5)HexNAc(2)) or simple style (e.g. H5N4F1S1). If not provided,
   `glydb::glydb_compositions(mono_type = "concrete")` will be used.
+
+- return_best:
+
+  A logical scalar. If `TRUE`, only the match with the highest
+  confidence score is returned for each m/z value. The `db` must have a
+  `confidence` attribute. Use
+  [`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html)
+  for `db` to enable this feature. Default is `FALSE`.
 
 - charge:
 

@@ -6,7 +6,7 @@ glycan structures in the `glydb` database.
 ## Usage
 
 ``` r
-comp_to_struc(comps, db = NULL)
+comp_to_struc(comps, db = NULL, return_best = FALSE)
 ```
 
 ## Arguments
@@ -31,6 +31,13 @@ comp_to_struc(comps, db = NULL)
   [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
   If not provided, `glydb::glydb_structures(structure_level = "intact")`
   will be used.
+
+- return_best:
+
+  If `TRUE`, only return the highest confidence match for each
+  composition. Requires `db` to have a `confidence` attribute. Use
+  [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
+  for `db` to enable this feature. Default is `FALSE`.
 
 ## Value
 

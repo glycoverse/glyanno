@@ -8,7 +8,7 @@ higher resolution level.
 ## Usage
 
 ``` r
-enhance_struc(strucs, to_level = "intact", db = NULL)
+enhance_struc(strucs, to_level = "intact", db = NULL, return_best = FALSE)
 ```
 
 ## Arguments
@@ -38,6 +38,14 @@ enhance_struc(strucs, to_level = "intact", db = NULL)
   `to_level`. If not provided, a default structure vector is loaded from
   [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
   with the specified `to_level`.
+
+- return_best:
+
+  Logical. If `TRUE`, only return the best matching structure (highest
+  confidence) for each input structure. Requires `db` to have a
+  `confidence` attribute. Use
+  [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
+  for `db` to enable this feature. Default is `FALSE`.
 
 ## Value
 

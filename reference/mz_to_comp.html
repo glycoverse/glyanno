@@ -42,6 +42,7 @@
 <span>  <span class="va">mz</span>,</span>
 <span>  tol <span class="op">=</span> <span class="fu"><a href="ppm.html">ppm</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span>,</span>
 <span>  db <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  return_best <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  charge <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  adduct <span class="op">=</span> <span class="st">"H+"</span>,</span>
 <span>  mass_dict <span class="op">=</span> <span class="cn">NULL</span></span>
@@ -66,6 +67,13 @@ Default is <code>ppm(10)</code>.</p></dd>
 Can be a <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_composition.html" class="external-link">glyrepr::glycan_composition()</a></code> vector or glycan composition strings
 in Byonic style (e.g. Hex(5)HexNAc(2)) or simple style (e.g. H5N4F1S1).
 If not provided, <code>glydb::glydb_compositions(mono_type = "concrete")</code> will be used.</p></dd>
+
+
+<dt id="arg-return-best">return_best<a class="anchor" aria-label="anchor" href="#arg-return-best"></a></dt>
+<dd><p>A logical scalar. If <code>TRUE</code>, only the match with the highest confidence
+score is returned for each m/z value. The <code>db</code> must have a <code>confidence</code> attribute.
+Use <code><a href="https://glycoverse.github.io/glydb/reference/glydb_compositions.html" class="external-link">glydb::glydb_compositions()</a></code> for <code>db</code> to enable this feature.
+Default is <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-charge">charge<a class="anchor" aria-label="anchor" href="#arg-charge"></a></dt>
