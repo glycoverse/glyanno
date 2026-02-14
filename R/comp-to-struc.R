@@ -33,22 +33,18 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
   checkmate::assert_flag(return_best)
   comps <- .ensure_glycan_composition(comps, allow_structure = FALSE)
 
-  # Store confidence attribute before any transformations
-  confidences <- if (is.null(db)) NULL else attr(db, "confidence")
-
   if (is.null(db)) {
     db <- glydb::glydb_structures(structure_level = "intact")
-    # glydb_structures already has confidence attribute
-  } else {
-    db <- .ensure_glycan_structure(db)
-  }
-  db <- unique(db)
-
-  # Use stored confidences if available (before unique() stripped them),
-  # otherwise get from db (for glydb_structures)
-  if (is.null(confidences)) {
     confidences <- attr(db, "confidence")
+  } else {
+    confidences <- attr(db, "confidence")
+    is_from_glydb <- !is.null(confidences)
+    if (!is_from_glydb) {
+      db <- .ensure_glycan_structure(db)
+      db <- unique(db)
+    }
   }
+
   .check_confidence_attr(confidences, return_best)
 
   # Handle empty compositions early (before calling get_mono_type)
