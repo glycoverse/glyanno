@@ -64,9 +64,7 @@ other tools that demand high-resolution structural information.
 ``` r
 library(glyanno)
 library(glyrepr)
-#> Warning: 程序包'glyrepr'是用R版本4.5.2 来建造的
 library(glydb)
-#> Warning: 程序包'glydb'是用R版本4.5.2 来建造的
 
 mz_to_comp(406.1325, charge = 1, adduct = "Na+")
 #> # A tibble: 4 × 2
