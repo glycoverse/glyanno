@@ -8,12 +8,12 @@ enhance_struc(strucs, db = NULL, return_best = FALSE)
 }
 \arguments{
 \item{strucs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector,
-or a character vector of glycan structure strings supported by \code{\link[glyparse:auto]{glyparse::auto()}}.
+or a character vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
 Glycan structures with level higher or same as the level of \code{db} will be returned as is.
 Glycan structures with level lower than the level of \code{db} will be enhanced to that level.}
 
 \item{db}{A \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} vector,
-or a character vector of glycan structure strings supported by \code{\link[glyparse:auto]{glyparse::auto()}}.
+or a character vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
 All structures in \code{db} must be at the same resolution level.
 If not provided, a default structure vector is loaded from \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}
 at "intact" level.}

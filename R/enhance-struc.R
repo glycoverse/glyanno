@@ -7,11 +7,11 @@
 #' When `db` is NULL, the default [glydb::glydb_structures()] at "intact" level is used.
 #'
 #' @param strucs A [glyrepr::glycan_structure()] vector,
-#'   or a character vector of glycan structure strings supported by [glyparse::auto()].
+#'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
 #'   Glycan structures with level higher or same as the level of `db` will be returned as is.
 #'   Glycan structures with level lower than the level of `db` will be enhanced to that level.
 #' @param db A [glydb::glydb_structures()] vector,
-#'   or a character vector of glycan structure strings supported by [glyparse::auto()].
+#'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
 #'   All structures in `db` must be at the same resolution level.
 #'   If not provided, a default structure vector is loaded from [glydb::glydb_structures()]
 #'   at "intact" level.
