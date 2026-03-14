@@ -4,22 +4,19 @@
 \alias{enhance_struc}
 \title{Enhance glycan structure}
 \usage{
-enhance_struc(strucs, to_level = "intact", db = NULL, return_best = FALSE)
+enhance_struc(strucs, db = NULL, return_best = FALSE)
 }
 \arguments{
 \item{strucs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector,
-or a character vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
-Glycan structures with level higher or same as \code{to_level} will be returned as is.
-Glycan structures with level lower than \code{to_level} will be enhanced to the level of \code{to_level}.}
-
-\item{to_level}{The resolution level to enhance to.
-Can be "intact" or "topological". Default is "intact".}
+or a character vector of glycan structure strings supported by \code{\link[glyparse:auto]{glyparse::auto()}}.
+Glycan structures with level higher or same as the level of \code{db} will be returned as is.
+Glycan structures with level lower than the level of \code{db} will be enhanced to that level.}
 
 \item{db}{A \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} vector,
-or a character vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
-All structures in \code{db} must be at the same resolution level as \code{to_level}.
+or a character vector of glycan structure strings supported by \code{\link[glyparse:auto]{glyparse::auto()}}.
+All structures in \code{db} must be at the same resolution level.
 If not provided, a default structure vector is loaded from \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}
-with the specified \code{to_level}.}
+at "intact" level.}
 
 \item{return_best}{Logical. If \code{TRUE}, only return the best matching structure
 (highest confidence) for each input structure. Requires \code{db} to have a
@@ -39,35 +36,20 @@ as multiple rows in the result.
 Given a glycan structure of any resolution level (see \code{\link[glyrepr:get_structure_level]{glyrepr::get_structure_level()}} for details),
 this function gives all possible glycan structures of higher resolution level.
 }
-\section{How to set \code{db}}{
-The \code{db} parameter is very important for all functions in this package.
-By default, it uses all available glycans in the \code{glydb} package,
-which is usually larger than what you need.
-You can use helper functions in \code{glydb} to narrow down the database,
-e.g. \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} or \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.
-
-You can use the \code{species} and \code{glycan_type} parameters to focus on specific species and glycan type.
-For example, if you are only interested in N-glycan compositions in human,
-you can use \code{glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")}.
-Also, you can decide the level of information in the database by setting \code{mono_type}
-of \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} and \code{structure_level} of \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.
-
-You can then pass the result to the \code{db} parameter of this function.
-For example,
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{my_db <- glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")
-mz_to_comp(mz, db = my_db)
-}\if{html}{\out{</div>}}
+\details{
+The target resolution level is determined from \code{db}. All structures in \code{db} must be at the same level.
+When \code{db} is NULL, the default \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "intact" level is used.
 }
-
 \examples{
 # From topological level to intact level
-enhance_struc("Gal(??-?)GalNAc(??-", to_level = "intact")
+db_intact <- c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
+enhance_struc("Gal(??-?)GalNAc(??-", db = db_intact)
 
 # From basic level to topological level
-enhance_struc("Hex(??-?)HexNAc(??-", to_level = "topological")
+db_topo <- "Gal(??-?)GalNAc(??-"
+enhance_struc("Hex(??-?)HexNAc(??-", db = db_topo)
 
 # From partial level to intact level
-enhance_struc("Gal(b1-?)GalNAc(a1-", to_level = "intact")
+enhance_struc("Gal(b1-?)GalNAc(a1-", db = db_intact)
 
 }
