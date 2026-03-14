@@ -53,8 +53,7 @@ enhance_struc <- function(
     confidences <- attr(db, "confidence")
   } else {
     confidences <- attr(db, "confidence")
-    is_from_glydb <- !is.null(confidences)
-    if (!is_from_glydb) {
+    if (is.null(confidences)) {
       db <- .ensure_glycan_structure(db)
       db <- unique(db)
     }
@@ -145,7 +144,7 @@ enhance_struc <- function(
             dplyr::group_by(.data$row_id) |>
             dplyr::slice(1) |>
             dplyr::ungroup() |>
-            dplyr::select(-"confidence")
+            dplyr::select(-all_of("confidence"))
         }
       } else {
         # No matches found
