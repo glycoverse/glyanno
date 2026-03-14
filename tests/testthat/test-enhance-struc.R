@@ -182,8 +182,8 @@ test_that("enhance_struc works with db=NULL (regression: confidences undefined)"
 
 test_that("enhance_struc errors with mixed levels in db", {
   db_mixed <- c(
-    "Gal(b1-3)GalNAc(a1-",  # intact level
-    "Gal(??-?)GalNAc(??-"   # topological level
+    "Gal(b1-3)GalNAc(a1-", # intact level
+    "Gal(??-?)GalNAc(??-" # topological level
   )
   input <- "Hex(??-?)HexNAc(??-"
   expect_error(
