@@ -1,4 +1,8 @@
-# glyanno (development version)
+# glyanno 0.3.0
+
+## Breaking changes
+
+* Remove `to_level` parameter from `enhance_struc()`.
 
 # glyanno 0.2.0
 
