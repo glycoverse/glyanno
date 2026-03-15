@@ -1,6 +1,11 @@
 # Changelog
 
-## glyanno (development version)
+## glyanno 0.3.0
+
+### Breaking changes
+
+- Remove `to_level` parameter from
+  [`enhance_struc()`](https://glycoverse.github.io/glyanno/reference/enhance_struc.md).
 
 ## glyanno 0.2.0
 
