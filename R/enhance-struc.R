@@ -3,19 +3,18 @@
 #' Given a glycan structure of any resolution level (see [glyrepr::get_structure_level()] for details),
 #' this function gives all possible glycan structures of higher resolution level.
 #'
-#' @inheritSection mz_to_comp How to set `db`
+#' The target resolution level is determined from `db`. All structures in `db` must be at the same level.
+#' When `db` is NULL, the default [glydb::glydb_structures()] at "intact" level is used.
 #'
 #' @param strucs A [glyrepr::glycan_structure()] vector,
 #'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
-#'   Glycan structures with level higher or same as `to_level` will be returned as is.
-#'   Glycan structures with level lower than `to_level` will be enhanced to the level of `to_level`.
-#' @param to_level The resolution level to enhance to.
-#'   Can be "intact" or "topological". Default is "intact".
+#'   Glycan structures with level higher or same as the level of `db` will be returned as is.
+#'   Glycan structures with level lower than the level of `db` will be enhanced to that level.
 #' @param db A [glydb::glydb_structures()] vector,
 #'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
-#'   All structures in `db` must be at the same resolution level as `to_level`.
+#'   All structures in `db` must be at the same resolution level.
 #'   If not provided, a default structure vector is loaded from [glydb::glydb_structures()]
-#'   with the specified `to_level`.
+#'   at "intact" level.
 #' @param return_best Logical. If `TRUE`, only return the best matching structure
 #'   (highest confidence) for each input structure. Requires `db` to have a
 #'   `confidence` attribute. Use [glydb::glydb_structures()] for `db` to enable this feature.
@@ -29,33 +28,32 @@
 #'
 #' @examples
 #' # From topological level to intact level
-#' enhance_struc("Gal(??-?)GalNAc(??-", to_level = "intact")
+#' db_intact <- c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
+#' enhance_struc("Gal(??-?)GalNAc(??-", db = db_intact)
 #'
 #' # From basic level to topological level
-#' enhance_struc("Hex(??-?)HexNAc(??-", to_level = "topological")
+#' db_topo <- "Gal(??-?)GalNAc(??-"
+#' enhance_struc("Hex(??-?)HexNAc(??-", db = db_topo)
 #'
 #' # From partial level to intact level
-#' enhance_struc("Gal(b1-?)GalNAc(a1-", to_level = "intact")
+#' enhance_struc("Gal(b1-?)GalNAc(a1-", db = db_intact)
 #'
 #' @export
 enhance_struc <- function(
   strucs,
-  to_level = "intact",
   db = NULL,
   return_best = FALSE
 ) {
   # Input validation and preparation
   strucs <- .ensure_glycan_structure(strucs)
-  checkmate::assert_choice(to_level, c("intact", "topological"))
   checkmate::assert_flag(return_best)
 
   if (is.null(db)) {
-    db <- glydb::glydb_structures(structure_level = to_level)
+    db <- glydb::glydb_structures(structure_level = "intact")
     confidences <- attr(db, "confidence")
   } else {
     confidences <- attr(db, "confidence")
-    is_from_glydb <- !is.null(confidences)
-    if (!is_from_glydb) {
+    if (is.null(confidences)) {
       db <- .ensure_glycan_structure(db)
       db <- unique(db)
     }
@@ -63,13 +61,16 @@ enhance_struc <- function(
 
   .check_confidence_attr(confidences, return_best)
 
-  db_struc_level <- glyrepr::get_structure_level(db)
-  if (any(db_struc_level != to_level)) {
-    cli::cli_warn(
-      "Some structures in `db` are not at the same resolution level as `to_level`, which will be dropped."
-    )
-    db <- db[db_struc_level == to_level]
+  # Determine target level from db
+  db_struc_levels <- glyrepr::get_structure_level(db)
+  unique_levels <- unique(db_struc_levels)
+  if (length(unique_levels) > 1) {
+    cli::cli_abort(c(
+      "All structures in `db` must have the same structure level.",
+      "x" = "Found {length(unique_levels)} different levels: {.val {unique_levels}}."
+    ))
   }
+  to_level <- unique_levels[1]
 
   # Define level ranks (higher number means higher resolution)
   level_ranks <- c("basic" = 1, "topological" = 2, "partial" = 3, "intact" = 4)
@@ -143,7 +144,7 @@ enhance_struc <- function(
             dplyr::group_by(.data$row_id) |>
             dplyr::slice(1) |>
             dplyr::ungroup() |>
-            dplyr::select(-"confidence")
+            dplyr::select(-all_of("confidence"))
         }
       } else {
         # No matches found

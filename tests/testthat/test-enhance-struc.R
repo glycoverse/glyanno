@@ -2,7 +2,7 @@ test_that("enhance_struc enhances basic to topological level", {
   # Hex(??-?)HexNAc should match Gal(??-?)GalNAc
   db_topo <- "Gal(??-?)GalNAc(??-"
   input_basic <- "Hex(??-?)HexNAc(??-"
-  res <- enhance_struc(input_basic, to_level = "topological", db = db_topo)
+  res <- enhance_struc(input_basic, db = db_topo)
   expect_equal(as.character(res$enhanced), "Gal(??-?)GalNAc(??-")
 })
 
@@ -12,7 +12,7 @@ test_that("enhance_struc enhances topological to intact level", {
     "Gal(b1-4)GalNAc(a1-"
   )
   input_topo <- "Gal(??-?)GalNAc(??-"
-  res <- enhance_struc(input_topo, to_level = "intact", db = db_intact)
+  res <- enhance_struc(input_topo, db = db_intact)
   # Should match both
   expect_equal(
     as.character(res$enhanced),
@@ -26,7 +26,7 @@ test_that("enhance_struc enhances partial to intact level with wildcard", {
     "Gal(b1-4)GalNAc(a1-"
   )
   input_partial <- "Gal(b1-?)GalNAc(a1-"
-  res <- enhance_struc(input_partial, to_level = "intact", db = db_intact)
+  res <- enhance_struc(input_partial, db = db_intact)
   expect_equal(
     as.character(res$enhanced),
     c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
@@ -41,7 +41,6 @@ test_that("enhance_struc enhances specific partial to intact level", {
   input_partial_specific <- "Gal(b1-3)GalNAc(a1-"
   res <- enhance_struc(
     input_partial_specific,
-    to_level = "intact",
     db = db_intact
   )
   expect_equal(as.character(res$enhanced), "Gal(b1-3)GalNAc(a1-")
@@ -53,7 +52,7 @@ test_that("enhance_struc returns unchanged when no enhancement needed", {
     "Gal(b1-4)GalNAc(a1-"
   )
   input_intact <- "Gal(b1-3)GalNAc(a1-"
-  res <- enhance_struc(input_intact, to_level = "intact", db = db_intact)
+  res <- enhance_struc(input_intact, db = db_intact)
   expect_equal(as.character(res$enhanced), input_intact)
   expect_equal(as.character(res$raw), input_intact)
 })
@@ -65,7 +64,7 @@ test_that("enhance_struc returns empty result when no match found", {
   )
   # Use a lower level structure that is not in DB
   input_nomatch <- "Man(??-?)Man(??-"
-  res <- enhance_struc(input_nomatch, to_level = "intact", db = db_intact)
+  res <- enhance_struc(input_nomatch, db = db_intact)
   expect_equal(res$raw, glyrepr::glycan_structure())
   expect_equal(res$enhanced, glyrepr::glycan_structure())
 })
@@ -80,7 +79,7 @@ test_that("enhance_struc works with multiple glycans", {
     "Gal(??-?)GalNAc(??-",
     "GalNAc(??-"
   )
-  res <- enhance_struc(input_strucs, to_level = "intact", db = db_intact)
+  res <- enhance_struc(input_strucs, db = db_intact)
   expected <- tibble::tibble(
     raw = glyrepr::as_glycan_structure(c(
       "Gal(??-?)GalNAc(??-",
@@ -107,7 +106,6 @@ test_that("enhance_struc with return_best=TRUE filters enhanced structures by co
   struc <- glyrepr::as_glycan_structure("Hex(??-?)HexNAc(??-")
   result <- enhance_struc(
     struc,
-    to_level = "intact",
     db = db,
     return_best = TRUE
   ) |>
@@ -130,7 +128,6 @@ test_that("enhance_struc with return_best=TRUE keeps all already-at-level struct
   ))
   result <- enhance_struc(
     struc,
-    to_level = "intact",
     db = db,
     return_best = TRUE
   )
@@ -143,7 +140,7 @@ test_that("enhance_struc with return_best=TRUE errors without confidence attr", 
   struc <- glyrepr::as_glycan_structure("HexNAc(??-")
 
   expect_error(
-    enhance_struc(struc, to_level = "intact", db = db, return_best = TRUE),
+    enhance_struc(struc, db = db, return_best = TRUE),
     "must have a .*confidence.* attribute"
   )
 })
@@ -158,7 +155,6 @@ test_that("enhance_struc treats NA confidence as lowest for enhancement", {
   struc <- glyrepr::as_glycan_structure("Hex(??-?)HexNAc(??-")
   result <- enhance_struc(
     struc,
-    to_level = "intact",
     db = db,
     return_best = TRUE
   ) |>
@@ -174,7 +170,6 @@ test_that("enhance_struc works with db=NULL (regression: confidences undefined)"
   expect_no_error(
     result <- enhance_struc(
       struc,
-      to_level = "intact",
       db = NULL,
       return_best = FALSE
     )
@@ -183,4 +178,16 @@ test_that("enhance_struc works with db=NULL (regression: confidences undefined)"
   expect_named(result, c("raw", "enhanced"))
   # Should have at least one match from default glydb
   expect_gt(nrow(result), 0)
+})
+
+test_that("enhance_struc errors with mixed levels in db", {
+  db_mixed <- c(
+    "Gal(b1-3)GalNAc(a1-", # intact level
+    "Gal(??-?)GalNAc(??-" # topological level
+  )
+  input <- "Hex(??-?)HexNAc(??-"
+  expect_error(
+    enhance_struc(input, db = db_mixed),
+    "must have the same structure level"
+  )
 })
