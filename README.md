@@ -7,8 +7,6 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![CRAN
-status](https://www.r-pkg.org/badges/version/glyanno)](https://CRAN.R-project.org/package=glyanno)
 [![R-universe
 version](https://glycoverse.r-universe.dev/glyanno/badges/version)](https://glycoverse.r-universe.dev/glyanno)
 [![R-CMD-check](https://github.com/glycoverse/glyanno/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/glycoverse/glyanno/actions/workflows/R-CMD-check.yaml)
@@ -80,7 +78,9 @@ other tools that demand high-resolution structural information.
 ``` r
 library(glyanno)
 library(glyrepr)
+#> Warning: 程序包'glyrepr'是用R版本4.5.2 来建造的
 library(glydb)
+#> Warning: 程序包'glydb'是用R版本4.5.2 来建造的
 
 mz_to_comp(406.1325, charge = 1, adduct = "Na+")
 #> # A tibble: 4 × 2
