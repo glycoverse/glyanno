@@ -117,6 +117,11 @@ Gal(1)GalNAc(1). What are the possible structures for this composition?
 ``` r
 struc_db <- glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
 comp_to_struc("Gal(1)GalNAc(1)", db = struc_db)
+#> # A tibble: 2 × 2
+#>   composition     structure          
+#>   <comp>          <struct>           
+#> 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-
+#> 2 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-
 ```
 
 Note that here we use
@@ -131,6 +136,9 @@ set `return_best` to `TRUE`:
 
 ``` r
 comp_to_struc("Gal(1)GalNAc(1)", db = struc_db, return_best = TRUE)
+#> <glycan_structure[1]>
+#> [1] Gal(b1-3)GalNAc(a1-
+#> # Unique structures: 1
 ```
 
 Core 1 is more common than Core 5, so it was kept. The function keeps
@@ -144,6 +152,10 @@ Note that all functions in `glyanno` works vectorizedly:
 
 ``` r
 comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)
+#> <glycan_structure[2]>
+#> [1] Gal(b1-3)GalNAc(a1-
+#> [2] GlcNAc(b1-3)GalNAc(a1-
+#> # Unique structures: 2
 ```
 
 If you set `return_best` to `TRUE`, the function directly returns a
@@ -151,6 +163,10 @@ vector:
 
 ``` r
 comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)
+#> <glycan_structure[2]>
+#> [1] Gal(b1-3)GalNAc(a1-
+#> [2] GlcNAc(b1-3)GalNAc(a1-
+#> # Unique structures: 2
 ```
 
 This vector always has the same length as the input, with `NA` for
