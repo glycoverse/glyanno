@@ -38,11 +38,15 @@
 #'   Default is `FALSE`.
 #' @inheritParams calculate_mz
 #'
-#' @returns A tibble with the following columns:
+#' @returns If `return_best=TRUE`:
+#'   An unnamed [glyrepr::glycan_composition()] vector with the same length as `mz`.
+#'   Unmatched m/z values are returned as `NA`.
+#'   If `return_best=FALSE`:
+#'   A tibble with the following columns:
 #'   - `mz`: The molecule m/z values, same as the input `mz`.
 #'   - `composition`: The possible glycan compositions, as [glyrepr::glycan_composition()] vector.
-#'   Note that one m/z value can have multiple rows in the result,
-#'   corresponding to different possible glycan compositions.
+#'     Note that one m/z value can have multiple rows in the result,
+#'     corresponding to different possible glycan compositions.
 #'
 #' @examples
 #' mz_to_comp(933.3175, charge = 1, adduct = "Na+")
@@ -60,8 +64,13 @@ mz_to_comp <- function(
 ) {
   checkmate::assert_numeric(mz)
   checkmate::assert_flag(return_best)
-  mz <- mz[!is.na(mz)]
-  if (length(mz) == 0) {
+  # Track NA positions so return_best=TRUE can return a same-length vector
+  na_input_mask <- is.na(mz)
+  mz_to_process <- mz[!na_input_mask]
+  if (length(mz_to_process) == 0) {
+    if (return_best) {
+      return(glyrepr::as_glycan_composition(rep(NA_character_, length(mz))))
+    }
     return(tibble::tibble(
       mz = numeric(0),
       composition = glyrepr::glycan_composition()
@@ -118,12 +127,12 @@ mz_to_comp <- function(
 
   .check_confidence_attr(confidences, return_best)
   # Store the NA mask before filtering
-  na_mask <- is.na(db_mz)
-  db <- db[!na_mask]
-  db_mz <- db_mz[!na_mask]
+  db_na_mask <- is.na(db_mz)
+  db <- db[!db_na_mask]
+  db_mz <- db_mz[!db_na_mask]
   # Filter confidences along with db
   if (!is.null(confidences)) {
-    confidences <- confidences[!na_mask]
+    confidences <- confidences[!db_na_mask]
   }
   db_df <- tibble::tibble(
     composition = db,
@@ -139,6 +148,13 @@ mz_to_comp <- function(
   find_one <- function(mz) {
     matches <- db_df |>
       dplyr::filter(.env$mz > .data$lower & .env$mz < .data$upper)
+    if (nrow(matches) == 0) {
+      if (return_best) {
+        return(NA_character_)
+      } else {
+        return(glyrepr::glycan_composition())
+      }
+    }
     if (return_best && nrow(matches) > 1) {
       # Arrange by desc(confidence), treating NA as lowest
       matches <- matches |>
@@ -152,7 +168,17 @@ mz_to_comp <- function(
     matches |> dplyr::pull(.data$composition)
   }
 
-  res_comps <- purrr::map(mz, find_one)
-  res_df <- tibble::tibble(mz = mz, composition = res_comps)
-  tidyr::unnest(res_df, all_of("composition"))
+  res_comps <- purrr::map(mz_to_process, find_one)
+  if (return_best) {
+    # Build result with same length as original mz, inserting NAs at NA input positions
+    char_comps <- purrr::map(res_comps, function(x) {
+      if (length(x) == 0 || is.na(x)) NA_character_ else as.character(x)
+    })
+    full_char_comps <- rep(NA_character_, length(mz))
+    full_char_comps[!na_input_mask] <- unname(unlist(char_comps))
+    glyrepr::as_glycan_composition(full_char_comps)
+  } else {
+    res_df <- tibble::tibble(mz = mz_to_process, composition = res_comps)
+    tidyr::unnest(res_df, all_of("composition"))
+  }
 }

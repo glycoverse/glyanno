@@ -20,7 +20,11 @@
 #'   Use [glydb::glydb_compositions()] for `db` to enable this feature.
 #'   Defaults to `FALSE`.
 #'
-#' @returns A tibble with the following columns:
+#' @returns If `return_best=TRUE`:
+#'   A [glyrepr::glycan_composition()] vector with the same length as `comps`.
+#'   Unmatched compositions are returned as `NA`.
+#'   If `return_best=FALSE`:
+#'   A tibble with the following columns:
 #'   - `raw`: The original compositions.
 #'   - `enhanced`: The enhanced compositions.
 #'     Note that one `raw` composition can have different `enhanced` compositions
@@ -51,6 +55,9 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
 
   # Handle empty composition case
   if (length(comps) == 0) {
+    if (return_best) {
+      return(glyrepr::glycan_composition())
+    }
     return(tibble::tibble(
       raw = glyrepr::glycan_composition(),
       enhanced = glyrepr::glycan_composition()
@@ -78,7 +85,7 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
     )
 
     res <- comps_df |>
-      dplyr::inner_join(db_df, by = c("composition" = "generic")) |>
+      dplyr::left_join(db_df, by = c("composition" = "generic")) |>
       dplyr::select(all_of(c(
         "raw" = "composition",
         "enhanced" = "concrete",
@@ -91,25 +98,31 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
         dplyr::arrange(.data$row_id, dplyr::desc(.data$confidence)) |>
         dplyr::group_by(.data$row_id) |>
         dplyr::slice(1) |>
-        dplyr::ungroup()
-    }
+        dplyr::ungroup() |>
+        dplyr::arrange(.data$row_id) |>
+        dplyr::pull(.data$enhanced)
+    } else {
+      res <- res |>
+        dplyr::filter(!is.na(.data$enhanced)) |>
+        dplyr::arrange(.data$row_id) |>
+        dplyr::select(all_of(c("raw", "enhanced")))
 
-    res <- res |>
-      dplyr::arrange(.data$row_id) |>
-      dplyr::select(all_of(c("raw", "enhanced")))
+      # Handle zero-row result
+      if (nrow(res) == 0) {
+        res <- tibble::tibble(
+          raw = glyrepr::glycan_composition(),
+          enhanced = glyrepr::glycan_composition()
+        )
+      }
+    }
   } else {
     # Concrete compositions: enhanced = raw
+    if (return_best) {
+      return(comps)
+    }
     res <- tibble::tibble(
       raw = comps,
       enhanced = comps
-    )
-  }
-
-  # Handle zero-row result
-  if (nrow(res) == 0) {
-    res <- tibble::tibble(
-      raw = glyrepr::glycan_composition(),
-      enhanced = glyrepr::glycan_composition()
     )
   }
   res

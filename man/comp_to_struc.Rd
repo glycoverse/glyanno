@@ -25,6 +25,10 @@ Use \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} for \code{db
 Default is \code{FALSE}.}
 }
 \value{
+If \code{return_best=TRUE}:
+A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector with the same length as \code{comps}.
+Unmatched compositions are returned as \code{NA}.
+If \code{return_best=FALSE}:
 A tibble with the following columns:
 \itemize{
 \item \code{composition}: The glycan compositions, as \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector.

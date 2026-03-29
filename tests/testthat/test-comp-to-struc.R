@@ -30,18 +30,13 @@ test_that("comp_to_struc works for concrete db and generic comps", {
   expect_equal(result, expected)
 })
 
-test_that("comp_to_struc works for generic db and concrete comps", {
-  # This test has two purposes:
-  # 1. Ensure that generic compositions can not match concrete structures in `db`.
-  # 2. Ensure that zero-row result has the expected glycan vector types.
+test_that("comp_to_struc errors for generic db and concrete comps", {
   db <- glyrepr::as_glycan_structure("HexNAc(??-")
   comps <- glyrepr::as_glycan_composition("GalNAc(1)")
-  result <- comp_to_struc(comps, db)
-  expected <- tibble::tibble(
-    composition = glyrepr::glycan_composition(),
-    structure = glyrepr::glycan_structure()
+  expect_error(
+    comp_to_struc(comps, db),
+    "Concrete compositions cannot be matched against a generic structure database"
   )
-  expect_equal(result, expected)
 })
 
 test_that("comp_to_struc works for concrete db and concrete comps", {
@@ -141,14 +136,9 @@ test_that("comp_to_struc with return_best=TRUE keeps highest confidence match", 
   attr(db, "confidence") <- c(1.0, 2.0)
 
   comps <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)")
-  result <- comp_to_struc(comps, db, return_best = TRUE) |>
-    dplyr::mutate(structure = as.character(structure))
+  result <- comp_to_struc(comps, db, return_best = TRUE)
 
-  expected <- tibble::tibble(
-    composition = comps,
-    structure = "Gal(b1-4)GalNAc(a1-"
-  )
-  expect_equal(result, expected)
+  expect_equal(as.character(result), "Gal(b1-4)GalNAc(a1-")
 })
 
 test_that("comp_to_struc with return_best=TRUE errors without confidence attr", {
@@ -183,10 +173,9 @@ test_that("comp_to_struc tie-breaking keeps first when confidence equal", {
   attr(db, "confidence") <- c(2.0, 2.0)
 
   comps <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)")
-  result <- comp_to_struc(comps, db, return_best = TRUE) |>
-    dplyr::mutate(structure = as.character(structure))
+  result <- comp_to_struc(comps, db, return_best = TRUE)
 
-  expect_equal(result$structure, "Gal(b1-3)GalNAc(a1-")
+  expect_equal(as.character(result), "Gal(b1-3)GalNAc(a1-")
 })
 
 test_that("comp_to_struc treats NA confidence as lowest", {
@@ -197,10 +186,9 @@ test_that("comp_to_struc treats NA confidence as lowest", {
   attr(db, "confidence") <- c(NA_real_, 2.0)
 
   comps <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)")
-  result <- comp_to_struc(comps, db, return_best = TRUE) |>
-    dplyr::mutate(structure = as.character(structure))
+  result <- comp_to_struc(comps, db, return_best = TRUE)
 
-  expect_equal(result$structure, "Gal(b1-4)GalNAc(a1-")
+  expect_equal(as.character(result), "Gal(b1-4)GalNAc(a1-")
 })
 
 test_that("comp_to_struc works with db=NULL (regression: confidences undefined)", {
@@ -214,4 +202,20 @@ test_that("comp_to_struc works with db=NULL (regression: confidences undefined)"
   expect_named(result, c("composition", "structure"))
   # Should have at least one match from default glydb
   expect_gt(nrow(result), 0)
+})
+
+test_that("comp_to_struc with return_best=TRUE returns NA for no match", {
+  db <- glyrepr::as_glycan_structure(c("Gal(b1-3)GalNAc(a1-"))
+  attr(db, "confidence") <- c(1.0)
+
+  comps <- glyrepr::as_glycan_composition(c(Gal = 1, GalNAc = 1))
+  comps_no_match <- glyrepr::as_glycan_composition(c(Gal = 5)) # Won't match
+  all_comps <- c(comps, comps_no_match)
+
+  result <- comp_to_struc(all_comps, db, return_best = TRUE)
+
+  expect_false(is.data.frame(result))
+  expect_equal(length(result), 2)
+  expect_equal(as.character(result[1]), "Gal(b1-3)GalNAc(a1-")
+  expect_true(is.na(result[2]))
 })

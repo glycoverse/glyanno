@@ -18,11 +18,15 @@
 #'   Use [glydb::glydb_structures()] for `db` to enable this feature.
 #'   Default is `FALSE`.
 #'
-#' @returns A tibble with the following columns:
+#' @returns If `return_best=TRUE`:
+#'   A [glyrepr::glycan_structure()] vector with the same length as `comps`.
+#'   Unmatched compositions are returned as `NA`.
+#'   If `return_best=FALSE`:
+#'   A tibble with the following columns:
 #'   - `composition`: The glycan compositions, as [glyrepr::glycan_composition()] vector.
 #'   - `structure`: The possible glycan structures, as [glyrepr::glycan_structure()] vector.
-#'   Note that one glycan composition can have multiple rows in the result,
-#'   corresponding to different possible glycan structures.
+#'     Note that one glycan composition can have multiple rows in the result,
+#'     corresponding to different possible glycan structures.
 #'
 #' @examples
 #' comp_to_struc("H5N2")
@@ -49,6 +53,9 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
 
   # Handle empty compositions early (before calling get_mono_type)
   if (length(comps) == 0) {
+    if (return_best) {
+      return(glyrepr::glycan_structure())
+    }
     return(tibble::tibble(
       composition = glyrepr::glycan_composition(),
       structure = glyrepr::glycan_structure()
@@ -73,26 +80,30 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
       row_id = seq_along(comps)
     )
     res <- comps_df |>
-      dplyr::inner_join(db_df, by = "composition")
-    # Filter to best match if requested
+      dplyr::left_join(db_df, by = "composition")
+
     if (return_best) {
       res <- res |>
         dplyr::arrange(.data$row_id, dplyr::desc(.data$confidence)) |>
         dplyr::group_by(.data$row_id) |>
         dplyr::slice(1) |>
-        dplyr::ungroup()
+        dplyr::ungroup() |>
+        dplyr::arrange(.data$row_id) |>
+        dplyr::pull(.data$structure)
+    } else {
+      res <- res |>
+        dplyr::filter(!is.na(.data$structure)) |>
+        dplyr::arrange(.data$row_id) |>
+        dplyr::select(all_of(c("composition", "structure")))
     }
-    res <- res |>
-      dplyr::arrange(.data$row_id) |>
-      dplyr::select(all_of(c("composition", "structure")))
   } else {
     # For concrete compositions, match directly to concrete structures only
     # After glyrepr 0.9.0.9000, db must be homogeneous (all generic or all concrete)
     if (glyrepr::get_mono_type(db) == "generic") {
-      # Concrete comps cannot match generic structures
-      return(tibble::tibble(
-        composition = glyrepr::glycan_composition(),
-        structure = glyrepr::glycan_structure()
+      # Concrete comps cannot match generic structures - this is a usage error
+      cli::cli_abort(c(
+        "Concrete compositions cannot be matched against a generic structure database.",
+        "i" = "Use generic compositions (e.g. {.val Hex(1)HexNAc(1)}) or provide a concrete structure database."
       ))
     }
     db_concrete_df <- tibble::tibble(
@@ -105,27 +116,41 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
       row_id = seq_along(comps)
     )
     res <- comps_df |>
-      dplyr::inner_join(db_concrete_df, by = "composition")
-    # Filter to best match if requested
+      dplyr::left_join(db_concrete_df, by = "composition")
+
     if (return_best) {
       res <- res |>
         dplyr::arrange(.data$row_id, dplyr::desc(.data$confidence)) |>
         dplyr::group_by(.data$row_id) |>
         dplyr::slice(1) |>
-        dplyr::ungroup()
+        dplyr::ungroup() |>
+        dplyr::arrange(.data$row_id) |>
+        dplyr::pull(.data$structure)
+    } else {
+      res <- res |>
+        dplyr::filter(!is.na(.data$structure)) |>
+        dplyr::arrange(.data$row_id) |>
+        dplyr::select(all_of(c("composition", "structure")))
     }
-    res <- res |>
-      dplyr::arrange(.data$row_id) |>
-      dplyr::select(all_of(c("composition", "structure")))
   }
 
-  # Ensure zero-row result has the expected glycan vector types
-  if (nrow(res) == 0) {
-    tibble::tibble(
-      composition = glyrepr::glycan_composition(),
-      structure = glyrepr::glycan_structure()
-    )
+  # Ensure zero-row result has the expected type
+  if (return_best) {
+    # res is a vector when return_best=TRUE
+    if (length(res) == 0) {
+      glyrepr::glycan_structure()
+    } else {
+      res
+    }
   } else {
-    res
+    # res is a tibble when return_best=FALSE
+    if (nrow(res) == 0) {
+      tibble::tibble(
+        composition = glyrepr::glycan_composition(),
+        structure = glyrepr::glycan_structure()
+      )
+    } else {
+      res
+    }
   }
 }
