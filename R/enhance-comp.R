@@ -80,29 +80,7 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
         "row_id",
         "confidence"
       )))
-
-    if (return_best) {
-      res <- res |>
-        dplyr::arrange(.data$row_id, dplyr::desc(.data$confidence)) |>
-        dplyr::group_by(.data$row_id) |>
-        dplyr::slice(1) |>
-        dplyr::ungroup() |>
-        dplyr::arrange(.data$row_id) |>
-        dplyr::pull(.data$enhanced)
-    } else {
-      res <- res |>
-        dplyr::filter(!is.na(.data$enhanced)) |>
-        dplyr::arrange(.data$row_id) |>
-        dplyr::select(all_of(c("raw", "enhanced")))
-
-      # Handle zero-row result
-      if (nrow(res) == 0) {
-        res <- tibble::tibble(
-          raw = glyrepr::glycan_composition(),
-          enhanced = glyrepr::glycan_composition()
-        )
-      }
-    }
+    res <- .prepare_result(res, return_best, raw_col = "raw", new_col = "enhanced")
   } else {
     # Concrete compositions: enhanced = raw
     if (return_best) {
