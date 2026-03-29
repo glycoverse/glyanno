@@ -88,44 +88,26 @@ mz_to_comp <- function(
     mass_dict <- glyanno_mass_dict(deriv = "none", mass_type = "mono")
   }
 
-  if (is.null(db)) {
-    db <- glydb::glydb_compositions(mono_type = "concrete")
-    suppressWarnings(
-      db_mz <- calculate_mz(
-        db,
-        charge = charge,
-        adduct = adduct,
-        mass_dict = mass_dict,
-        safe = FALSE
-      )
+  db <- .prepare_comp_db(db)
+  suppressWarnings(
+    db_mz <- calculate_mz(
+      db,
+      charge = charge,
+      adduct = adduct,
+      mass_dict = mass_dict,
+      safe = FALSE
     )
-    confidences <- attr(db, "confidence")
-  } else {
-    confidences <- attr(db, "confidence")
-    is_from_glydb <- !is.null(confidences)
-    if (!is_from_glydb) {
-      db <- .ensure_glycan_composition(db, allow_structure = FALSE)
-      db <- unique(db)
-    }
-    suppressWarnings(
-      db_mz <- calculate_mz(
-        db,
-        charge = charge,
-        adduct = adduct,
-        mass_dict = mass_dict,
-        safe = FALSE
-      )
-    )
-    na_count <- sum(is.na(db_mz))
-    if (na_count > 0) {
-      cli::cli_warn(c(
-        "Cannot calculate m/z values for {.val {na_count}} glycans in the database.",
-        "i" = "They will be dropped before matching."
-      ))
-    }
+  )
+  na_count <- sum(is.na(db_mz))
+  if (na_count > 0 && !.is_glydb_vector(db)) {
+    cli::cli_warn(c(
+      "Cannot calculate m/z values for {.val {na_count}} glycans in the database.",
+      "i" = "They will be dropped before matching."
+    ))
   }
 
-  .check_confidence_attr(confidences, return_best)
+  .check_return_best_arg(db, return_best)
+  confidences <- attr(db, "confidence")
   # Store the NA mask before filtering
   db_na_mask <- is.na(db_mz)
   db <- db[!db_na_mask]

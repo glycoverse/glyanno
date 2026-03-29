@@ -112,6 +112,21 @@
   db
 }
 
+.prepare_comp_db <- function(db) {
+  if (is.null(db)) {
+    db <- glydb::glydb_compositions()
+  } else {
+    if (!.is_glydb_vector(db)) {
+      if (length(db) == 0) {
+        cli::cli_abort("{.arg db} cannot be of 0 length.")
+      }
+      db <- .ensure_glycan_composition(db)
+      db <- unique(db)
+    }
+  }
+  db
+}
+
 .is_glydb_vector <- function(x) {
   !is.null(attr(x, "confidence"))
 }
