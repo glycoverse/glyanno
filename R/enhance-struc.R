@@ -51,30 +51,8 @@ enhance_struc <- function(
   # Input validation and preparation
   strucs <- .ensure_glycan_structure(strucs)
   checkmate::assert_flag(return_best)
-
-  if (is.null(db)) {
-    db <- glydb::glydb_structures(structure_level = "intact")
-    confidences <- attr(db, "confidence")
-  } else {
-    confidences <- attr(db, "confidence")
-    if (is.null(confidences)) {
-      db <- .ensure_glycan_structure(db)
-      db <- unique(db)
-    }
-  }
-
-  .check_confidence_attr(confidences, return_best)
-
-  # Handle empty db early
-  if (length(db) == 0) {
-    if (return_best) {
-      return(glyrepr::glycan_structure(rep(NA_character_, length(strucs))))
-    }
-    return(tibble::tibble(
-      raw = glyrepr::glycan_structure(),
-      enhanced = glyrepr::glycan_structure()
-    ))
-  }
+  db <- .prepare_struc_db(db)
+  .check_return_best_arg(db, return_best)
 
   # Determine target level from db
   db_struc_levels <- glyrepr::get_structure_level(db)
@@ -118,77 +96,58 @@ enhance_struc <- function(
   # Process structures to enhance
   if (nrow(enhance_df) > 0) {
     to_enhance <- enhance_df$raw
+    # Check matches
+    # db are targets (glycans), to_enhance are patterns (motifs)
+    matches <- glymotif::have_motifs(db, to_enhance, alignments = "whole")
 
-    if (length(db) == 0) {
-      # Empty db, all unmatched
-      if (return_best) {
-        na_vec <- rep(glyrepr::glycan_structure(NA), length(to_enhance))
+    # For return_best=TRUE: one row per to_enhance, best match or NA
+    # For return_best=FALSE: one row per match
+    if (return_best) {
+      # Build result for each pattern - one best match or NA
+      res_list <- lapply(seq_along(to_enhance), function(i) {
+        col_matches <- which(matches[, i])
+        if (length(col_matches) > 0) {
+          # Find best match by confidence
+          confs <- attr(db, "confidence")[col_matches]
+          best_col <- col_matches[which.max(confs)]
+          tibble::tibble(
+            raw = to_enhance[i],
+            enhanced = db[best_col],
+            row_id = enhance_df$row_id[i]
+          )
+        } else {
+          # No match - NA
+          tibble::tibble(
+            raw = to_enhance[i],
+            enhanced = glyrepr::glycan_structure(NA),
+            row_id = enhance_df$row_id[i]
+          )
+        }
+      })
+      res_enhanced <- dplyr::bind_rows(res_list)
+    } else {
+      # matches: rows=db, cols=to_enhance
+      match_indices <- which(matches, arr.ind = TRUE)
+
+      if (nrow(match_indices) > 0) {
+        # match_indices[, "col"] are indices into to_enhance
+        # match_indices[, "row"] are indices into db
+        matched_row_ids <- enhance_df$row_id[match_indices[, "col"]]
+        matched_raw <- enhance_df$raw[match_indices[, "col"]]
+        matched_enhanced <- db[match_indices[, "row"]]
+
         res_enhanced <- tibble::tibble(
-          raw = to_enhance,
-          enhanced = na_vec,
-          row_id = enhance_df$row_id
+          raw = matched_raw,
+          enhanced = matched_enhanced,
+          row_id = matched_row_ids
         )
       } else {
+        # No matches found
         res_enhanced <- tibble::tibble(
           raw = to_enhance[integer(0)],
           enhanced = db[integer(0)],
           row_id = integer(0)
         )
-      }
-    } else {
-      # Check matches
-      # db are targets (glycans), to_enhance are patterns (motifs)
-      matches <- glymotif::have_motifs(db, to_enhance, alignments = "whole")
-
-      # For return_best=TRUE: one row per to_enhance, best match or NA
-      # For return_best=FALSE: one row per match
-      if (return_best) {
-        # Build result for each pattern - one best match or NA
-        res_list <- lapply(seq_along(to_enhance), function(i) {
-          col_matches <- which(matches[, i])
-          if (length(col_matches) > 0) {
-            # Find best match by confidence
-            confs <- confidences[col_matches]
-            best_col <- col_matches[which.max(confs)]
-            tibble::tibble(
-              raw = to_enhance[i],
-              enhanced = db[best_col],
-              row_id = enhance_df$row_id[i]
-            )
-          } else {
-            # No match - NA
-            tibble::tibble(
-              raw = to_enhance[i],
-              enhanced = glyrepr::glycan_structure(NA),
-              row_id = enhance_df$row_id[i]
-            )
-          }
-        })
-        res_enhanced <- dplyr::bind_rows(res_list)
-      } else {
-        # matches: rows=db, cols=to_enhance
-        match_indices <- which(matches, arr.ind = TRUE)
-
-        if (nrow(match_indices) > 0) {
-          # match_indices[, "col"] are indices into to_enhance
-          # match_indices[, "row"] are indices into db
-          matched_row_ids <- enhance_df$row_id[match_indices[, "col"]]
-          matched_raw <- enhance_df$raw[match_indices[, "col"]]
-          matched_enhanced <- db[match_indices[, "row"]]
-
-          res_enhanced <- tibble::tibble(
-            raw = matched_raw,
-            enhanced = matched_enhanced,
-            row_id = matched_row_ids
-          )
-        } else {
-          # No matches found
-          res_enhanced <- tibble::tibble(
-            raw = to_enhance[integer(0)],
-            enhanced = db[integer(0)],
-            row_id = integer(0)
-          )
-        }
       }
     }
   }
