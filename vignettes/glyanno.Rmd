@@ -102,6 +102,9 @@ comp_to_struc("Gal(1)GalNAc(1)", db = struc_db, return_best = TRUE)
 Core 1 is more common than Core 5, so it was kept.
 The function keeps the structure with most citations for multiple matches.
 
+Note that when `return_best = TRUE`, the function returns a vector with the same length of the input instead of a tibble.
+When a glycan has no matches, `<NA>` will be on the corresponding position.
+
 Note that all functions in `glyanno` works vectorizedly:
 
 ```{r}
