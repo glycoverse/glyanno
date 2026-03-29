@@ -179,30 +179,33 @@ Sometimes we just want a “most possible” result. In this case, you can
 set <code>return_best</code> to <code>TRUE</code>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, db <span class="op">=</span> <span class="va">struc_db</span>, return_best <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
-<span><span class="co">#&gt;   composition     structure          </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1) <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span></code></pre></div>
+<span><span class="co">#&gt; &lt;glycan_structure[1]&gt;</span></span>
+<span><span class="co">#&gt; [1] <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
+<span><span class="co">#&gt; # Unique structures: 1</span></span></code></pre></div>
 <p>Core 1 is more common than Core 5, so it was kept. The function keeps
 the structure with most citations for multiple matches.</p>
+<p>Note that when <code>return_best = TRUE</code>, the function returns
+a vector with the same length of the input instead of a tibble. When a
+glycan has no matches, <code>&lt;NA&gt;</code> will be on the
+corresponding position.</p>
 <p>Note that all functions in <code>glyanno</code> works
 vectorizedly:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, <span class="st">"GlcNAc(1)GalNAc(1)"</span><span class="op">)</span>, db <span class="op">=</span> <span class="va">struc_db</span>, return_best <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
-<span><span class="co">#&gt;   composition        structure             </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)    <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> <span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">GalNAc</span>(1) <span style="color: #0087D7;">GlcNAc</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span></code></pre></div>
-<p>If you set <code>return_best</code> to <code>TRUE</code>, a common
-pattern is to directly fetch the second column from the result:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, <span class="st">"GlcNAc(1)GalNAc(1)"</span><span class="op">)</span>, db <span class="op">=</span> <span class="va">struc_db</span>, return_best <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="co">#&gt; &lt;glycan_structure[2]&gt;</span></span>
 <span><span class="co">#&gt; [1] <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
 <span><span class="co">#&gt; [2] <span style="color: #0087D7;">GlcNAc</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
 <span><span class="co">#&gt; # Unique structures: 2</span></span></code></pre></div>
-<p>This vector always has the same length as the input.</p>
+<p>If you set <code>return_best</code> to <code>TRUE</code>, the
+function directly returns a vector:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, <span class="st">"GlcNAc(1)GalNAc(1)"</span><span class="op">)</span>, db <span class="op">=</span> <span class="va">struc_db</span>, return_best <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;glycan_structure[2]&gt;</span></span>
+<span><span class="co">#&gt; [1] <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
+<span><span class="co">#&gt; [2] <span style="color: #0087D7;">GlcNAc</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
+<span><span class="co">#&gt; # Unique structures: 2</span></span></code></pre></div>
+<p>This vector always has the same length as the input, with
+<code>NA</code> for glycans with no match.</p>
 </div>
 <div class="section level2">
 <h2 id="enhancing-compositions-and-structures">Enhancing Compositions and Structures<a class="anchor" aria-label="anchor" href="#enhancing-compositions-and-structures"></a>
@@ -261,10 +264,9 @@ well.</p>
 <span>  db <span class="op">=</span> <span class="fu"><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb_structures</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span>,</span>
 <span>  return_best <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
-<span><span class="co">#&gt;   raw                 enhanced           </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??- <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span></code></pre></div>
+<span><span class="co">#&gt; &lt;glycan_structure[1]&gt;</span></span>
+<span><span class="co">#&gt; [1] <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
+<span><span class="co">#&gt; # Unique structures: 1</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="bidirectional-conversion">Bidirectional Conversion<a class="anchor" aria-label="anchor" href="#bidirectional-conversion"></a>

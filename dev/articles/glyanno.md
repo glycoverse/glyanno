@@ -136,38 +136,41 @@ set `return_best` to `TRUE`:
 
 ``` r
 comp_to_struc("Gal(1)GalNAc(1)", db = struc_db, return_best = TRUE)
-#> # A tibble: 1 × 2
-#>   composition     structure          
-#>   <comp>          <struct>           
-#> 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-
+#> <glycan_structure[1]>
+#> [1] Gal(b1-3)GalNAc(a1-
+#> # Unique structures: 1
 ```
 
 Core 1 is more common than Core 5, so it was kept. The function keeps
 the structure with most citations for multiple matches.
 
+Note that when `return_best = TRUE`, the function returns a vector with
+the same length of the input instead of a tibble. When a glycan has no
+matches, `<NA>` will be on the corresponding position.
+
 Note that all functions in `glyanno` works vectorizedly:
 
 ``` r
 comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)
-#> # A tibble: 2 × 2
-#>   composition        structure             
-#>   <comp>             <struct>              
-#> 1 Gal(1)GalNAc(1)    Gal(b1-3)GalNAc(a1-   
-#> 2 GlcNAc(1)GalNAc(1) GlcNAc(b1-3)GalNAc(a1-
-```
-
-If you set `return_best` to `TRUE`, a common pattern is to directly
-fetch the second column from the result:
-
-``` r
-comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)[[2]]
 #> <glycan_structure[2]>
 #> [1] Gal(b1-3)GalNAc(a1-
 #> [2] GlcNAc(b1-3)GalNAc(a1-
 #> # Unique structures: 2
 ```
 
-This vector always has the same length as the input.
+If you set `return_best` to `TRUE`, the function directly returns a
+vector:
+
+``` r
+comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)
+#> <glycan_structure[2]>
+#> [1] Gal(b1-3)GalNAc(a1-
+#> [2] GlcNAc(b1-3)GalNAc(a1-
+#> # Unique structures: 2
+```
+
+This vector always has the same length as the input, with `NA` for
+glycans with no match.
 
 ## Enhancing Compositions and Structures
 
@@ -238,10 +241,9 @@ enhance_struc(
   db = glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc"),
   return_best = TRUE
 )
-#> # A tibble: 1 × 2
-#>   raw                 enhanced           
-#>   <struct>            <struct>           
-#> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-
+#> <glycan_structure[1]>
+#> [1] Gal(b1-3)GalNAc(a1-
+#> # Unique structures: 1
 ```
 
 ## Bidirectional Conversion
