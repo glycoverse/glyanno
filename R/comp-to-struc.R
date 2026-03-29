@@ -92,5 +92,5 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
       dplyr::left_join(db_concrete_df, by = "composition")
   }
 
-  res <- .prepare_result(res, return_best, raw_col = "composition", new_col = "structure")
+  .prepare_result(res, return_best, raw_col = "composition", new_col = "structure")
 }

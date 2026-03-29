@@ -171,6 +171,5 @@ enhance_struc <- function(
     return(dplyr::pull(res, .data$enhanced))
   }
 
-  res <- res |> dplyr::select(-all_of("row_id"))
-  res
+  res |> dplyr::select(-all_of("row_id"))
 }
