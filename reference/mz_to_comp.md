@@ -73,7 +73,10 @@ mz_to_comp(
 
 ## Value
 
-A tibble with the following columns:
+If `return_best=TRUE`: An unnamed
+[`glyrepr::glycan_composition()`](https://glycoverse.github.io/glyrepr/reference/glycan_composition.html)
+vector with the same length as `mz`. Unmatched m/z values are returned
+as `NA`. If `return_best=FALSE`: A tibble with the following columns:
 
 - `mz`: The molecule m/z values, same as the input `mz`.
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">glyanno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,7 +97,11 @@ please make sure the names of the vector are the same as the names in <code><a h
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble with the following columns:</p><ul><li><p><code>mz</code>: The molecule m/z values, same as the input <code>mz</code>.</p></li>
+    <p>If <code>return_best=TRUE</code>:
+An unnamed <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_composition.html" class="external-link">glyrepr::glycan_composition()</a></code> vector with the same length as <code>mz</code>.
+Unmatched m/z values are returned as <code>NA</code>.
+If <code>return_best=FALSE</code>:
+A tibble with the following columns:</p><ul><li><p><code>mz</code>: The molecule m/z values, same as the input <code>mz</code>.</p></li>
 <li><p><code>composition</code>: The possible glycan compositions, as <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_composition.html" class="external-link">glyrepr::glycan_composition()</a></code> vector.
 Note that one m/z value can have multiple rows in the result,
 corresponding to different possible glycan compositions.</p></li>

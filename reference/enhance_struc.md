@@ -44,7 +44,11 @@ enhance_struc(strucs, db = NULL, return_best = FALSE)
 
 ## Value
 
-A tibble with the following columns:
+If `return_best=TRUE`: An unnamed
+[`glyrepr::glycan_structure()`](https://glycoverse.github.io/glyrepr/reference/glycan_structure.html)
+vector with the same length as `strucs`. Unmatched structures are
+returned as `NA`. If `return_best=FALSE`: A tibble with the following
+columns:
 
 - `raw`: The original glycan structures.
 
