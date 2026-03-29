@@ -156,6 +156,42 @@ test_that("mz_to_comp returns handles NA", {
   )
 })
 
+test_that("mz_to_comp with return_best=TRUE preserves NA positions in input", {
+  db <- glyrepr::glycan_composition(c(Hex = 2))
+  attr(db, "confidence") <- c(1.0)
+
+  result <- mz_to_comp(
+    mz = c(365, NA, 999),
+    adduct = "Na+",
+    db = db,
+    mass_dict = mass_dict_for_test(),
+    return_best = TRUE
+  )
+
+  expect_false(is.data.frame(result))
+  expect_equal(length(result), 3)
+  expect_equal(as.character(result[1]), "Hex(2)")
+  expect_true(is.na(result[2]))
+  expect_true(is.na(result[3]))
+})
+
+test_that("mz_to_comp with return_best=TRUE returns all-NA vector for all-NA input", {
+  db <- glyrepr::glycan_composition(c(Hex = 2))
+  attr(db, "confidence") <- c(1.0)
+
+  result <- mz_to_comp(
+    mz = c(NA_real_, NA_real_),
+    adduct = "Na+",
+    db = db,
+    mass_dict = mass_dict_for_test(),
+    return_best = TRUE
+  )
+
+  expect_false(is.data.frame(result))
+  expect_equal(length(result), 2)
+  expect_true(all(is.na(result)))
+})
+
 test_that("mz_to_comp rejects wrong input types", {
   simple_db <- glyrepr::glycan_composition(c(Hex = 2))
   expect_error(mz_to_comp("365", db = simple_db))

@@ -64,8 +64,13 @@ mz_to_comp <- function(
 ) {
   checkmate::assert_numeric(mz)
   checkmate::assert_flag(return_best)
-  mz <- mz[!is.na(mz)]
-  if (length(mz) == 0) {
+  # Track NA positions so return_best=TRUE can return a same-length vector
+  na_input_mask <- is.na(mz)
+  mz_to_process <- mz[!na_input_mask]
+  if (length(mz_to_process) == 0) {
+    if (return_best) {
+      return(glyrepr::as_glycan_composition(rep(NA_character_, length(mz))))
+    }
     return(tibble::tibble(
       mz = numeric(0),
       composition = glyrepr::glycan_composition()
@@ -163,14 +168,17 @@ mz_to_comp <- function(
     matches |> dplyr::pull(.data$composition)
   }
 
-  res_comps <- purrr::map(mz, find_one)
+  res_comps <- purrr::map(mz_to_process, find_one)
   if (return_best) {
     char_comps <- purrr::map(res_comps, function(x) {
       if (length(x) == 0 || is.na(x)) NA_character_ else as.character(x)
     })
-    glyrepr::as_glycan_composition(unlist(char_comps))
+    # Build result with same length as original mz, inserting NAs at NA input positions
+    full_char_comps <- rep(NA_character_, length(mz))
+    full_char_comps[!na_input_mask] <- unname(unlist(char_comps))
+    glyrepr::as_glycan_composition(full_char_comps)
   } else {
-    res_df <- tibble::tibble(mz = mz, composition = res_comps)
+    res_df <- tibble::tibble(mz = mz_to_process, composition = res_comps)
     tidyr::unnest(res_df, all_of("composition"))
   }
 }

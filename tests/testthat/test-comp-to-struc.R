@@ -30,18 +30,13 @@ test_that("comp_to_struc works for concrete db and generic comps", {
   expect_equal(result, expected)
 })
 
-test_that("comp_to_struc works for generic db and concrete comps", {
-  # This test has two purposes:
-  # 1. Ensure that generic compositions can not match concrete structures in `db`.
-  # 2. Ensure that zero-row result has the expected glycan vector types.
+test_that("comp_to_struc errors for generic db and concrete comps", {
   db <- glyrepr::as_glycan_structure("HexNAc(??-")
   comps <- glyrepr::as_glycan_composition("GalNAc(1)")
-  result <- comp_to_struc(comps, db)
-  expected <- tibble::tibble(
-    composition = glyrepr::glycan_composition(),
-    structure = glyrepr::glycan_structure()
+  expect_error(
+    comp_to_struc(comps, db),
+    "Concrete compositions cannot be matched against a generic structure database"
   )
-  expect_equal(result, expected)
 })
 
 test_that("comp_to_struc works for concrete db and concrete comps", {

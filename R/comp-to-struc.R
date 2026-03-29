@@ -100,13 +100,10 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
     # For concrete compositions, match directly to concrete structures only
     # After glyrepr 0.9.0.9000, db must be homogeneous (all generic or all concrete)
     if (glyrepr::get_mono_type(db) == "generic") {
-      # Concrete comps cannot match generic structures
-      if (return_best) {
-        return(glyrepr::glycan_structure())
-      }
-      return(tibble::tibble(
-        composition = glyrepr::glycan_composition(),
-        structure = glyrepr::glycan_structure()
+      # Concrete comps cannot match generic structures - this is a usage error
+      cli::cli_abort(c(
+        "Concrete compositions cannot be matched against a generic structure database.",
+        "i" = "Use generic compositions (e.g. {.val Hex(1)HexNAc(1)}) or provide a concrete structure database."
       ))
     }
     db_concrete_df <- tibble::tibble(
