@@ -2,6 +2,8 @@
 
 ## glyanno (development version)
 
+## glyanno 0.4.0
+
 ### Breaking changes
 
 - `return_best = TRUE` now returns a vector with the same length as
