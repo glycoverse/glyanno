@@ -24,6 +24,10 @@ at "intact" level.}
 Default is \code{FALSE}.}
 }
 \value{
+If \code{return_best=TRUE}:
+An unnamed \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector with the same length as \code{strucs}.
+Unmatched structures are returned as \code{NA}.
+If \code{return_best=FALSE}:
 A tibble with the following columns:
 \itemize{
 \item \code{raw}: The original glycan structures.

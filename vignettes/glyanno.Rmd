@@ -108,13 +108,13 @@ Note that all functions in `glyanno` works vectorizedly:
 comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)
 ```
 
-If you set `return_best` to `TRUE`, a common pattern is to directly fetch the second column from the result:
+If you set `return_best` to `TRUE`, the function directly returns a vector:
 
 ```{r}
-comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)[[2]]
+comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)
 ```
 
-This vector always has the same length as the input.
+This vector always has the same length as the input, with `NA` for glycans with no match.
 
 ## Enhancing Compositions and Structures
 
