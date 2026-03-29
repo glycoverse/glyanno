@@ -1,5 +1,13 @@
 # glyanno (development version)
 
+## Breaking changes
+
+* `return_best=TRUE` now returns a vector with the same length as input (with `NA` for unmatched glycans) instead of a tibble with potentially fewer rows. Affected functions: `enhance_comp()`, `comp_to_struc()`, `mz_to_comp()`, `enhance_struc()`.
+
+## Bug fixes
+
+* `comp_to_struc()` now errors when concrete compositions are matched against a generic structure database, instead of silently returning empty results.
+
 # glyanno 0.3.0
 
 ## Breaking changes
