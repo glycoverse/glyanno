@@ -38,11 +38,15 @@
 #'   Default is `FALSE`.
 #' @inheritParams calculate_mz
 #'
-#' @returns A tibble with the following columns:
+#' @returns If `return_best=TRUE`:
+#'   An unnamed [glyrepr::glycan_composition()] vector with the same length as `mz`.
+#'   Unmatched m/z values are returned as `NA`.
+#'   If `return_best=FALSE`:
+#'   A tibble with the following columns:
 #'   - `mz`: The molecule m/z values, same as the input `mz`.
 #'   - `composition`: The possible glycan compositions, as [glyrepr::glycan_composition()] vector.
-#'   Note that one m/z value can have multiple rows in the result,
-#'   corresponding to different possible glycan compositions.
+#'     Note that one m/z value can have multiple rows in the result,
+#'     corresponding to different possible glycan compositions.
 #'
 #' @examples
 #' mz_to_comp(933.3175, charge = 1, adduct = "Na+")
@@ -139,6 +143,13 @@ mz_to_comp <- function(
   find_one <- function(mz) {
     matches <- db_df |>
       dplyr::filter(.env$mz > .data$lower & .env$mz < .data$upper)
+    if (nrow(matches) == 0) {
+      if (return_best) {
+        return(NA_character_)
+      } else {
+        return(glyrepr::glycan_composition())
+      }
+    }
     if (return_best && nrow(matches) > 1) {
       # Arrange by desc(confidence), treating NA as lowest
       matches <- matches |>
@@ -153,6 +164,13 @@ mz_to_comp <- function(
   }
 
   res_comps <- purrr::map(mz, find_one)
-  res_df <- tibble::tibble(mz = mz, composition = res_comps)
-  tidyr::unnest(res_df, all_of("composition"))
+  if (return_best) {
+    char_comps <- purrr::map(res_comps, function(x) {
+      if (length(x) == 0 || is.na(x)) NA_character_ else as.character(x)
+    })
+    glyrepr::as_glycan_composition(unlist(char_comps))
+  } else {
+    res_df <- tibble::tibble(mz = mz, composition = res_comps)
+    tidyr::unnest(res_df, all_of("composition"))
+  }
 }

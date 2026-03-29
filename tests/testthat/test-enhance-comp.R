@@ -84,8 +84,8 @@ test_that("enhance_comp with return_best=TRUE keeps highest confidence match", {
   comps <- glyrepr::as_glycan_composition("Hex(2)")
   result <- enhance_comp(comps, db, return_best = TRUE)
 
-  expect_equal(nrow(result), 1)
-  expect_equal(as.character(result$enhanced), "Glc(1)Gal(1)")
+  expect_equal(length(result), 1)
+  expect_equal(as.character(result), "Glc(1)Gal(1)")
 })
 
 test_that("enhance_comp with return_best=TRUE errors without confidence attr", {
@@ -108,7 +108,7 @@ test_that("enhance_comp treats NA confidence as lowest", {
   comps <- glyrepr::as_glycan_composition("Hex(2)")
   result <- enhance_comp(comps, db, return_best = TRUE)
 
-  expect_equal(as.character(result$enhanced), "Glc(1)Gal(1)")
+  expect_equal(as.character(result), "Glc(1)Gal(1)")
 })
 
 test_that("enhance_comp works with db=NULL (regression: confidences undefined)", {
@@ -120,4 +120,37 @@ test_that("enhance_comp works with db=NULL (regression: confidences undefined)",
   )
   # Result should be a tibble with raw and enhanced columns
   expect_named(result, c("raw", "enhanced"))
+})
+
+test_that("enhance_comp with return_best=TRUE returns vector with NA for no match", {
+  db <- glyrepr::glycan_composition(
+    c(Glc = 2)
+  )
+  attr(db, "confidence") <- c(1.0)
+
+  comps <- glyrepr::as_glycan_composition(c("Hex(2)", "Hex(3)"))
+  result <- enhance_comp(comps, db, return_best = TRUE)
+
+  # Should return a vector (glyrepr::glycan_composition()), not tibble
+  expect_false(is.data.frame(result))
+  # Length should match input
+  expect_equal(length(result), length(comps))
+  # First should match, second should be NA
+  expect_equal(as.character(result[1]), "Glc(2)")
+  expect_true(is.na(result[2]))
+})
+
+test_that("enhance_comp with return_best=TRUE and concrete comp returns vector", {
+  db <- glyrepr::glycan_composition(
+    c(Glc = 1, Gal = 1)
+  )
+  attr(db, "confidence") <- c(1.0)
+
+  comps <- glyrepr::as_glycan_composition("Glc(1)Gal(1)")
+  result <- enhance_comp(comps, db, return_best = TRUE)
+
+  # Should return a vector
+  expect_false(is.data.frame(result))
+  expect_equal(length(result), 1)
+  expect_equal(as.character(result), "Glc(1)Gal(1)")
 })

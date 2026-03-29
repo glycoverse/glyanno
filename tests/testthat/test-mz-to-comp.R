@@ -195,8 +195,38 @@ test_that("mz_to_comp with return_best=TRUE keeps highest confidence match", {
     return_best = TRUE
   )
 
-  expect_equal(nrow(result), 1)
-  expect_equal(as.character(result$composition), "Gal(2)")
+  expect_false(is.data.frame(result))
+  expect_equal(length(result), 1)
+  expect_equal(as.character(result[1]), "Gal(2)")
+})
+
+test_that("mz_to_comp with return_best=TRUE returns vector with NA for no match", {
+  db <- glyrepr::glycan_composition(c(Glc = 1))
+  attr(db, "confidence") <- c(1.0)
+  suppressWarnings(
+    db_mz <- calculate_mz(
+      db,
+      charge = 1,
+      adduct = "H+",
+      mass_dict = mass_dict_for_test()
+    )
+  )
+
+  # First mz matches Glc(1), second doesn't match anything
+  mz_values <- c(db_mz[1], 999.0)
+  result <- mz_to_comp(
+    mz_values,
+    charge = 1,
+    adduct = "H+",
+    db = db,
+    mass_dict = mass_dict_for_test(),
+    return_best = TRUE
+  )
+
+  expect_false(is.data.frame(result))
+  expect_equal(length(result), 2)
+  expect_equal(as.character(result[1]), "Glc(1)")
+  expect_true(is.na(result[2]))
 })
 
 test_that("mz_to_comp with return_best=TRUE errors without confidence attr", {
@@ -229,7 +259,9 @@ test_that("mz_to_comp treats NA confidence as lowest", {
     return_best = TRUE
   )
 
-  expect_equal(as.character(result$composition), "Gal(2)")
+  expect_false(is.data.frame(result))
+  expect_equal(length(result), 1)
+  expect_equal(as.character(result[1]), "Gal(2)")
 })
 
 test_that("mz_to_comp works with db=NULL (regression: confidences undefined)", {

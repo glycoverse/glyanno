@@ -46,6 +46,10 @@ If a custom mass dictionary is provided,
 please make sure the names of the vector are the same as the names in \code{\link[=glyanno_mass_dict]{glyanno_mass_dict()}}.}
 }
 \value{
+If \code{return_best=TRUE}:
+An unnamed \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector with the same length as \code{mz}.
+Unmatched m/z values are returned as \code{NA}.
+If \code{return_best=FALSE}:
 A tibble with the following columns:
 \itemize{
 \item \code{mz}: The molecule m/z values, same as the input \code{mz}.
