@@ -2,6 +2,12 @@
 
 ## glyanno (development version)
 
+## glyanno 0.4.1
+
+### Minor improvements and bug fixes
+
+- `com_to_struc()` now explicitly returns when the output is empty.
+
 ## glyanno 0.4.0
 
 ### Breaking changes
