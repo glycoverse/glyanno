@@ -36,3 +36,5 @@ Imports:
     tidyr,
     tibble
 VignetteBuilder: knitr
+Depends:
+    R (>= 4.1)
