@@ -55,6 +55,9 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
 
   # Handle empty composition case
   if (length(comps) == 0) {
+    if (return_best) {
+      return(glyrepr::glycan_composition())
+    }
     return(tibble::tibble(
       raw = glyrepr::glycan_composition(),
       enhanced = glyrepr::glycan_composition()

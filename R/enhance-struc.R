@@ -65,6 +65,17 @@ enhance_struc <- function(
 
   .check_confidence_attr(confidences, return_best)
 
+  # Handle empty db early
+  if (length(db) == 0) {
+    if (return_best) {
+      return(glyrepr::glycan_structure(rep(NA_character_, length(strucs))))
+    }
+    return(tibble::tibble(
+      raw = glyrepr::glycan_structure(),
+      enhanced = glyrepr::glycan_structure()
+    ))
+  }
+
   # Determine target level from db
   db_struc_levels <- glyrepr::get_structure_level(db)
   unique_levels <- unique(db_struc_levels)

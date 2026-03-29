@@ -127,12 +127,12 @@ mz_to_comp <- function(
 
   .check_confidence_attr(confidences, return_best)
   # Store the NA mask before filtering
-  na_mask <- is.na(db_mz)
-  db <- db[!na_mask]
-  db_mz <- db_mz[!na_mask]
+  db_na_mask <- is.na(db_mz)
+  db <- db[!db_na_mask]
+  db_mz <- db_mz[!db_na_mask]
   # Filter confidences along with db
   if (!is.null(confidences)) {
-    confidences <- confidences[!na_mask]
+    confidences <- confidences[!db_na_mask]
   }
   db_df <- tibble::tibble(
     composition = db,
@@ -170,10 +170,10 @@ mz_to_comp <- function(
 
   res_comps <- purrr::map(mz_to_process, find_one)
   if (return_best) {
+    # Build result with same length as original mz, inserting NAs at NA input positions
     char_comps <- purrr::map(res_comps, function(x) {
       if (length(x) == 0 || is.na(x)) NA_character_ else as.character(x)
     })
-    # Build result with same length as original mz, inserting NAs at NA input positions
     full_char_comps <- rep(NA_character_, length(mz))
     full_char_comps[!na_input_mask] <- unname(unlist(char_comps))
     glyrepr::as_glycan_composition(full_char_comps)
