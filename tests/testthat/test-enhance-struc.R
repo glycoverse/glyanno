@@ -200,7 +200,10 @@ test_that("enhance_struc with return_best=TRUE returns NA for no match", {
 
   # First input matches (topological pattern matches intact Gal structures)
   # Second input doesn't match any intact GalNAc structure (Man pattern wrong)
-  strucs <- glyrepr::as_glycan_structure(c("Gal(??-?)GalNAc(??-", "Man(??-?)Man(??-"))
+  strucs <- glyrepr::as_glycan_structure(c(
+    "Gal(??-?)GalNAc(??-",
+    "Man(??-?)Man(??-"
+  ))
   result <- enhance_struc(strucs, db = db, return_best = TRUE)
 
   expect_false(is.data.frame(result))
