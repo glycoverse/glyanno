@@ -108,11 +108,10 @@ test_that("enhance_struc with return_best=TRUE filters enhanced structures by co
     struc,
     db = db,
     return_best = TRUE
-  ) |>
-    dplyr::mutate(enhanced = as.character(enhanced))
+  )
 
-  expect_equal(nrow(result), 1)
-  expect_equal(result$enhanced, "Gal(b1-4)GalNAc(a1-")
+  expect_equal(length(result), 1)
+  expect_equal(as.character(result), "Gal(b1-4)GalNAc(a1-")
 })
 
 test_that("enhance_struc with return_best=TRUE keeps all already-at-level structures", {
@@ -132,7 +131,7 @@ test_that("enhance_struc with return_best=TRUE keeps all already-at-level struct
     return_best = TRUE
   )
 
-  expect_equal(nrow(result), 2)
+  expect_equal(length(result), 2)
 })
 
 test_that("enhance_struc with return_best=TRUE errors without confidence attr", {
@@ -157,10 +156,9 @@ test_that("enhance_struc treats NA confidence as lowest for enhancement", {
     struc,
     db = db,
     return_best = TRUE
-  ) |>
-    dplyr::mutate(enhanced = as.character(enhanced))
+  )
 
-  expect_equal(result$enhanced, "Gal(b1-4)GalNAc(a1-")
+  expect_equal(as.character(result), "Gal(b1-4)GalNAc(a1-")
 })
 
 test_that("enhance_struc works with db=NULL (regression: confidences undefined)", {
@@ -190,4 +188,23 @@ test_that("enhance_struc errors with mixed levels in db", {
     enhance_struc(input, db = db_mixed),
     "must have the same structure level"
   )
+})
+
+test_that("enhance_struc with return_best=TRUE returns NA for no match", {
+  # db at intact level with two entries
+  db <- glyrepr::as_glycan_structure(c(
+    "Gal(b1-3)GalNAc(a1-",
+    "Gal(b1-4)GalNAc(a1-"
+  ))
+  attr(db, "confidence") <- c(1.0, 1.0)
+
+  # First input matches (topological pattern matches intact Gal structures)
+  # Second input doesn't match any intact GalNAc structure (Man pattern wrong)
+  strucs <- glyrepr::as_glycan_structure(c("Gal(??-?)GalNAc(??-", "Man(??-?)Man(??-"))
+  result <- enhance_struc(strucs, db = db, return_best = TRUE)
+
+  expect_false(is.data.frame(result))
+  expect_equal(length(result), 2)
+  expect_equal(as.character(result[1]), "Gal(b1-3)GalNAc(a1-")
+  expect_true(is.na(result[2]))
 })
