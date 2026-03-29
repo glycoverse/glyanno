@@ -69,21 +69,6 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
     )
     res <- comps_df |>
       dplyr::left_join(db_df, by = "composition")
-
-    if (return_best) {
-      res <- res |>
-        dplyr::arrange(.data$row_id, dplyr::desc(.data$confidence)) |>
-        dplyr::group_by(.data$row_id) |>
-        dplyr::slice(1) |>
-        dplyr::ungroup() |>
-        dplyr::arrange(.data$row_id) |>
-        dplyr::pull(.data$structure)
-    } else {
-      res <- res |>
-        dplyr::filter(!is.na(.data$structure)) |>
-        dplyr::arrange(.data$row_id) |>
-        dplyr::select(all_of(c("composition", "structure")))
-    }
   } else {
     # For concrete compositions, match directly to concrete structures only
     # After glyrepr 0.9.0.9000, db must be homogeneous (all generic or all concrete)
@@ -105,40 +90,7 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
     )
     res <- comps_df |>
       dplyr::left_join(db_concrete_df, by = "composition")
-
-    if (return_best) {
-      res <- res |>
-        dplyr::arrange(.data$row_id, dplyr::desc(.data$confidence)) |>
-        dplyr::group_by(.data$row_id) |>
-        dplyr::slice(1) |>
-        dplyr::ungroup() |>
-        dplyr::arrange(.data$row_id) |>
-        dplyr::pull(.data$structure)
-    } else {
-      res <- res |>
-        dplyr::filter(!is.na(.data$structure)) |>
-        dplyr::arrange(.data$row_id) |>
-        dplyr::select(all_of(c("composition", "structure")))
-    }
   }
 
-  # Ensure zero-row result has the expected type
-  if (return_best) {
-    # res is a vector when return_best=TRUE
-    if (length(res) == 0) {
-      glyrepr::glycan_structure()
-    } else {
-      res
-    }
-  } else {
-    # res is a tibble when return_best=FALSE
-    if (nrow(res) == 0) {
-      tibble::tibble(
-        composition = glyrepr::glycan_composition(),
-        structure = glyrepr::glycan_structure()
-      )
-    } else {
-      res
-    }
-  }
+  res <- .prepare_result(res, return_best, raw_col = "composition", new_col = "structure")
 }

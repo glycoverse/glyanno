@@ -130,3 +130,20 @@
 .is_glydb_vector <- function(x) {
   !is.null(attr(x, "confidence"))
 }
+
+.prepare_result <- function(res, return_best, raw_col, new_col) {
+  if (return_best) {
+    res |>
+      dplyr::arrange(.data$row_id, dplyr::desc(.data$confidence)) |>
+      dplyr::group_by(.data$row_id) |>
+      dplyr::slice(1) |>
+      dplyr::ungroup() |>
+      dplyr::arrange(.data$row_id) |>
+      dplyr::pull(.data[[new_col]])
+  } else {
+    res |>
+      dplyr::filter(!is.na(.data[[new_col]])) |>
+      dplyr::arrange(.data$row_id) |>
+      dplyr::select(all_of(c(raw_col, new_col)))
+  }
+}
