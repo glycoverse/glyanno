@@ -36,20 +36,8 @@
 comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
   checkmate::assert_flag(return_best)
   comps <- .ensure_glycan_composition(comps, allow_structure = FALSE)
-
-  if (is.null(db)) {
-    db <- glydb::glydb_structures(structure_level = "intact")
-    confidences <- attr(db, "confidence")
-  } else {
-    confidences <- attr(db, "confidence")
-    is_from_glydb <- !is.null(confidences)
-    if (!is_from_glydb) {
-      db <- .ensure_glycan_structure(db)
-      db <- unique(db)
-    }
-  }
-
-  .check_confidence_attr(confidences, return_best)
+  db <- .prepare_struc_db(db)
+  .check_return_best_arg(db, return_best)
 
   # Handle empty compositions early (before calling get_mono_type)
   if (length(comps) == 0) {
@@ -73,7 +61,7 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
     db_df <- tibble::tibble(
       composition = db_comps_generic,
       structure = db,
-      confidence = confidences
+      confidence = attr(db, "confidence")
     )
     comps_df <- tibble::tibble(
       composition = glyrepr::convert_to_generic(comps),
@@ -109,7 +97,7 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
     db_concrete_df <- tibble::tibble(
       composition = glyrepr::as_glycan_composition(db),
       structure = db,
-      confidence = confidences
+      confidence = attr(db, "confidence")
     )
     comps_df <- tibble::tibble(
       composition = comps,

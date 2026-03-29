@@ -117,15 +117,10 @@ test_that("comp_to_struc accepts empty compositions", {
   expect_equal(result, expected)
 })
 
-test_that("comp_to_struc accepts empty db", {
+test_that("comp_to_struc rejects empty db", {
   db <- glyrepr::glycan_structure()
   comps <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)")
-  result <- comp_to_struc(comps, db)
-  expected <- tibble::tibble(
-    composition = glyrepr::glycan_composition(),
-    structure = glyrepr::glycan_structure()
-  )
-  expect_equal(result, expected)
+  expect_error(comp_to_struc(comps, db))
 })
 
 test_that("comp_to_struc with return_best=TRUE keeps highest confidence match", {

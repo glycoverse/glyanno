@@ -86,14 +86,32 @@
   }
 }
 
-
 #' Check if db has confidence attribute when return_best is TRUE
 #' @noRd
-.check_confidence_attr <- function(confidences, return_best) {
-  if (isTRUE(return_best) && is.null(confidences)) {
+.check_return_best_arg <- function(db, return_best) {
+  if (isTRUE(return_best) && !.is_glydb_vector(db)) {
     cli::cli_abort(c(
       "`db` must have a {.val confidence} attribute when {.val return_best} is {.val TRUE}.",
       "i" = "Use {.fun glydb::glydb_compositions} or {.fun glydb::glydb_structures} to get a database with confidence scores."
     ))
   }
+}
+
+.prepare_struc_db <- function(db) {
+  if (is.null(db)) {
+    db <- glydb::glydb_structures(structure_level = "intact")
+  } else {
+    if (!.is_glydb_vector(db)) {
+      if (length(db) == 0) {
+        cli::cli_abort("{.arg db} cannot be of 0 length.")
+      }
+      db <- .ensure_glycan_structure(db)
+      db <- unique(db)
+    }
+  }
+  db
+}
+
+.is_glydb_vector <- function(x) {
+  !is.null(attr(x, "confidence"))
 }
