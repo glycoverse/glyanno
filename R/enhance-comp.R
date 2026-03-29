@@ -36,22 +36,10 @@
 #' @export
 enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
   checkmate::assert_flag(return_best)
-
   # Input validation and preparation
   comps <- .ensure_glycan_composition(comps, allow_structure = FALSE)
-  if (is.null(db)) {
-    db <- glydb::glydb_compositions(mono_type = "concrete")
-    confidences <- attr(db, "confidence")
-  } else {
-    confidences <- attr(db, "confidence")
-    is_from_glydb <- !is.null(confidences)
-    if (!is_from_glydb) {
-      db <- .ensure_glycan_composition(db, allow_structure = FALSE)
-      db <- unique(db)
-    }
-  }
-
-  .check_confidence_attr(confidences, return_best)
+  db <- .prepare_comp_db(db)
+  .check_return_best_arg(db, return_best)
 
   # Handle empty composition case
   if (length(comps) == 0) {
@@ -77,7 +65,7 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
     db_df <- tibble::tibble(
       generic = glyrepr::convert_to_generic(db),
       concrete = db,
-      confidence = confidences %||% NA_real_
+      confidence = attr(db, "confidence") %||% NA_real_
     )
     comps_df <- tibble::tibble(
       composition = glyrepr::convert_to_generic(comps),
@@ -126,25 +114,4 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
     )
   }
   res
-}
-
-
-#' Check confidence attribute when return_best is TRUE
-#'
-#' @param confidences The confidence attribute value
-#' @param return_best Whether return_best is TRUE
-#' @noRd
-.check_confidence_attr <- function(confidences, return_best) {
-  if (!return_best) {
-    return(invisible(NULL))
-  }
-
-  if (is.null(confidences)) {
-    cli::cli_abort(c(
-      "Database must have a {.val confidence} attribute when {.arg return_best} is {.val TRUE}.",
-      "i" = "Add confidence scores to the database using {.code attr(db, \"confidence\") <- values}."
-    ))
-  }
-
-  invisible(NULL)
 }
