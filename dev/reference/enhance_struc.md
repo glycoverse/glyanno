@@ -1,6 +1,6 @@
 # Enhance glycan structure
 
-Given a glycan structure of any resolution level (see
+Given a glycan structure vector of any resolution level (see
 [`glyrepr::get_structure_level()`](https://glycoverse.github.io/glyrepr/reference/get_structure_level.html)
 for details), this function gives all possible glycan structures of
 higher resolution level.
@@ -19,9 +19,6 @@ enhance_struc(strucs, db = NULL, return_best = FALSE)
   [`glyrepr::glycan_structure()`](https://glycoverse.github.io/glyrepr/reference/glycan_structure.html)
   vector, or a character vector of glycan structure strings supported by
   [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
-  Glycan structures with level higher or same as the level of `db` will
-  be returned as is. Glycan structures with level lower than the level
-  of `db` will be enhanced to that level.
 
 - db:
 
@@ -29,10 +26,10 @@ enhance_struc(strucs, db = NULL, return_best = FALSE)
   [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
   vector, or a character vector of glycan structure strings supported by
   [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
-  All structures in `db` must be at the same resolution level. If not
-  provided, a default structure vector is loaded from
+  If not provided, a default structure vector is loaded from
   [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
-  at "intact" level.
+  at "intact" level. If `db` has a lower or equal resolution level than
+  `strucs`, the result will be the same as `strucs` (no enhancement).
 
 - return_best:
 
@@ -58,8 +55,8 @@ columns:
 
 ## Details
 
-The target resolution level is determined from `db`. All structures in
-`db` must be at the same level. When `db` is NULL, the default
+The target resolution level is determined from `db`. When `db` is NULL,
+the default
 [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
 at "intact" level is used.
 
