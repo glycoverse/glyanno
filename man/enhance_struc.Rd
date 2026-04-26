@@ -14,7 +14,6 @@ Glycan structures with level lower than the level of \code{db} will be enhanced 
 
 \item{db}{A \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} vector,
 or a character vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
-All structures in \code{db} must be at the same resolution level.
 If not provided, a default structure vector is loaded from \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}
 at "intact" level.}
 
@@ -37,12 +36,13 @@ as multiple rows in the result.
 }
 }
 \description{
-Given a glycan structure of any resolution level (see \code{\link[glyrepr:get_structure_level]{glyrepr::get_structure_level()}} for details),
-this function gives all possible glycan structures of higher resolution level.
+Given a glycan structure vector of any resolution level (see
+\code{\link[glyrepr:get_structure_level]{glyrepr::get_structure_level()}} for details), this function gives all
+possible glycan structures of higher resolution level.
 }
 \details{
-The target resolution level is determined from \code{db}. All structures in \code{db} must be at the same level.
-When \code{db} is NULL, the default \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "intact" level is used.
+The target resolution level is determined from \code{db}. When \code{db} is NULL,
+the default \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "intact" level is used.
 }
 \examples{
 # From topological level to intact level
