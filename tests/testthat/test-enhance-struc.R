@@ -69,6 +69,39 @@ test_that("enhance_struc returns empty result when no match found", {
   expect_equal(res$enhanced, glyrepr::glycan_structure())
 })
 
+test_that("enhance_struc accepts empty structures", {
+  db_intact <- "Gal(b1-3)GalNAc(a1-"
+  input_empty <- glyrepr::glycan_structure()
+
+  res <- enhance_struc(input_empty, db = db_intact)
+
+  expect_equal(
+    res,
+    tibble::tibble(
+      raw = glyrepr::glycan_structure(),
+      enhanced = glyrepr::glycan_structure()
+    )
+  )
+})
+
+test_that("enhance_struc accepts all-NA structures", {
+  db_intact <- glyrepr::as_glycan_structure("Gal(b1-3)GalNAc(a1-")
+  attr(db_intact, "confidence") <- 1
+  input_na <- c(glyrepr::glycan_structure(NA), glyrepr::glycan_structure(NA))
+
+  res <- enhance_struc(input_na, db = db_intact)
+  best <- enhance_struc(input_na, db = db_intact, return_best = TRUE)
+
+  expect_equal(
+    res,
+    tibble::tibble(
+      raw = input_na,
+      enhanced = input_na
+    )
+  )
+  expect_equal(best, input_na)
+})
+
 test_that("enhance_struc works with multiple glycans", {
   db_intact <- c(
     "GalNAc(a1-",
@@ -178,16 +211,34 @@ test_that("enhance_struc works with db=NULL (regression: confidences undefined)"
   expect_gt(nrow(result), 0)
 })
 
-test_that("enhance_struc errors with mixed levels in db", {
-  db_mixed <- c(
-    "Gal(b1-3)GalNAc(a1-", # intact level
-    "Gal(??-?)GalNAc(??-" # topological level
+test_that("enhance_struc uses scalar db structure level", {
+  db_partial <- c(
+    "Gal(??-?)GalNAc(??-",
+    "Gal(b1-3)GalNAc(a1-"
   )
-  input <- "Hex(??-?)HexNAc(??-"
-  expect_error(
-    enhance_struc(input, db = db_mixed),
-    "must have the same structure level"
+  input_basic <- "Hex(??-?)HexNAc(??-"
+
+  res <- enhance_struc(input_basic, db = db_partial)
+
+  expect_equal(
+    as.character(res$enhanced),
+    c("Gal(??-?)GalNAc(??-", "Gal(b1-3)GalNAc(a1-")
   )
+})
+
+test_that("enhance_struc uses scalar input structure level", {
+  db_intact <- glyrepr::as_glycan_structure("Gal(b1-3)GalNAc(a1-")
+  attr(db_intact, "confidence") <- 1
+  input_partial <- c(
+    "Gal(??-?)GalNAc(??-",
+    "Gal(b1-4)GalNAc(a1-"
+  )
+
+  res <- enhance_struc(input_partial, db = db_intact, return_best = TRUE)
+
+  expect_equal(length(res), 2)
+  expect_equal(as.character(res[1]), "Gal(b1-3)GalNAc(a1-")
+  expect_true(is.na(res[2]))
 })
 
 test_that("enhance_struc with return_best=TRUE returns NA for no match", {
