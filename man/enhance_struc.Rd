@@ -8,14 +8,14 @@ enhance_struc(strucs, db = NULL, return_best = FALSE)
 }
 \arguments{
 \item{strucs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector,
-or a character vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
-Glycan structures with level higher or same as the level of \code{db} will be returned as is.
-Glycan structures with level lower than the level of \code{db} will be enhanced to that level.}
+or a character vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.}
 
 \item{db}{A \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} vector,
 or a character vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
 If not provided, a default structure vector is loaded from \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}
-at "intact" level.}
+at "intact" level.
+If \code{db} has a lower or equal resolution level than \code{strucs},
+the result will be the same as \code{strucs} (no enhancement).}
 
 \item{return_best}{Logical. If \code{TRUE}, only return the best matching structure
 (highest confidence) for each input structure. Requires \code{db} to have a

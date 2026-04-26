@@ -9,12 +9,12 @@
 #'
 #' @param strucs A [glyrepr::glycan_structure()] vector,
 #'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
-#'   Glycan structures with level higher or same as the level of `db` will be returned as is.
-#'   Glycan structures with level lower than the level of `db` will be enhanced to that level.
 #' @param db A [glydb::glydb_structures()] vector,
 #'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
 #'   If not provided, a default structure vector is loaded from [glydb::glydb_structures()]
 #'   at "intact" level.
+#'   If `db` has a lower or equal resolution level than `strucs`,
+#'   the result will be the same as `strucs` (no enhancement).
 #' @param return_best Logical. If `TRUE`, only return the best matching structure
 #'   (highest confidence) for each input structure. Requires `db` to have a
 #'   `confidence` attribute. Use [glydb::glydb_structures()] for `db` to enable this feature.
