@@ -66,11 +66,11 @@ enhance_struc <- function(
 
   if (all(is.na(strucs))) {
     if (return_best) {
-      return(glyrepr::glycan_structure(rep(NA_character_, length(strucs))))
+      return(strucs)
     }
     return(tibble::tibble(
-      raw = glyrepr::glycan_structure(),
-      enhanced = glyrepr::glycan_structure()
+      raw = strucs,
+      enhanced = strucs
     ))
   }
 

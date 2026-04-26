@@ -87,7 +87,7 @@ test_that("enhance_struc accepts empty structures", {
 test_that("enhance_struc accepts all-NA structures", {
   db_intact <- glyrepr::as_glycan_structure("Gal(b1-3)GalNAc(a1-")
   attr(db_intact, "confidence") <- 1
-  input_na <- glyrepr::glycan_structure(NA)
+  input_na <- c(glyrepr::glycan_structure(NA), glyrepr::glycan_structure(NA))
 
   res <- enhance_struc(input_na, db = db_intact)
   best <- enhance_struc(input_na, db = db_intact, return_best = TRUE)
@@ -95,11 +95,11 @@ test_that("enhance_struc accepts all-NA structures", {
   expect_equal(
     res,
     tibble::tibble(
-      raw = glyrepr::glycan_structure(),
-      enhanced = glyrepr::glycan_structure()
+      raw = input_na,
+      enhanced = input_na
     )
   )
-  expect_equal(best, glyrepr::glycan_structure(NA))
+  expect_equal(best, input_na)
 })
 
 test_that("enhance_struc works with multiple glycans", {
