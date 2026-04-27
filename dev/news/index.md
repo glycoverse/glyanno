@@ -2,11 +2,13 @@
 
 ## glyanno (development version)
 
+## glyanno 0.4.2
+
 ### Minor improvements and bug fixes
 
 - Fix a bug in
-  [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md)
-  introduced by the breaking change in glyrepr 0.11.0.
+  [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md)
+  introduced by the breaking change in glyrepr 0.11.0 (#9).
 - Update vignette to mention that you can use a structure database with
   different structure levels.
 
