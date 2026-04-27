@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">glyanno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -205,6 +205,22 @@ function directly returns a vector:</p>
 <span><span class="co">#&gt; # Unique structures: 2</span></span></code></pre></div>
 <p>This vector always has the same length as the input, with
 <code>NA</code> for glycans with no match.</p>
+<p>One last thing to mention before we move on is that you can set
+custom structure levels for <code>db</code>. For example, it is possible
+to use a database with only topology-level structures without linkage
+information.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">struc_db</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb_structures</a></span><span class="op">(</span></span>
+<span>  structure_level <span class="op">=</span> <span class="st">"topological"</span>,</span>
+<span>  species <span class="op">=</span> <span class="st">"Homo sapiens"</span>,</span>
+<span>  glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, <span class="st">"GlcNAc(1)GalNAc(1)"</span><span class="op">)</span>, db <span class="op">=</span> <span class="va">struc_db</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
+<span><span class="co">#&gt;   composition        structure             </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)    <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??-   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> <span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">GalNAc</span>(1) <span style="color: #0087D7;">GlcNAc</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??-</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="enhancing-compositions-and-structures">Enhancing Compositions and Structures<a class="anchor" aria-label="anchor" href="#enhancing-compositions-and-structures"></a>
@@ -217,7 +233,7 @@ linkages to a topology-only structure. <code><a href="../reference/enhance_comp.
 <p>Both functions return a tibble with two columns: <code>raw</code>
 (the original input) and <code>enhanced</code> (the potential
 high-resolution candidates).</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enhance_comp.html">enhance_comp</a></span><span class="op">(</span><span class="st">"Hex(1)HexNAc(1)"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 2</span></span></span>
 <span><span class="co">#&gt;   raw             enhanced       </span></span>
@@ -226,7 +242,7 @@ high-resolution candidates).</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> <span style="color: #000000;">Hex</span>(1)<span style="color: #000000;">HexNAc</span>(1) <span style="color: #FFD700;">Gal</span>(1)<span style="color: #0087D7;">GlcNAc</span>(1)</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> <span style="color: #000000;">Hex</span>(1)<span style="color: #000000;">HexNAc</span>(1) <span style="color: #0087D7;">Glc</span>(1)<span style="color: #0087D7;">GlcNAc</span>(1)</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> <span style="color: #000000;">Hex</span>(1)<span style="color: #000000;">HexNAc</span>(1) <span style="color: #00AF5F;">Man</span>(1)<span style="color: #0087D7;">GlcNAc</span>(1)</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enhance_struc.html">enhance_struc</a></span><span class="op">(</span><span class="st">"Gal(??-?)GalNAc(??-"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 9 × 2</span></span></span>
 <span><span class="co">#&gt;   raw                 enhanced           </span></span>
@@ -242,13 +258,13 @@ high-resolution candidates).</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">9</span> <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??- <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span></code></pre></div>
 <p>Similarly, providing a custom database will narrow down the results
 to biologically relevant candidates.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enhance_comp.html">enhance_comp</a></span><span class="op">(</span><span class="st">"Hex(1)HexNAc(1)"</span>, db <span class="op">=</span> <span class="fu"><a href="https://glycoverse.github.io/glydb/reference/glydb_compositions.html" class="external-link">glydb_compositions</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
 <span><span class="co">#&gt;   raw             enhanced       </span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>         </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="color: #000000;">Hex</span>(1)<span style="color: #000000;">HexNAc</span>(1) <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enhance_struc.html">enhance_struc</a></span><span class="op">(</span><span class="st">"Gal(??-?)GalNAc(??-"</span>, db <span class="op">=</span> <span class="fu"><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb_structures</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
 <span><span class="co">#&gt;   raw                 enhanced           </span></span>
@@ -257,7 +273,7 @@ to biologically relevant candidates.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??- <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span></code></pre></div>
 <p>You can set <code>return_best</code> to <code>TRUE</code> as
 well.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enhance_struc.html">enhance_struc</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Gal(??-?)GalNAc(??-"</span>,</span>
 <span>  db <span class="op">=</span> <span class="fu"><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb_structures</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span>,</span>

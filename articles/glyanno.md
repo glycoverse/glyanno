@@ -172,6 +172,24 @@ comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_
 This vector always has the same length as the input, with `NA` for
 glycans with no match.
 
+One last thing to mention before we move on is that you can set custom
+structure levels for `db`. For example, it is possible to use a database
+with only topology-level structures without linkage information.
+
+``` r
+struc_db <- glydb_structures(
+  structure_level = "topological",
+  species = "Homo sapiens",
+  glycan_type = "O-GalNAc"
+)
+comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db)
+#> # A tibble: 2 × 2
+#>   composition        structure             
+#>   <comp>             <struct>              
+#> 1 Gal(1)GalNAc(1)    Gal(??-?)GalNAc(??-   
+#> 2 GlcNAc(1)GalNAc(1) GlcNAc(??-?)GalNAc(??-
+```
+
 ## Enhancing Compositions and Structures
 
 Researchers often need to refine generic annotations into more specific
