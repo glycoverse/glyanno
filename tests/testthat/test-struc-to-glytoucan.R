@@ -56,6 +56,28 @@ test_that("struc_to_glytoucan returns NA for unsuccessful responses", {
   expect_equal(accessions, c(NA_character_, NA_character_))
 })
 
+test_that("struc_to_glytoucan skips NA structures before building requests", {
+  performed_urls <- character()
+  local_mocked_bindings(
+    req_perform = function(req) {
+      performed_urls <<- c(performed_urls, req$url)
+      glytoucan_response(body = '{"id":"G00004MO"}')
+    },
+    .package = "httr2"
+  )
+
+  strucs <- c(
+    glyrepr::glycan_structure(NA),
+    glyrepr::as_glycan_structure("GalNAc(a1-"),
+    glyrepr::glycan_structure(NA)
+  )
+  accessions <- suppressMessages(struc_to_glytoucan(strucs))
+
+  expect_equal(accessions, c(NA_character_, "G00004MO", NA_character_))
+  expect_equal(length(performed_urls), 1)
+  expect_false(any(grepl("NA$", performed_urls)))
+})
+
 test_that("struc_to_glytoucan accepts character structure input", {
   local_mocked_bindings(
     req_perform = function(req) {

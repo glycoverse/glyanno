@@ -11,12 +11,14 @@
 #' @export
 struc_to_glytoucan <- function(strucs) {
   strucs <- .ensure_glycan_structure(strucs)
-  iupacs <- glyrepr::structure_to_iupac(strucs)
+  missing_strucs <- is.na(strucs)
+  accessions <- rep(NA_character_, length(strucs))
 
-  if (length(iupacs) == 0) {
-    return(character())
+  if (all(missing_strucs)) {
+    return(accessions)
   }
 
+  iupacs <- glyrepr::structure_to_iupac(strucs[!missing_strucs])
   base_url <- "https://api.glycosmos.org/glycanformatconverter/2.8.2/iupaccondensed2wurcs/"
   encoded_iupacs <- purrr::map_chr(
     iupacs,
@@ -31,7 +33,7 @@ struc_to_glytoucan <- function(strucs) {
     purrr::map(httr2::req_retry, max_tries = 2)
   resps <- purrr::map(reqs, httr2::req_perform)
 
-  purrr::map_chr(resps, function(resp) {
+  accessions[!missing_strucs] <- purrr::map_chr(resps, function(resp) {
     if (httr2::resp_status(resp) == 200) {
       content <- httr2::resp_body_json(resp)
       if (!is.null(content$id)) {
@@ -40,4 +42,5 @@ struc_to_glytoucan <- function(strucs) {
     }
     NA_character_
   })
+  accessions
 }
