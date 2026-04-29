@@ -7,7 +7,7 @@
 struc_to_glytoucan(strucs)
 }
 \arguments{
-\item{structs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector,
+\item{strucs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector,
 or a character vector of glycan text representations supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.}
 }
 \value{

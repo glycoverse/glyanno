@@ -3,7 +3,7 @@
 #' This function takes a vector of glycan structures and returns the corresponding GlyTouCan accessions.
 #' Under the hood, it uses the GlycanFormatConverter API maintained by the Glycosmos project.
 #'
-#' @param structs A [glyrepr::glycan_structure()] vector,
+#' @param strucs A [glyrepr::glycan_structure()] vector,
 #'   or a character vector of glycan text representations supported by [glyparse::auto_parse()].
 #'
 #' @returns A character vector of GlyTouCan accessions corresponding to the input glycan structures.
