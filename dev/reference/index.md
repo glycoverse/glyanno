@@ -16,3 +16,5 @@
   : Convert m/z values to glycan composition
 - [`ppm()`](https://glycoverse.github.io/glyanno/dev/reference/ppm.md) :
   Calculate PPM
+- [`struc_to_glytoucan()`](https://glycoverse.github.io/glyanno/dev/reference/struc_to_glytoucan.md)
+  : Assign GlyTouCan accessions to glycan structures
