@@ -12,6 +12,11 @@
 struc_to_glytoucan <- function(strucs) {
   strucs <- .ensure_glycan_structure(strucs)
   iupacs <- glyrepr::structure_to_iupac(strucs)
+
+  if (length(iupacs) == 0) {
+    return(character())
+  }
+
   base_url <- "https://api.glycosmos.org/glycanformatconverter/2.8.2/iupaccondensed2wurcs/"
   urls <- paste0(base_url, iupacs)
   reqs <- purrr::map(urls, httr2::request) |>
