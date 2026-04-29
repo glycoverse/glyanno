@@ -18,7 +18,12 @@ struc_to_glytoucan <- function(strucs) {
   }
 
   base_url <- "https://api.glycosmos.org/glycanformatconverter/2.8.2/iupaccondensed2wurcs/"
-  encoded_iupacs <- purrr::map_chr(iupacs, utils::URLencode, reserved = TRUE, repeated = TRUE)
+  encoded_iupacs <- purrr::map_chr(
+    iupacs,
+    utils::URLencode,
+    reserved = TRUE,
+    repeated = TRUE
+  )
   urls <- paste0(base_url, encoded_iupacs)
 
   reqs <- purrr::map(urls, httr2::request) |>
