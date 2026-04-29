@@ -34,7 +34,8 @@ Imports:
     rlang,
     tidyselect,
     tidyr,
-    tibble
+    tibble,
+    httr2
 VignetteBuilder: knitr
 Depends:
     R (>= 4.1)
