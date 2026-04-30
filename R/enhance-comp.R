@@ -80,7 +80,12 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
         "row_id",
         "confidence"
       )))
-    res <- .prepare_result(res, return_best, raw_col = "raw", new_col = "enhanced")
+    res <- .prepare_result(
+      res,
+      return_best,
+      raw_col = "raw",
+      new_col = "enhanced"
+    )
   } else {
     # Concrete compositions: enhanced = raw
     if (return_best) {
