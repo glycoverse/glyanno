@@ -8,7 +8,8 @@ struc_to_glytoucan(strucs)
 }
 \arguments{
 \item{strucs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector,
-or a character vector of glycan text representations supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.}
+or a character vector of glycan text representations supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
+The glycan structure must have "concrete" monosaccharides (e.g., Gal, GalNAc).}
 }
 \value{
 A character vector of GlyTouCan accessions corresponding to the input glycan structures.

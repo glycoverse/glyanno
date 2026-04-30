@@ -10,12 +10,18 @@
 #'
 #' @param strucs A [glyrepr::glycan_structure()] vector,
 #'   or a character vector of glycan text representations supported by [glyparse::auto_parse()].
+#'   The glycan structure must have "concrete" monosaccharides (e.g., Gal, GalNAc).
 #'
 #' @returns A character vector of GlyTouCan accessions corresponding to the input glycan structures.
 #'   If a structure cannot be converted to a GlyTouCan accession, the corresponding entry will be `NA`.
 #' @export
 struc_to_glytoucan <- function(strucs) {
   strucs <- .ensure_glycan_structure(strucs)
+  if (glyrepr::get_mono_type(strucs) != "concrete") {
+    cli::cli_abort(
+      "{.arg strucs} must have concrete monosaccharides (e.g. Gal, GalNAc)."
+    )
+  }
   strucs <- fill_anomer_pos(strucs)
   missing_strucs <- is.na(strucs)
   accessions <- rep(NA_character_, length(strucs))
