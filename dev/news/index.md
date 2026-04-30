@@ -2,6 +2,16 @@
 
 ## glyanno (development version)
 
+### New features
+
+- Add
+  [`struc_to_glytoucan()`](https://glycoverse.github.io/glyanno/dev/reference/struc_to_glytoucan.md)
+  to map glycan structures to GlyTouCan accessions (#11).
+- Add
+  [`fill_anomer_pos()`](https://glycoverse.github.io/glyanno/dev/reference/fill_anomer_pos.md)
+  to fill in missing anomeric position information in glycan structures
+  (#13).
+
 ## glyanno 0.4.2
 
 ### Minor improvements and bug fixes
