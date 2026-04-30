@@ -17,11 +17,7 @@
 #' @export
 struc_to_glytoucan <- function(strucs) {
   strucs <- .ensure_glycan_structure(strucs)
-  if (glyrepr::get_mono_type(strucs) != "concrete") {
-    cli::cli_abort(
-      "{.arg strucs} must have concrete monosaccharides (e.g. Gal, GalNAc)."
-    )
-  }
+  .assert_concrete(strucs)
   strucs <- fill_anomer_pos(strucs)
   missing_strucs <- is.na(strucs)
   accessions <- rep(NA_character_, length(strucs))

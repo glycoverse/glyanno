@@ -29,11 +29,7 @@
 #' @export
 fill_anomer_pos <- function(strucs) {
   checkmate::assert_class(strucs, "glyrepr_structure")
-  if (glyrepr::get_mono_type(strucs) != "concrete") {
-    cli::cli_abort(
-      "{.arg strucs} must have concrete monosaccharides (e.g. Gal, GalNAc)."
-    )
-  }
+  .assert_concrete(strucs)
   glyrepr::smap_structure(strucs, fill_anomer_pos_single)
 }
 
