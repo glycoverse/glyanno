@@ -21,6 +21,7 @@ You can install the latest release of glyanno from
 (**recommended**):
 
 ``` r
+
 # install.packages("pak")
 pak::repo_add(glycoverse = "https://glycoverse.r-universe.dev")
 pak::pkg_install("glyanno")
@@ -29,12 +30,14 @@ pak::pkg_install("glyanno")
 Or from [GitHub](https://github.com/glycoverse/glyanno):
 
 ``` r
+
 pak::pkg_install("glycoverse/glyanno@*release")
 ```
 
 Or install the development version (NOT recommended):
 
 ``` r
+
 pak::pkg_install("glycoverse/glyanno")
 ```
 
@@ -62,6 +65,7 @@ other tools that demand high-resolution structural information.
 ## Example
 
 ``` r
+
 library(glyanno)
 library(glyrepr)
 #> Warning: 程序包'glyrepr'是用R版本4.5.2 来建造的
@@ -79,6 +83,7 @@ mz_to_comp(406.1325, charge = 1, adduct = "Na+")
 ```
 
 ``` r
+
 comp_to_struc("Gal(1)GalNAc(1)")
 #> # A tibble: 19 × 2
 #>    composition     structure          
@@ -105,6 +110,7 @@ comp_to_struc("Gal(1)GalNAc(1)")
 ```
 
 ``` r
+
 # Use custom db to narrow down the search space
 my_db <- glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
 comp_to_struc("Gal(1)GalNAc(1)", db = my_db)
@@ -116,6 +122,7 @@ comp_to_struc("Gal(1)GalNAc(1)", db = my_db)
 ```
 
 ``` r
+
 # Use `return_best` to pick the most likely match
 # Core 1 is more likely than Core 5
 comp_to_struc("Gal(1)GalNAc(1)", db = my_db, return_best = TRUE)

@@ -41,6 +41,7 @@ four core functions:
 ![](diagram.png)
 
 ``` r
+
 library(glyanno)
 library(glydb)
 #> Loading required package: glyrepr
@@ -60,6 +61,7 @@ Let’s demonstrate these functions step-by-step, starting with a single
 m/z value.
 
 ``` r
+
 mz_to_comp(406.1325, charge = 1, adduct = "Na+")
 #> # A tibble: 4 × 2
 #>      mz composition    
@@ -78,6 +80,7 @@ often want to constrain the search space based on biological context.
 you might want to limit the search to only human O-GalNAc glycans.
 
 ``` r
+
 my_db <- glydb_compositions(species = "Homo sapiens", glycan_type = "O-GalNAc")
 my_db
 #> <glycan_composition[124]>
@@ -101,6 +104,7 @@ vector. You can pass it to the `db` argument of
 to filter results.
 
 ``` r
+
 mz_to_comp(406.1325, charge = 1, adduct = "Na+", db = my_db)
 #> # A tibble: 1 × 2
 #>      mz composition    
@@ -115,6 +119,7 @@ structures. The m/z value 406.1325 corresponds to the composition
 Gal(1)GalNAc(1). What are the possible structures for this composition?
 
 ``` r
+
 struc_db <- glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
 comp_to_struc("Gal(1)GalNAc(1)", db = struc_db)
 #> # A tibble: 2 × 2
@@ -135,6 +140,7 @@ Sometimes we just want a “most possible” result. In this case, you can
 set `return_best` to `TRUE`:
 
 ``` r
+
 comp_to_struc("Gal(1)GalNAc(1)", db = struc_db, return_best = TRUE)
 #> <glycan_structure[1]>
 #> [1] Gal(b1-3)GalNAc(a1-
@@ -151,6 +157,7 @@ matches, `<NA>` will be on the corresponding position.
 Note that all functions in `glyanno` works vectorizedly:
 
 ``` r
+
 comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)
 #> <glycan_structure[2]>
 #> [1] Gal(b1-3)GalNAc(a1-
@@ -162,6 +169,7 @@ If you set `return_best` to `TRUE`, the function directly returns a
 vector:
 
 ``` r
+
 comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)
 #> <glycan_structure[2]>
 #> [1] Gal(b1-3)GalNAc(a1-
@@ -177,6 +185,7 @@ structure levels for `db`. For example, it is possible to use a database
 with only topology-level structures without linkage information.
 
 ``` r
+
 struc_db <- glydb_structures(
   structure_level = "topological",
   species = "Homo sapiens",
@@ -205,6 +214,7 @@ Both functions return a tibble with two columns: `raw` (the original
 input) and `enhanced` (the potential high-resolution candidates).
 
 ``` r
+
 enhance_comp("Hex(1)HexNAc(1)")
 #> # A tibble: 4 × 2
 #>   raw             enhanced       
@@ -216,6 +226,7 @@ enhance_comp("Hex(1)HexNAc(1)")
 ```
 
 ``` r
+
 enhance_struc("Gal(??-?)GalNAc(??-")
 #> # A tibble: 9 × 2
 #>   raw                 enhanced           
@@ -235,6 +246,7 @@ Similarly, providing a custom database will narrow down the results to
 biologically relevant candidates.
 
 ``` r
+
 enhance_comp("Hex(1)HexNAc(1)", db = glydb_compositions(species = "Homo sapiens", glycan_type = "O-GalNAc"))
 #> # A tibble: 1 × 2
 #>   raw             enhanced       
@@ -243,6 +255,7 @@ enhance_comp("Hex(1)HexNAc(1)", db = glydb_compositions(species = "Homo sapiens"
 ```
 
 ``` r
+
 enhance_struc("Gal(??-?)GalNAc(??-", db = glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc"))
 #> # A tibble: 2 × 2
 #>   raw                 enhanced           
@@ -254,6 +267,7 @@ enhance_struc("Gal(??-?)GalNAc(??-", db = glydb_structures(species = "Homo sapie
 You can set `return_best` to `TRUE` as well.
 
 ``` r
+
 enhance_struc(
   "Gal(??-?)GalNAc(??-",
   db = glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc"),
@@ -273,9 +287,9 @@ detailed structures back to their lower-resolution representations.
 
 A summary of these relationships:
 
-| Enhance                                                                                  | Back                                                                                                              |
-|------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
-| [`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md)       | [`calculate_mz()`](https://glycoverse.github.io/glyanno/dev/reference/calculate_mz.md)                            |
-| [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md) | [`glyrepr::as_glycan_composition()`](https://glycoverse.github.io/glyrepr/reference/as_glycan_composition.html)   |
-| [`enhance_comp()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_comp.md)   | [`glyrepr::convert_to_generic()`](https://glycoverse.github.io/glyrepr/reference/convert_to_generic.html)         |
+| Enhance | Back |
+|----|----|
+| [`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md) | [`calculate_mz()`](https://glycoverse.github.io/glyanno/dev/reference/calculate_mz.md) |
+| [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md) | [`glyrepr::as_glycan_composition()`](https://glycoverse.github.io/glyrepr/reference/as_glycan_composition.html) |
+| [`enhance_comp()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_comp.md) | [`glyrepr::convert_to_generic()`](https://glycoverse.github.io/glyrepr/reference/convert_to_generic.html) |
 | [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md) | [`glyrepr::reduce_structure_level()`](https://glycoverse.github.io/glyrepr/reference/reduce_structure_level.html) |

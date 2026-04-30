@@ -50,13 +50,20 @@ Under the hood, it uses the GlycanFormatConverter API maintained by the Glycosmo
 
 <dl><dt id="arg-strucs">strucs<a class="anchor" aria-label="anchor" href="#arg-strucs"></a></dt>
 <dd><p>A <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_structure.html" class="external-link">glyrepr::glycan_structure()</a></code> vector,
-or a character vector of glycan text representations supported by <code><a href="https://glycoverse.github.io/glyparse/reference/auto_parse.html" class="external-link">glyparse::auto_parse()</a></code>.</p></dd>
+or a character vector of glycan text representations supported by <code><a href="https://glycoverse.github.io/glyparse/reference/auto_parse.html" class="external-link">glyparse::auto_parse()</a></code>.
+The glycan structure must have "concrete" monosaccharides (e.g., Gal, GalNAc).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A character vector of GlyTouCan accessions corresponding to the input glycan structures.
 If a structure cannot be converted to a GlyTouCan accession, the corresponding entry will be <code>NA</code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>For "topological" structures (e.g., "Gal(??-?)GalNAc(??-"),
+this function will first call <code><a href="fill_anomer_pos.html">fill_anomer_pos()</a></code> to fill in the missing anomeric positions before querying the API.
+This is necessary because all glycan structures in GlyTouCan must have defined anomeric positions.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
