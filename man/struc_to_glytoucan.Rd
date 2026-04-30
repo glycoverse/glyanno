@@ -8,7 +8,8 @@ struc_to_glytoucan(strucs)
 }
 \arguments{
 \item{strucs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector,
-or a character vector of glycan text representations supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.}
+or a character vector of glycan text representations supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
+The glycan structure must have "concrete" monosaccharides (e.g., Gal, GalNAc).}
 }
 \value{
 A character vector of GlyTouCan accessions corresponding to the input glycan structures.
@@ -17,4 +18,9 @@ If a structure cannot be converted to a GlyTouCan accession, the corresponding e
 \description{
 This function takes a vector of glycan structures and returns the corresponding GlyTouCan accessions.
 Under the hood, it uses the GlycanFormatConverter API maintained by the Glycosmos project.
+}
+\details{
+For "topological" structures (e.g., "Gal(??-?)GalNAc(??-"),
+this function will first call \code{\link[=fill_anomer_pos]{fill_anomer_pos()}} to fill in the missing anomeric positions before querying the API.
+This is necessary because all glycan structures in GlyTouCan must have defined anomeric positions.
 }

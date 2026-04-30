@@ -147,3 +147,14 @@
       dplyr::select(all_of(c(raw_col, new_col)))
   }
 }
+
+.assert_concrete <- function(strucs) {
+  if (length(strucs) == 0) {
+    return(NULL)
+  }
+  if (glyrepr::get_mono_type(strucs) != "concrete") {
+    cli::cli_abort(
+      "{.arg strucs} must have concrete monosaccharides (e.g. Gal, GalNAc)."
+    )
+  }
+}
