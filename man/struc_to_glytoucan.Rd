@@ -18,3 +18,8 @@ If a structure cannot be converted to a GlyTouCan accession, the corresponding e
 This function takes a vector of glycan structures and returns the corresponding GlyTouCan accessions.
 Under the hood, it uses the GlycanFormatConverter API maintained by the Glycosmos project.
 }
+\details{
+For "topological" structures (e.g., "Gal(??-?)GalNAc(??-"),
+this function will first call \code{\link[=fill_anomer_pos]{fill_anomer_pos()}} to fill in the missing anomeric positions before querying the API.
+This is necessary because all glycan structures in GlyTouCan must have defined anomeric positions.
+}

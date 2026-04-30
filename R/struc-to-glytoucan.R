@@ -3,6 +3,11 @@
 #' This function takes a vector of glycan structures and returns the corresponding GlyTouCan accessions.
 #' Under the hood, it uses the GlycanFormatConverter API maintained by the Glycosmos project.
 #'
+#' @details
+#' For "topological" structures (e.g., "Gal(??-?)GalNAc(??-"),
+#' this function will first call [fill_anomer_pos()] to fill in the missing anomeric positions before querying the API.
+#' This is necessary because all glycan structures in GlyTouCan must have defined anomeric positions.
+#'
 #' @param strucs A [glyrepr::glycan_structure()] vector,
 #'   or a character vector of glycan text representations supported by [glyparse::auto_parse()].
 #'
@@ -11,6 +16,7 @@
 #' @export
 struc_to_glytoucan <- function(strucs) {
   strucs <- .ensure_glycan_structure(strucs)
+  strucs <- fill_anomer_pos(strucs)
   missing_strucs <- is.na(strucs)
   accessions <- rep(NA_character_, length(strucs))
 
