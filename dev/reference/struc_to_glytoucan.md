@@ -1,8 +1,10 @@
 # Assign GlyTouCan accessions to glycan structures
 
 This function takes a vector of glycan structures and returns the
-corresponding GlyTouCan accessions. Under the hood, it uses the
-GlycanFormatConverter API maintained by the Glycosmos project.
+corresponding GlyTouCan accessions. It first looks up structures from
+[glydb::glydb_data](https://glycoverse.github.io/glydb/reference/glydb_data.html),
+then uses the GlycanFormatConverter API maintained by the Glycosmos
+project for structures not found locally.
 
 ## Usage
 
@@ -33,6 +35,6 @@ accession, the corresponding entry will be `NA`.
 For "topological" structures (e.g., "Gal(??-?)GalNAc(??-"), this
 function will first call
 [`fill_anomer_pos()`](https://glycoverse.github.io/glyanno/dev/reference/fill_anomer_pos.md)
-to fill in the missing anomeric positions before querying the API. This
-is necessary because all glycan structures in GlyTouCan must have
+to fill in the missing anomeric positions before looking up accessions.
+This is necessary because all glycan structures in GlyTouCan must have
 defined anomeric positions.

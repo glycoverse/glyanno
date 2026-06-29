@@ -2,6 +2,14 @@
 
 ## glyanno (development version)
 
+### Minor improvements and bug fixes
+
+- [`struc_to_glytoucan()`](https://glycoverse.github.io/glyanno/dev/reference/struc_to_glytoucan.md)
+  now looks up accessions from
+  [`glydb::glydb_data`](https://glycoverse.github.io/glydb/reference/glydb_data.html)
+  first and only falls back to the online GlycanFormatConverter API for
+  missing structures. (#14)
+
 ## glyanno 0.5.0
 
 ### New features
