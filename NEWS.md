@@ -1,5 +1,9 @@
 # glyanno (development version)
 
+## Minor improvements and bug fixes
+
+* `struc_to_glytoucan()` now looks up accessions from `glydb::glydb_data` first and only falls back to the online GlycanFormatConverter API for missing structures. (#14)
+
 # glyanno 0.5.0
 
 ## New features

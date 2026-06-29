@@ -16,11 +16,14 @@ A character vector of GlyTouCan accessions corresponding to the input glycan str
 If a structure cannot be converted to a GlyTouCan accession, the corresponding entry will be \code{NA}.
 }
 \description{
-This function takes a vector of glycan structures and returns the corresponding GlyTouCan accessions.
-Under the hood, it uses the GlycanFormatConverter API maintained by the Glycosmos project.
+This function takes a vector of glycan structures and returns the
+corresponding GlyTouCan accessions. It first looks up structures from
+\link[glydb:glydb_data]{glydb::glydb_data}, then uses the GlycanFormatConverter API maintained by
+the Glycosmos project for structures not found locally.
 }
 \details{
 For "topological" structures (e.g., "Gal(??-?)GalNAc(??-"),
-this function will first call \code{\link[=fill_anomer_pos]{fill_anomer_pos()}} to fill in the missing anomeric positions before querying the API.
-This is necessary because all glycan structures in GlyTouCan must have defined anomeric positions.
+this function will first call \code{\link[=fill_anomer_pos]{fill_anomer_pos()}} to fill in the missing
+anomeric positions before looking up accessions. This is necessary because
+all glycan structures in GlyTouCan must have defined anomeric positions.
 }
