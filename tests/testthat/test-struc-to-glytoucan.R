@@ -23,8 +23,8 @@ test_that("struc_to_glytoucan maps successful responses to accessions", {
   )
 
   strucs <- glyrepr::as_glycan_structure(c(
-    "Gal(b1-3)GalNAc(a1-",
-    "GalNAc(a1-"
+    "Man(b1-2)Gal(a1-",
+    "Gal(b1-5)Man(a1-"
   ))
   accessions <- suppressMessages(struc_to_glytoucan(strucs))
 
@@ -48,8 +48,8 @@ test_that("struc_to_glytoucan returns NA for unsuccessful responses", {
   )
 
   strucs <- glyrepr::as_glycan_structure(c(
-    "Gal(b1-3)GalNAc(a1-",
-    "GalNAc(a1-"
+    "Man(b1-2)Gal(a1-",
+    "Gal(b1-5)Man(a1-"
   ))
   accessions <- suppressMessages(struc_to_glytoucan(strucs))
 
@@ -68,7 +68,7 @@ test_that("struc_to_glytoucan skips NA structures before building requests", {
 
   strucs <- c(
     glyrepr::glycan_structure(NA),
-    glyrepr::as_glycan_structure("GalNAc(a1-"),
+    glyrepr::as_glycan_structure("Man(b1-2)Gal(a1-"),
     glyrepr::glycan_structure(NA)
   )
   accessions <- suppressMessages(struc_to_glytoucan(strucs))
@@ -76,6 +76,50 @@ test_that("struc_to_glytoucan skips NA structures before building requests", {
   expect_equal(accessions, c(NA_character_, "G00004MO", NA_character_))
   expect_equal(length(performed_urls), 1)
   expect_false(any(grepl("NA$", performed_urls)))
+})
+
+test_that("struc_to_glytoucan uses glydb_data before API fallback", {
+  local_structure <- glydb::glydb_data$glycan_structure[1]
+  performed_urls <- character()
+
+  local_mocked_bindings(
+    req_perform = function(req) {
+      performed_urls <<- c(performed_urls, req$url)
+      glytoucan_response(body = '{"id":"G00004MO"}')
+    },
+    .package = "httr2"
+  )
+
+  strucs <- c(
+    glyrepr::as_glycan_structure("Man(b1-2)Gal(a1-"),
+    local_structure
+  )
+  accessions <- suppressMessages(struc_to_glytoucan(strucs))
+
+  expect_equal(accessions, c("G00004MO", glydb::glydb_data$glytoucan_ac[[1]]))
+  expect_equal(length(performed_urls), 1)
+  expect_true(grepl("Man", performed_urls, fixed = TRUE))
+})
+
+test_that("struc_to_glytoucan does not request structures present in glydb_data", {
+  local_structures <- glydb::glydb_data$glycan_structure[1:2]
+  performed_urls <- character()
+
+  local_mocked_bindings(
+    req_perform = function(req) {
+      performed_urls <<- c(performed_urls, req$url)
+      stop(
+        "No request should be performed for local structures.",
+        call. = FALSE
+      )
+    },
+    .package = "httr2"
+  )
+
+  accessions <- suppressMessages(struc_to_glytoucan(local_structures))
+
+  expect_equal(accessions, glydb::glydb_data$glytoucan_ac[1:2])
+  expect_equal(performed_urls, character())
 })
 
 test_that("struc_to_glytoucan accepts character structure input", {
@@ -86,7 +130,7 @@ test_that("struc_to_glytoucan accepts character structure input", {
     .package = "httr2"
   )
 
-  accessions <- suppressMessages(struc_to_glytoucan("GalNAc(a1-"))
+  accessions <- suppressMessages(struc_to_glytoucan("Man(b1-2)Gal(a1-"))
 
   expect_equal(accessions, "G00003MO")
 })

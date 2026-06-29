@@ -1,12 +1,15 @@
 #' Assign GlyTouCan accessions to glycan structures
 #'
-#' This function takes a vector of glycan structures and returns the corresponding GlyTouCan accessions.
-#' Under the hood, it uses the GlycanFormatConverter API maintained by the Glycosmos project.
+#' This function takes a vector of glycan structures and returns the
+#' corresponding GlyTouCan accessions. It first looks up structures from
+#' [glydb::glydb_data], then uses the GlycanFormatConverter API maintained by
+#' the Glycosmos project for structures not found locally.
 #'
 #' @details
 #' For "topological" structures (e.g., "Gal(??-?)GalNAc(??-"),
-#' this function will first call [fill_anomer_pos()] to fill in the missing anomeric positions before querying the API.
-#' This is necessary because all glycan structures in GlyTouCan must have defined anomeric positions.
+#' this function will first call [fill_anomer_pos()] to fill in the missing
+#' anomeric positions before looking up accessions. This is necessary because
+#' all glycan structures in GlyTouCan must have defined anomeric positions.
 #'
 #' @param strucs A [glyrepr::glycan_structure()] vector,
 #'   or a character vector of glycan text representations supported by [glyparse::auto_parse()].
@@ -26,7 +29,16 @@ struc_to_glytoucan <- function(strucs) {
     return(accessions)
   }
 
-  iupacs <- glyrepr::structure_to_iupac(strucs[!missing_strucs])
+  known_strucs <- !missing_strucs
+  local_accessions <- local_struc_glytoucan_accessions(strucs[known_strucs])
+  accessions[known_strucs] <- local_accessions
+  fallback_strucs <- known_strucs & is.na(accessions)
+
+  if (!any(fallback_strucs)) {
+    return(accessions)
+  }
+
+  iupacs <- glyrepr::structure_to_iupac(strucs[fallback_strucs])
   base_url <- "https://api.glycosmos.org/glycanformatconverter/2.8.2/iupaccondensed2wurcs/"
   encoded_iupacs <- purrr::map_chr(
     iupacs,
@@ -41,7 +53,7 @@ struc_to_glytoucan <- function(strucs) {
     purrr::map(httr2::req_retry, max_tries = 2)
   resps <- purrr::map(reqs, httr2::req_perform)
 
-  accessions[!missing_strucs] <- purrr::map_chr(resps, function(resp) {
+  accessions[fallback_strucs] <- purrr::map_chr(resps, function(resp) {
     if (httr2::resp_status(resp) == 200) {
       content <- httr2::resp_body_json(resp)
       if (!is.null(content$id)) {
@@ -51,4 +63,19 @@ struc_to_glytoucan <- function(strucs) {
     NA_character_
   })
   accessions
+}
+
+#' Look up glycan structure accessions from glydb data
+#'
+#' Match glycan structures to bundled `glydb_data` GlyTouCan accessions while
+#' preserving input order and unresolved positions.
+#'
+#' @param strucs A [glyrepr::glycan_structure()] vector.
+#'
+#' @returns A character vector of GlyTouCan accessions, with `NA` for structures
+#'   not available in [glydb::glydb_data].
+#' @noRd
+local_struc_glytoucan_accessions <- function(strucs) {
+  data_position <- match(strucs, glydb::glydb_data$glycan_structure)
+  glydb::glydb_data$glytoucan_ac[data_position]
 }
