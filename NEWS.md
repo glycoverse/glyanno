@@ -2,7 +2,7 @@
 
 ## Breaking changes
 
-* Remove `fill_anomer_pos()` from the exported namespace. Use `glyrepr::fill_anomer_pos()` instead.
+* Remove `fill_anomer_pos()` from the exported namespace. Use `glyrepr::fill_anomer_pos()` instead. (#15)
 
 ## Minor improvements and bug fixes
 
