@@ -1,5 +1,9 @@
 # glyanno (development version)
 
+## Breaking changes
+
+* Remove `fill_anomer_pos()` from the exported namespace. Use `glyrepr::fill_anomer_pos()` instead.
+
 ## Minor improvements and bug fixes
 
 * `struc_to_glytoucan()` now looks up accessions from `glydb::glydb_data` first and only falls back to the online GlycanFormatConverter API for missing structures. (#14)
