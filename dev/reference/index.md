@@ -10,8 +10,6 @@
   : Enhance glycan composition
 - [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md)
   : Enhance glycan structure
-- [`fill_anomer_pos()`](https://glycoverse.github.io/glyanno/dev/reference/fill_anomer_pos.md)
-  : Fill anomer positions
 - [`glyanno_mass_dict()`](https://glycoverse.github.io/glyanno/dev/reference/glyanno_mass_dict.md)
   : Default Mass Dictionary for Glycan Residues
 - [`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md)

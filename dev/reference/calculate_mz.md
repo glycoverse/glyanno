@@ -79,11 +79,6 @@ A numeric vector of m/z values.
 
 ``` r
 library(glyrepr)
-#> 
-#> Attaching package: ‘glyrepr’
-#> The following object is masked from ‘package:glyanno’:
-#> 
-#>     fill_anomer_pos
 
 # Different input types
 calculate_mz(glycan_composition(c(Gal = 1, GalNAc = 1)), charge = 0)

@@ -2,6 +2,14 @@
 
 ## glyanno (development version)
 
+### Breaking changes
+
+- Remove
+  [`fill_anomer_pos()`](https://glycoverse.github.io/glyrepr/reference/fill_anomer_pos.html)
+  from the exported namespace. Use
+  [`glyrepr::fill_anomer_pos()`](https://glycoverse.github.io/glyrepr/reference/fill_anomer_pos.html)
+  instead. (#15)
+
 ### Minor improvements and bug fixes
 
 - [`struc_to_glytoucan()`](https://glycoverse.github.io/glyanno/dev/reference/struc_to_glytoucan.md)
@@ -18,7 +26,7 @@
   [`struc_to_glytoucan()`](https://glycoverse.github.io/glyanno/dev/reference/struc_to_glytoucan.md)
   to map glycan structures to GlyTouCan accessions (#11).
 - Add
-  [`fill_anomer_pos()`](https://glycoverse.github.io/glyanno/dev/reference/fill_anomer_pos.md)
+  [`fill_anomer_pos()`](https://glycoverse.github.io/glyrepr/reference/fill_anomer_pos.html)
   to fill in missing anomeric position information in glycan structures
   (#13).
 

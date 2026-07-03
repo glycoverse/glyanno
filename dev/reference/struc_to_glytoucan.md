@@ -34,7 +34,7 @@ accession, the corresponding entry will be `NA`.
 
 For "topological" structures (e.g., "Gal(??-?)GalNAc(??-"), this
 function will first call
-[`fill_anomer_pos()`](https://glycoverse.github.io/glyanno/dev/reference/fill_anomer_pos.md)
+[`glyrepr::fill_anomer_pos()`](https://glycoverse.github.io/glyrepr/reference/fill_anomer_pos.html)
 to fill in the missing anomeric positions before looking up accessions.
 This is necessary because all glycan structures in GlyTouCan must have
 defined anomeric positions.

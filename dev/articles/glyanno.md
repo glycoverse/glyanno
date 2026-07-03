@@ -45,11 +45,6 @@ four core functions:
 library(glyanno)
 library(glydb)
 #> Loading required package: glyrepr
-#> 
-#> Attaching package: 'glyrepr'
-#> The following object is masked from 'package:glyanno':
-#> 
-#>     fill_anomer_pos
 ```
 
 **Note:** This package relies on
