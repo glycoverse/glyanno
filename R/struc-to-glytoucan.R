@@ -7,7 +7,7 @@
 #'
 #' @details
 #' For "topological" structures (e.g., "Gal(??-?)GalNAc(??-"),
-#' this function will first call [fill_anomer_pos()] to fill in the missing
+#' this function will first call [glyrepr::fill_anomer_pos()] to fill in the missing
 #' anomeric positions before looking up accessions. This is necessary because
 #' all glycan structures in GlyTouCan must have defined anomeric positions.
 #'
@@ -21,7 +21,7 @@
 struc_to_glytoucan <- function(strucs) {
   strucs <- .ensure_glycan_structure(strucs)
   .assert_concrete(strucs)
-  strucs <- fill_anomer_pos(strucs)
+  strucs <- glyrepr::fill_anomer_pos(strucs)
   missing_strucs <- is.na(strucs)
   accessions <- rep(NA_character_, length(strucs))
 

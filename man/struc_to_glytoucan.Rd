@@ -23,7 +23,7 @@ the Glycosmos project for structures not found locally.
 }
 \details{
 For "topological" structures (e.g., "Gal(??-?)GalNAc(??-"),
-this function will first call \code{\link[=fill_anomer_pos]{fill_anomer_pos()}} to fill in the missing
+this function will first call \code{\link[glyrepr:fill_anomer_pos]{glyrepr::fill_anomer_pos()}} to fill in the missing
 anomeric positions before looking up accessions. This is necessary because
 all glycan structures in GlyTouCan must have defined anomeric positions.
 }
