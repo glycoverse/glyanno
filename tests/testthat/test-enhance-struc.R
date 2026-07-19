@@ -323,6 +323,65 @@ test_that("enhance_struc de-novo ranks branches and enhances core additions", {
   expect_equal(as.character(result), expected)
 })
 
+test_that("enhance_struc de-novo handles hybrid N-glycans", {
+  input <- paste0(
+    "Hex(??-?)Hex(??-?)[Hex(??-?)HexNAc(??-?)Hex(??-?)]",
+    "Hex(??-?)HexNAc(??-?)HexNAc(??-"
+  )
+  expected <- paste0(
+    "Gal(??-?)GlcNAc(??-?)Man(??-?)[Man(??-?)Man(??-?)]",
+    "Man(??-?)GlcNAc(??-?)GlcNAc(??-"
+  )
+
+  result <- enhance_struc(
+    input,
+    method = "denovo",
+    to_level = "topological",
+    return_best = TRUE
+  )
+
+  expect_equal(as.character(result), expected)
+})
+
+test_that("enhance_struc de-novo constrains high-mannose N-glycans", {
+  reference <- paste0(
+    "Glc(a1-2)Glc(a1-3)Glc(a1-3)Man(a1-2)Man(a1-2)Man(a1-3)",
+    "[Man(a1-2)Man(a1-3)[Man(a1-2)Man(a1-6)]Man(a1-6)]",
+    "Man(b1-4)GlcNAc(b1-4)GlcNAc(b1-"
+  ) |>
+    glyparse::auto_parse()
+  input <- glyrepr::reduce_structure_level(reference, "basic")
+  expected <- glyrepr::reduce_structure_level(reference, "topological")
+
+  result <- enhance_struc(
+    input,
+    method = "denovo",
+    to_level = "topological",
+    return_best = TRUE
+  )
+
+  expect_equal(as.character(result), as.character(expected))
+})
+
+test_that("enhance_struc returns only high-mannose reference subtrees", {
+  input <- paste0(
+    "Hex(??-?)Hex(??-?)[Hex(??-?)]Hex(??-?)",
+    "HexNAc(??-?)HexNAc(??-"
+  )
+  expected <- paste0(
+    "Man(??-?)Man(??-?)[Man(??-?)]Man(??-?)",
+    "GlcNAc(??-?)GlcNAc(??-"
+  )
+
+  result <- enhance_struc(
+    input,
+    method = "denovo",
+    to_level = "topological"
+  )
+
+  expect_equal(as.character(result$enhanced), expected)
+})
+
 test_that("enhance_struc de-novo requires a supported target level", {
   input <- glyrepr::n_glycan_core(
     linkage = FALSE,

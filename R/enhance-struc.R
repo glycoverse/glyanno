@@ -10,8 +10,11 @@
 #' their core and branches without requiring a structure database.
 #'
 #' Topological de-novo enhancement preserves optional core fucose and
-#' bisecting GlcNAc residues. It matches every branch occurrence against the
-#' internal branch data and returns every unique combination of those matches.
+#' bisecting GlcNAc residues. Complex N-glycan branches are matched against the
+#' internal branch data. For hybrid N-glycans, the all-Hex arm is assigned as
+#' mannose and the HexNAc-bearing arm uses branch matching. High-mannose
+#' candidates are constrained to core-aligned subtrees of the Glc3Man9
+#' precursor.
 #'
 #' @param strucs A [glyrepr::glycan_structure()] vector,
 #'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
@@ -286,6 +289,12 @@ enhance_struc <- function(
   input_graph <- as.list(struc)[[1]]
   core_graph <- as.list(generic_core)[[1]]
   core_map <- core_matches[[1]]
+  topology <- .classify_n_glycan_topology(input_graph, core_graph, core_map)
+
+  if (topology == "high-mannose") {
+    return(.enhance_high_mannose_topological(struc, return_best))
+  }
+
   core_additions <- .n_glycan_core_additions(
     input_graph,
     core_graph,
@@ -297,6 +306,11 @@ enhance_struc <- function(
     core_graph,
     core_map
   )
+  mannose_extensions <- if (topology == "hybrid") {
+    .n_glycan_mannose_extensions(input_graph, core_graph, core_map)
+  } else {
+    list()
+  }
 
   if (any(purrr::map_int(branches, \(x) length(x$candidate_ids)) == 0)) {
     return(glyrepr::glycan_structure())
@@ -310,11 +324,21 @@ enhance_struc <- function(
       scores[is.na(scores)] <- -Inf
       x$candidate_ids[[which.max(scores)]]
     })
-    return(.build_topological_n_glycan(branch_ids, branches, core_additions))
+    return(.build_topological_n_glycan(
+      branch_ids,
+      branches,
+      core_additions,
+      mannose_extensions
+    ))
   }
 
   if (length(branches) == 0) {
-    return(.build_topological_n_glycan(integer(), branches, core_additions))
+    return(.build_topological_n_glycan(
+      integer(),
+      branches,
+      core_additions,
+      mannose_extensions
+    ))
   }
 
   branch_sets <- expand.grid(
@@ -326,12 +350,131 @@ enhance_struc <- function(
     candidate <- .build_topological_n_glycan(
       as.integer(branch_sets[i, ]),
       branches,
-      core_additions
+      core_additions,
+      mannose_extensions
     )
     as.list(candidate)[[1]]
   })
 
   unique(do.call(glyrepr::glycan_structure, graphs))
+}
+
+.classify_n_glycan_topology <- function(input_graph, core_graph, core_map) {
+  terminal_core <- which(igraph::degree(core_graph, mode = "out") == 0)
+  arm_monos <- purrr::map(terminal_core, function(core_node) {
+    children <- igraph::neighbors(
+      input_graph,
+      core_map[[core_node]],
+      mode = "out"
+    )
+    children <- setdiff(as.integer(children), core_map)
+    igraph::vertex_attr(input_graph, "mono", index = children)
+  })
+  root_monos <- unlist(arm_monos, use.names = FALSE)
+
+  if (any(!root_monos %in% c("Hex", "HexNAc"))) {
+    cli::cli_abort(
+      "N-glycan arm roots must be {.val Hex} or {.val HexNAc} residues."
+    )
+  }
+  if (!any(root_monos == "HexNAc")) {
+    return("high-mannose")
+  }
+  if (!any(root_monos == "Hex")) {
+    return("complex")
+  }
+  mixed_arm <- purrr::map_lgl(arm_monos, function(monos) {
+    all(c("Hex", "HexNAc") %in% monos)
+  })
+  if (any(mixed_arm)) {
+    cli::cli_abort(
+      "A hybrid N-glycan must have separate all-Hex and HexNAc-bearing arms."
+    )
+  }
+  "hybrid"
+}
+
+.enhance_high_mannose_topological <- function(struc, return_best) {
+  reference <- .high_mannose_reference()
+  matches <- glymotif::match_motif(
+    reference,
+    struc,
+    alignment = "core"
+  )[[1]]
+  if (length(matches) == 0) {
+    return(glyrepr::glycan_structure())
+  }
+
+  reference_graph <- as.list(reference)[[1]]
+  graphs <- purrr::map(matches, function(nodes) {
+    igraph::induced_subgraph(reference_graph, nodes)
+  })
+  candidates <- do.call(glyrepr::glycan_structure, graphs) |>
+    glyrepr::reduce_structure_level(to_level = "topological") |>
+    unique()
+
+  if (return_best) {
+    return(candidates[1])
+  }
+  candidates
+}
+
+.high_mannose_reference <- function() {
+  glyparse::auto_parse(paste0(
+    "Glc(a1-2)Glc(a1-3)Glc(a1-3)Man(a1-2)Man(a1-2)Man(a1-3)",
+    "[Man(a1-2)Man(a1-3)[Man(a1-2)Man(a1-6)]Man(a1-6)]",
+    "Man(b1-4)GlcNAc(b1-4)GlcNAc(b1-"
+  ))
+}
+
+.n_glycan_mannose_extensions <- function(input_graph, core_graph, core_map) {
+  terminal_core <- which(igraph::degree(core_graph, mode = "out") == 0)
+  extensions <- list()
+
+  for (core_node in terminal_core) {
+    children <- igraph::neighbors(
+      input_graph,
+      core_map[[core_node]],
+      mode = "out"
+    )
+    children <- setdiff(as.integer(children), core_map)
+    child_monos <- igraph::vertex_attr(input_graph, "mono", index = children)
+    hex_roots <- children[child_monos == "Hex"]
+
+    for (root in hex_roots) {
+      subtree_nodes <- igraph::subcomponent(input_graph, root, mode = "out")
+      subtree_monos <- igraph::vertex_attr(
+        input_graph,
+        "mono",
+        index = subtree_nodes
+      )
+      if (any(subtree_monos != "Hex")) {
+        cli::cli_abort(
+          "The all-Hex arm of a hybrid N-glycan can only contain Hex residues."
+        )
+      }
+
+      subtree <- igraph::induced_subgraph(input_graph, subtree_nodes)
+      subtree <- igraph::set_vertex_attr(
+        subtree,
+        "mono",
+        value = rep("Man", igraph::vcount(subtree))
+      )
+      if (igraph::ecount(subtree) > 0) {
+        subtree <- igraph::set_edge_attr(
+          subtree,
+          "linkage",
+          value = rep("??-?", igraph::ecount(subtree))
+        )
+      }
+      subtree <- igraph::set_graph_attr(subtree, "anomer", "??")
+      extensions[[length(extensions) + 1]] <- list(
+        parent_node = core_node,
+        structure = glyrepr::glycan_structure(subtree)
+      )
+    }
+  }
+  extensions
 }
 
 .n_glycan_core_additions <- function(input_graph, core_graph, core_map) {
@@ -461,7 +604,12 @@ enhance_struc <- function(
   occurrences
 }
 
-.build_topological_n_glycan <- function(branch_ids, branches, core_additions) {
+.build_topological_n_glycan <- function(
+  branch_ids,
+  branches,
+  core_additions,
+  fixed_extensions = list()
+) {
   core <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "concrete")
   nodes <- glyrepr::structure_nodes(core)
   edges <- glyrepr::structure_edges(core)
@@ -489,28 +637,27 @@ enhance_struc <- function(
     )
   }
 
+  for (extension in fixed_extensions) {
+    state <- .append_topological_subtree(
+      nodes,
+      edges,
+      extension$structure,
+      extension$parent_node
+    )
+    nodes <- state$nodes
+    edges <- state$edges
+  }
+
   for (i in seq_along(branch_ids)) {
     branch <- topological_branches[branch_ids[[i]]]
-    branch_nodes <- glyrepr::structure_nodes(branch)
-    branch_edges <- glyrepr::structure_edges(branch)
-    branch_root <- .glycan_graph_root(as.list(branch)[[1]])
-    node_offset <- max(nodes$node_id)
-
-    branch_nodes$node_id <- branch_nodes$node_id + node_offset
-    branch_edges$from_node <- branch_edges$from_node + node_offset
-    branch_edges$to_node <- branch_edges$to_node + node_offset
-    nodes <- dplyr::bind_rows(nodes, branch_nodes)
-    edges <- dplyr::bind_rows(
+    state <- .append_topological_subtree(
+      nodes,
       edges,
-      branch_edges,
-      tibble::tibble(
-        glycan_id = 1L,
-        edge_id = nrow(edges) + nrow(branch_edges) + 1L,
-        from_node = branches[[i]]$parent_node,
-        to_node = branch_root + node_offset,
-        linkage = "??-?"
-      )
+      branch,
+      branches[[i]]$parent_node
     )
+    nodes <- state$nodes
+    edges <- state$edges
   }
 
   edges$edge_id <- seq_len(nrow(edges))
@@ -519,6 +666,30 @@ enhance_struc <- function(
     edges,
     anomers = glyrepr::get_anomer(core)
   )
+}
+
+.append_topological_subtree <- function(nodes, edges, subtree, parent_node) {
+  subtree_nodes <- glyrepr::structure_nodes(subtree)
+  subtree_edges <- glyrepr::structure_edges(subtree)
+  subtree_root <- .glycan_graph_root(as.list(subtree)[[1]])
+  node_offset <- max(nodes$node_id)
+
+  subtree_nodes$node_id <- subtree_nodes$node_id + node_offset
+  subtree_edges$from_node <- subtree_edges$from_node + node_offset
+  subtree_edges$to_node <- subtree_edges$to_node + node_offset
+  nodes <- dplyr::bind_rows(nodes, subtree_nodes)
+  edges <- dplyr::bind_rows(
+    edges,
+    subtree_edges,
+    tibble::tibble(
+      glycan_id = 1L,
+      edge_id = nrow(edges) + nrow(subtree_edges) + 1L,
+      from_node = parent_node,
+      to_node = subtree_root + node_offset,
+      linkage = "??-?"
+    )
+  )
+  list(nodes = nodes, edges = edges)
 }
 
 .glycan_graph_root <- function(graph) {

@@ -61,8 +61,11 @@ level is used. With \code{method = "denovo"}, N-glycans are reconstructed from
 their core and branches without requiring a structure database.
 
 Topological de-novo enhancement preserves optional core fucose and
-bisecting GlcNAc residues. It matches every branch occurrence against the
-internal branch data and returns every unique combination of those matches.
+bisecting GlcNAc residues. Complex N-glycan branches are matched against the
+internal branch data. For hybrid N-glycans, the all-Hex arm is assigned as
+mannose and the HexNAc-bearing arm uses branch matching. High-mannose
+candidates are constrained to core-aligned subtrees of the Glc3Man9
+precursor.
 }
 \examples{
 # From topological level to intact level
