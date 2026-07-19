@@ -275,8 +275,7 @@ test_that("enhance_struc de-novo enhances an N-glycan core", {
 
   result <- enhance_struc(
     input,
-    method = "denovo",
-    to_level = "topological"
+    method = "denovo"
   )
 
   expect_equal(result$raw, input)
@@ -291,8 +290,7 @@ test_that("enhance_struc de-novo combines all matched branches", {
 
   result <- enhance_struc(
     input,
-    method = "denovo",
-    to_level = "topological"
+    method = "denovo"
   )
 
   expect_equal(nrow(result), 3)
@@ -316,7 +314,6 @@ test_that("enhance_struc de-novo ranks branches and enhances core additions", {
   result <- enhance_struc(
     input,
     method = "denovo",
-    to_level = "topological",
     return_best = TRUE
   )
 
@@ -336,7 +333,6 @@ test_that("enhance_struc de-novo handles hybrid N-glycans", {
   result <- enhance_struc(
     input,
     method = "denovo",
-    to_level = "topological",
     return_best = TRUE
   )
 
@@ -356,7 +352,6 @@ test_that("enhance_struc de-novo constrains high-mannose N-glycans", {
   result <- enhance_struc(
     input,
     method = "denovo",
-    to_level = "topological",
     return_best = TRUE
   )
 
@@ -375,25 +370,8 @@ test_that("enhance_struc returns only high-mannose reference subtrees", {
 
   result <- enhance_struc(
     input,
-    method = "denovo",
-    to_level = "topological"
+    method = "denovo"
   )
 
   expect_equal(as.character(result$enhanced), expected)
-})
-
-test_that("enhance_struc de-novo requires a supported target level", {
-  input <- glyrepr::n_glycan_core(
-    linkage = FALSE,
-    mono_type = "generic"
-  )
-
-  expect_snapshot(
-    error = TRUE,
-    enhance_struc(input, method = "denovo")
-  )
-  expect_snapshot(
-    error = TRUE,
-    enhance_struc(input, method = "denovo", to_level = "intact")
-  )
 })

@@ -4,13 +4,7 @@
 \alias{enhance_struc}
 \title{Enhance glycan structure}
 \usage{
-enhance_struc(
-  strucs,
-  db = NULL,
-  return_best = FALSE,
-  method = "db",
-  to_level = NULL
-)
+enhance_struc(strucs, db = NULL, return_best = FALSE, method = "db")
 }
 \arguments{
 \item{strucs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector,
@@ -30,11 +24,8 @@ structure (highest confidence) for each input structure. With
 \code{FALSE}.}
 
 \item{method}{Enhancement method. \code{"db"} matches complete structures against
-\code{db}. \code{"denovo"} reconstructs N-glycans from their core and branches.}
-
-\item{to_level}{Target resolution level for de-novo enhancement. Required
-when \code{method = "denovo"}; must be \code{"topological"} or \code{"intact"}.
-Only \code{"topological"} is currently implemented.}
+\code{db}. \code{"denovo"} reconstructs topological N-glycans from their core and
+branches.}
 }
 \value{
 If \code{return_best=TRUE}:
@@ -84,7 +75,6 @@ n_basic <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "generic")
 enhance_struc(
   n_basic,
   method = "denovo",
-  to_level = "topological",
   return_best = TRUE
 )
 

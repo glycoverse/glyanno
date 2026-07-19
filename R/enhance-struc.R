@@ -30,10 +30,8 @@
 #'   `method = "denovo"`, branch confidence scores are used. Default is
 #'   `FALSE`.
 #' @param method Enhancement method. `"db"` matches complete structures against
-#'   `db`. `"denovo"` reconstructs N-glycans from their core and branches.
-#' @param to_level Target resolution level for de-novo enhancement. Required
-#'   when `method = "denovo"`; must be `"topological"` or `"intact"`.
-#'   Only `"topological"` is currently implemented.
+#'   `db`. `"denovo"` reconstructs topological N-glycans from their core and
+#'   branches.
 #'
 #' @returns If `return_best=TRUE`:
 #'   An unnamed [glyrepr::glycan_structure()] vector with the same length as `strucs`.
@@ -62,7 +60,6 @@
 #' enhance_struc(
 #'   n_basic,
 #'   method = "denovo",
-#'   to_level = "topological",
 #'   return_best = TRUE
 #' )
 #'
@@ -71,8 +68,7 @@ enhance_struc <- function(
   strucs,
   db = NULL,
   return_best = FALSE,
-  method = "db",
-  to_level = NULL
+  method = "db"
 ) {
   # Input validation and preparation
   strucs <- .ensure_glycan_structure(strucs)
@@ -80,17 +76,6 @@ enhance_struc <- function(
   checkmate::assert_choice(method, c("db", "denovo"))
 
   if (method == "denovo") {
-    if (is.null(to_level)) {
-      cli::cli_abort(
-        "{.arg to_level} must be provided when {.arg method} is {.val denovo}."
-      )
-    }
-    checkmate::assert_choice(to_level, c("topological", "intact"))
-    if (to_level == "intact") {
-      cli::cli_abort(
-        "De-novo enhancement to {.val intact} is not yet supported."
-      )
-    }
     return(.enhance_struc_denovo_topological(strucs, return_best))
   }
 
