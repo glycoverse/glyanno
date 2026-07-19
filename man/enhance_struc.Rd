@@ -23,9 +23,9 @@ structure (highest confidence) for each input structure. With
 \code{method = "denovo"}, branch confidence scores are used. Default is
 \code{FALSE}.}
 
-\item{method}{Enhancement method. \code{"db"} matches complete structures against
-\code{db}. \code{"denovo"} reconstructs topological N-glycans from their core and
-branches.}
+\item{method}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Enhancement method.
+\code{"db"} matches complete structures against \code{db}. \code{"denovo"} reconstructs
+topological N-glycans from their core and branches.}
 }
 \value{
 If \code{return_best=TRUE}:

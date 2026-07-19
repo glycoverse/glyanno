@@ -29,9 +29,9 @@
 #'   `method = "db"`, `db` must have a `confidence` attribute. With
 #'   `method = "denovo"`, branch confidence scores are used. Default is
 #'   `FALSE`.
-#' @param method Enhancement method. `"db"` matches complete structures against
-#'   `db`. `"denovo"` reconstructs topological N-glycans from their core and
-#'   branches.
+#' @param method `r lifecycle::badge("experimental")` Enhancement method.
+#'   `"db"` matches complete structures against `db`. `"denovo"` reconstructs
+#'   topological N-glycans from their core and branches.
 #'
 #' @returns If `return_best=TRUE`:
 #'   An unnamed [glyrepr::glycan_structure()] vector with the same length as `strucs`.
@@ -70,6 +70,8 @@ enhance_struc <- function(
   return_best = FALSE,
   method = "db"
 ) {
+  lifecycle::signal_stage("experimental", "enhance_struc(method)")
+
   # Input validation and preparation
   strucs <- .ensure_glycan_structure(strucs)
   checkmate::assert_flag(return_best)
