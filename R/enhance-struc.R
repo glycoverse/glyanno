@@ -7,7 +7,8 @@
 #' With `method = "db"`, the target resolution level is determined from `db`.
 #' When `db` is `NULL`, the default [glydb::glydb_structures()] at "intact"
 #' level is used. With `method = "denovo"`, N-glycans are reconstructed from
-#' their core and branches without requiring a structure database.
+#' their core and branches. Inputs that cannot be reconstructed de novo are
+#' matched with the database method as a fallback.
 #'
 #' Topological de-novo enhancement preserves optional core fucose and
 #' bisecting GlcNAc residues. Complex N-glycan branches are matched against the
@@ -24,6 +25,8 @@
 #'   at "intact" level.
 #'   If `db` has a lower or equal resolution level than `strucs`,
 #'   the result will be the same as `strucs` (no enhancement).
+#'   With `method = "denovo"`, `db` is used only as a fallback for inputs that
+#'   cannot be reconstructed de novo.
 #' @param return_best Logical. If `TRUE`, only return the best matching
 #'   structure (highest confidence) for each input structure. With
 #'   `method = "db"`, `db` must have a `confidence` attribute. With
@@ -78,7 +81,7 @@ enhance_struc <- function(
   checkmate::assert_choice(method, c("db", "denovo"))
 
   if (method == "denovo") {
-    return(.enhance_struc_denovo_topological(strucs, return_best))
+    return(.enhance_struc_denovo_topological(strucs, db, return_best))
   }
 
   db <- .prepare_struc_db(db)
@@ -201,7 +204,7 @@ enhance_struc <- function(
   res |> dplyr::select(-all_of("row_id"))
 }
 
-.enhance_struc_denovo_topological <- function(strucs, return_best) {
+.enhance_struc_denovo_topological <- function(strucs, db, return_best) {
   if (length(strucs) == 0) {
     if (return_best) {
       return(glyrepr::glycan_structure())
@@ -223,21 +226,49 @@ enhance_struc <- function(
     return(tibble::tibble(raw = strucs, enhanced = strucs))
   }
 
+  fallback_db <- NULL
+  fallback_candidates <- function(struc) {
+    if (is.null(fallback_db)) {
+      fallback_db <<- .prepare_struc_db(db)
+      .check_return_best_arg(fallback_db, return_best)
+    }
+    fallback <- enhance_struc(
+      struc,
+      db = fallback_db,
+      return_best = return_best,
+      method = "db"
+    )
+    if (return_best) {
+      return(fallback)
+    }
+    fallback$enhanced
+  }
+
   candidates <- purrr::map(seq_along(strucs), function(i) {
     if (is.na(strucs)[[i]]) {
+      if (return_best) {
+        return(glyrepr::glycan_structure(NA))
+      }
       return(glyrepr::glycan_structure())
     }
-    .enhance_n_glycan_topological(strucs[i], return_best)
+    candidate <- tryCatch(
+      .enhance_n_glycan_topological(strucs[i], return_best),
+      error = function(cnd) glyrepr::glycan_structure()
+    )
+    if (length(candidate) == 0) {
+      candidate <- fallback_candidates(strucs[i])
+    }
+    candidate
   })
 
   if (return_best) {
-    graphs <- purrr::map(candidates, function(x) {
+    best <- purrr::map(candidates, function(x) {
       if (length(x) == 0) {
-        return(NULL)
+        return(glyrepr::glycan_structure(NA))
       }
-      as.list(x[1])[[1]]
+      x[1]
     })
-    return(do.call(glyrepr::glycan_structure, graphs))
+    return(unname(do.call(c, best)))
   }
 
   res <- purrr::map2(candidates, seq_along(strucs), function(x, i) {
@@ -268,9 +299,7 @@ enhance_struc <- function(
     alignment = "core"
   )[[1]]
   if (length(core_matches) == 0) {
-    cli::cli_abort(
-      "De-novo enhancement currently supports only structures with an N-glycan core."
-    )
+    return(glyrepr::glycan_structure())
   }
 
   input_graph <- as.list(struc)[[1]]

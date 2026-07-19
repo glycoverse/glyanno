@@ -394,3 +394,45 @@ test_that("enhance_struc preserves high-mannose core additions", {
 
   expect_equal(as.character(result), expected)
 })
+
+test_that("enhance_struc de-novo falls back to database matching", {
+  db <- glyrepr::as_glycan_structure("Gal(??-?)GlcNAc(??-")
+  attr(db, "confidence") <- 1
+  input <- c(
+    "Hex(??-?)HexNAc(??-",
+    "Hex(??-?)Hex(??-"
+  )
+
+  result <- enhance_struc(input, db = db, method = "denovo")
+  best <- enhance_struc(
+    input,
+    db = db,
+    method = "denovo",
+    return_best = TRUE
+  )
+
+  expect_equal(as.character(result$raw), input[[1]])
+  expect_equal(as.character(result$enhanced), as.character(db))
+  expect_equal(as.character(best), c(as.character(db), NA_character_))
+})
+
+test_that("enhance_struc de-novo falls back after deduction errors", {
+  input <- paste0(
+    "dHex(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
+    "HexNAc(??-?)HexNAc(??-"
+  )
+  db <- glyrepr::as_glycan_structure(paste0(
+    "Fuc(??-?)Man(??-?)[GlcNAc(??-?)Man(??-?)]Man(??-?)",
+    "GlcNAc(??-?)GlcNAc(??-"
+  ))
+  attr(db, "confidence") <- 1
+
+  result <- enhance_struc(
+    input,
+    db = db,
+    method = "denovo",
+    return_best = TRUE
+  )
+
+  expect_equal(as.character(result), as.character(db))
+})

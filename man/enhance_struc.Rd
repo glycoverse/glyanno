@@ -15,7 +15,9 @@ or a character vector of glycan structure strings supported by \code{\link[glypa
 If not provided, a default structure vector is loaded from \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}
 at "intact" level.
 If \code{db} has a lower or equal resolution level than \code{strucs},
-the result will be the same as \code{strucs} (no enhancement).}
+the result will be the same as \code{strucs} (no enhancement).
+With \code{method = "denovo"}, \code{db} is used only as a fallback for inputs that
+cannot be reconstructed de novo.}
 
 \item{return_best}{Logical. If \code{TRUE}, only return the best matching
 structure (highest confidence) for each input structure. With
@@ -49,7 +51,8 @@ possible glycan structures of higher resolution level.
 With \code{method = "db"}, the target resolution level is determined from \code{db}.
 When \code{db} is \code{NULL}, the default \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "intact"
 level is used. With \code{method = "denovo"}, N-glycans are reconstructed from
-their core and branches without requiring a structure database.
+their core and branches. Inputs that cannot be reconstructed de novo are
+matched with the database method as a fallback.
 
 Topological de-novo enhancement preserves optional core fucose and
 bisecting GlcNAc residues. Complex N-glycan branches are matched against the
