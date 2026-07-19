@@ -277,16 +277,20 @@ enhance_struc <- function(
   core_graph <- as.list(generic_core)[[1]]
   core_map <- core_matches[[1]]
   topology <- .classify_n_glycan_topology(input_graph, core_graph, core_map)
-
-  if (topology == "high-mannose") {
-    return(.enhance_high_mannose_topological(struc, return_best))
-  }
-
   core_additions <- .n_glycan_core_additions(
     input_graph,
     core_graph,
     core_map
   )
+
+  if (topology == "high-mannose") {
+    return(.enhance_high_mannose_topological(
+      struc,
+      return_best,
+      core_additions
+    ))
+  }
+
   branches <- .n_glycan_branch_occurrences(
     struc,
     input_graph,
@@ -381,11 +385,24 @@ enhance_struc <- function(
   "hybrid"
 }
 
-.enhance_high_mannose_topological <- function(struc, return_best) {
+.enhance_high_mannose_topological <- function(
+  struc,
+  return_best,
+  core_additions
+) {
   reference <- .high_mannose_reference()
+  motif <- struc
+  if (nrow(core_additions) > 0) {
+    motif_graph <- as.list(struc)[[1]]
+    motif_graph <- igraph::delete_vertices(
+      motif_graph,
+      core_additions$input_node
+    )
+    motif <- glyrepr::glycan_structure(motif_graph)
+  }
   matches <- glymotif::match_motif(
     reference,
-    struc,
+    motif,
     alignment = "core"
   )[[1]]
   if (length(matches) == 0) {
@@ -399,6 +416,13 @@ enhance_struc <- function(
   candidates <- do.call(glyrepr::glycan_structure, graphs) |>
     glyrepr::reduce_structure_level(to_level = "topological") |>
     unique()
+  if (nrow(core_additions) > 0) {
+    graphs <- purrr::map(candidates, function(candidate) {
+      enhanced <- .add_n_glycan_core_additions(candidate, core_additions)
+      as.list(enhanced)[[1]]
+    })
+    candidates <- do.call(glyrepr::glycan_structure, graphs)
+  }
 
   if (return_best) {
     return(candidates[1])
@@ -501,6 +525,7 @@ enhance_struc <- function(
 
   additions <- tibble::tibble(
     parent_node = integer(),
+    input_node = integer(),
     mono = character(),
     sub = character()
   )
@@ -509,6 +534,7 @@ enhance_struc <- function(
     additions <- tibble::add_row(
       additions,
       parent_node = central_core,
+      input_node = bisecting,
       mono = "GlcNAc",
       sub = ""
     )
@@ -518,11 +544,56 @@ enhance_struc <- function(
     additions <- tibble::add_row(
       additions,
       parent_node = reducing_core,
+      input_node = core_fuc,
       mono = "Fuc",
       sub = ""
     )
   }
   additions
+}
+
+.add_n_glycan_core_additions <- function(struc, core_additions) {
+  generic_core <- glyrepr::n_glycan_core(
+    linkage = FALSE,
+    mono_type = "generic"
+  )
+  core_map <- glymotif::match_motif(
+    struc,
+    generic_core,
+    alignment = "core"
+  )[[1]][[1]]
+  nodes <- glyrepr::structure_nodes(struc)
+  edges <- glyrepr::structure_edges(struc)
+
+  for (i in seq_len(nrow(core_additions))) {
+    new_node <- max(nodes$node_id) + 1L
+    parent_node <- core_map[[core_additions$parent_node[[i]]]]
+    nodes <- dplyr::bind_rows(
+      nodes,
+      tibble::tibble(
+        glycan_id = 1L,
+        node_id = new_node,
+        mono = core_additions$mono[[i]],
+        sub = core_additions$sub[[i]]
+      )
+    )
+    edges <- dplyr::bind_rows(
+      edges,
+      tibble::tibble(
+        glycan_id = 1L,
+        edge_id = nrow(edges) + 1L,
+        from_node = parent_node,
+        to_node = new_node,
+        linkage = "??-?"
+      )
+    )
+  }
+
+  glyrepr::structure_from_tibbles(
+    nodes,
+    edges,
+    anomers = glyrepr::get_anomer(struc)
+  )
 }
 
 .check_core_addition <- function(graph, node, expected_mono, label) {

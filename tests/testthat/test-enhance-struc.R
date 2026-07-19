@@ -375,3 +375,22 @@ test_that("enhance_struc returns only high-mannose reference subtrees", {
 
   expect_equal(as.character(result$enhanced), expected)
 })
+
+test_that("enhance_struc preserves high-mannose core additions", {
+  input <- paste0(
+    "Hex(??-?)Hex(??-?)[Hex(??-?)][HexNAc(??-?)]Hex(??-?)",
+    "HexNAc(??-?)[dHex(??-?)]HexNAc(??-"
+  )
+  expected <- paste0(
+    "Man(??-?)Man(??-?)[Man(??-?)][GlcNAc(??-?)]Man(??-?)",
+    "GlcNAc(??-?)[Fuc(??-?)]GlcNAc(??-"
+  )
+
+  result <- enhance_struc(
+    input,
+    method = "denovo",
+    return_best = TRUE
+  )
+
+  expect_equal(as.character(result), expected)
+})
