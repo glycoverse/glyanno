@@ -4,7 +4,13 @@
 \alias{enhance_struc}
 \title{Enhance glycan structure}
 \usage{
-enhance_struc(strucs, db = NULL, return_best = FALSE)
+enhance_struc(
+  strucs,
+  db = NULL,
+  return_best = FALSE,
+  method = "db",
+  to_level = NULL
+)
 }
 \arguments{
 \item{strucs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector,
@@ -17,10 +23,18 @@ at "intact" level.
 If \code{db} has a lower or equal resolution level than \code{strucs},
 the result will be the same as \code{strucs} (no enhancement).}
 
-\item{return_best}{Logical. If \code{TRUE}, only return the best matching structure
-(highest confidence) for each input structure. Requires \code{db} to have a
-\code{confidence} attribute. Use \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} for \code{db} to enable this feature.
-Default is \code{FALSE}.}
+\item{return_best}{Logical. If \code{TRUE}, only return the best matching
+structure (highest confidence) for each input structure. With
+\code{method = "db"}, \code{db} must have a \code{confidence} attribute. With
+\code{method = "denovo"}, branch confidence scores are used. Default is
+\code{FALSE}.}
+
+\item{method}{Enhancement method. \code{"db"} matches complete structures against
+\code{db}. \code{"denovo"} reconstructs N-glycans from their core and branches.}
+
+\item{to_level}{Target resolution level for de-novo enhancement. Required
+when \code{method = "denovo"}; must be \code{"topological"} or \code{"intact"}.
+Only \code{"topological"} is currently implemented.}
 }
 \value{
 If \code{return_best=TRUE}:
@@ -41,8 +55,14 @@ Given a glycan structure vector of any resolution level (see
 possible glycan structures of higher resolution level.
 }
 \details{
-The target resolution level is determined from \code{db}. When \code{db} is NULL,
-the default \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "intact" level is used.
+With \code{method = "db"}, the target resolution level is determined from \code{db}.
+When \code{db} is \code{NULL}, the default \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "intact"
+level is used. With \code{method = "denovo"}, N-glycans are reconstructed from
+their core and branches without requiring a structure database.
+
+Topological de-novo enhancement preserves optional core fucose and
+bisecting GlcNAc residues. It matches every branch occurrence against the
+internal branch data and returns every unique combination of those matches.
 }
 \examples{
 # From topological level to intact level
@@ -55,5 +75,14 @@ enhance_struc("Hex(??-?)HexNAc(??-", db = db_topo)
 
 # From partial level to intact level
 enhance_struc("Gal(b1-?)GalNAc(a1-", db = db_intact)
+
+# De-novo enhancement of an N-glycan
+n_basic <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "generic")
+enhance_struc(
+  n_basic,
+  method = "denovo",
+  to_level = "topological",
+  return_best = TRUE
+)
 
 }
