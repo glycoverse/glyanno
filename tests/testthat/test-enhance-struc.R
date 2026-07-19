@@ -262,3 +262,79 @@ test_that("enhance_struc with return_best=TRUE returns NA for no match", {
   expect_equal(as.character(result[1]), "Gal(b1-3)GalNAc(a1-")
   expect_true(is.na(result[2]))
 })
+
+test_that("enhance_struc de-novo enhances an N-glycan core", {
+  input <- glyrepr::n_glycan_core(
+    linkage = FALSE,
+    mono_type = "generic"
+  )
+  expected <- glyrepr::n_glycan_core(
+    linkage = FALSE,
+    mono_type = "concrete"
+  )
+
+  result <- enhance_struc(
+    input,
+    method = "denovo",
+    to_level = "topological"
+  )
+
+  expect_equal(result$raw, input)
+  expect_equal(as.character(result$enhanced), as.character(expected))
+})
+
+test_that("enhance_struc de-novo combines all matched branches", {
+  input <- paste0(
+    "HexNAc(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
+    "HexNAc(??-?)HexNAc(??-"
+  )
+
+  result <- enhance_struc(
+    input,
+    method = "denovo",
+    to_level = "topological"
+  )
+
+  expect_equal(nrow(result), 3)
+  expect_equal(length(unique(result$enhanced)), 3)
+  expect_equal(
+    unique(glyrepr::get_structure_level(result$enhanced)),
+    "topological"
+  )
+})
+
+test_that("enhance_struc de-novo ranks branches and enhances core additions", {
+  input <- paste0(
+    "HexNAc(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]",
+    "[HexNAc(??-?)]Hex(??-?)HexNAc(??-?)[dHex(??-?)]HexNAc(??-"
+  )
+  expected <- paste0(
+    "GlcNAc(??-?)Man(??-?)[GlcNAc(??-?)Man(??-?)]",
+    "[GlcNAc(??-?)]Man(??-?)GlcNAc(??-?)[Fuc(??-?)]GlcNAc(??-"
+  )
+
+  result <- enhance_struc(
+    input,
+    method = "denovo",
+    to_level = "topological",
+    return_best = TRUE
+  )
+
+  expect_equal(as.character(result), expected)
+})
+
+test_that("enhance_struc de-novo requires a supported target level", {
+  input <- glyrepr::n_glycan_core(
+    linkage = FALSE,
+    mono_type = "generic"
+  )
+
+  expect_snapshot(
+    error = TRUE,
+    enhance_struc(input, method = "denovo")
+  )
+  expect_snapshot(
+    error = TRUE,
+    enhance_struc(input, method = "denovo", to_level = "intact")
+  )
+})

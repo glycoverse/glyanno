@@ -1,5 +1,9 @@
 # glyanno (development version)
 
+## New features
+
+* `enhance_struc()` gains `method = "denovo"` to reconstruct topological N-glycans from a canonical core and confidence-ranked branch candidates.
+
 ## Breaking changes
 
 * Remove `fill_anomer_pos()` from the exported namespace. Use `glyrepr::fill_anomer_pos()` instead. (#15)
