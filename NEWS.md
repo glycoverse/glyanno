@@ -2,7 +2,7 @@
 
 ## New features
 
-* `enhance_struc()` gains `method = "denovo"` to reconstruct topological N-glycans from a canonical core and confidence-ranked branch candidates.
+* `enhance_struc()` gains `method = "denovo"` to reconstruct topological complex and hybrid N-glycans from branch candidates and high-mannose N-glycans from biosynthetic precursor subtrees.
 
 ## Breaking changes
 
