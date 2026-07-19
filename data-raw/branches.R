@@ -3,8 +3,8 @@
 
 library(tidyverse)
 library(glyrepr)
-library(glymotif)  # 0.17.3
-library(glydb)  # 0.6.0
+library(glymotif) # 0.17.3
+library(glydb) # 0.6.0
 
 # Extract branches motifs with confidence
 extract_branches <- function(glycans) {
@@ -14,7 +14,11 @@ extract_branches <- function(glycans) {
     rownames_to_column("glycan") |>
     as_tibble() |>
     mutate(glycan_confidence = attr(glycans, "confidence"), .after = glycan) |>
-    pivot_longer(-c(glycan, glycan_confidence), names_to = "motif", values_to = "has") |>
+    pivot_longer(
+      -c(glycan, glycan_confidence),
+      names_to = "motif",
+      values_to = "has"
+    ) |>
     filter(has) |>
     summarise(confidence = max(glycan_confidence), .by = motif)
   branches <- as_glycan_structure(branch_data$motif)
@@ -22,10 +26,21 @@ extract_branches <- function(glycans) {
   branches
 }
 
-intact_glycans <- glydb_structures(structure_level = "intact", glycan_type = "N")
-topological_glycans <- glydb_structures(structure_level = "topological", glycan_type = "N")
+intact_glycans <- glydb_structures(
+  structure_level = "intact",
+  glycan_type = "N"
+)
+topological_glycans <- glydb_structures(
+  structure_level = "topological",
+  glycan_type = "N"
+)
 
 intact_branches <- extract_branches(intact_glycans)
 topological_branches <- extract_branches(topological_glycans)
 
-usethis::use_data(intact_branches, topological_branches, internal = TRUE, overwrite = TRUE)
+usethis::use_data(
+  intact_branches,
+  topological_branches,
+  internal = TRUE,
+  overwrite = TRUE
+)
