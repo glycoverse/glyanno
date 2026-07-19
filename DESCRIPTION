@@ -37,7 +37,8 @@ Imports:
     tidyselect,
     tidyr,
     tibble,
-    httr2
+    httr2,
+    lifecycle
 VignetteBuilder: knitr
 Depends:
     R (>= 4.1)
