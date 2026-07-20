@@ -226,39 +226,52 @@ enhance_struc <- function(
     return(tibble::tibble(raw = strucs, enhanced = strucs))
   }
 
-  fallback_db <- NULL
-  fallback_candidates <- function(struc) {
-    if (is.null(fallback_db)) {
-      fallback_db <<- .prepare_struc_db(db)
-      .check_return_best_arg(fallback_db, return_best)
-    }
+  is_missing <- is.na(strucs)
+  unique_strucs <- unique(strucs[!is_missing])
+  unique_candidates <- purrr::map(seq_along(unique_strucs), function(i) {
+    tryCatch(
+      .enhance_n_glycan_topological(unique_strucs[i], return_best),
+      error = function(cnd) glyrepr::glycan_structure()
+    )
+  })
+
+  unresolved <- lengths(unique_candidates) == 0
+  if (any(unresolved)) {
+    fallback_db <- .prepare_struc_db(db)
+    .check_return_best_arg(fallback_db, return_best)
+    fallback_strucs <- unique_strucs[unresolved]
     fallback <- enhance_struc(
-      struc,
+      fallback_strucs,
       db = fallback_db,
       return_best = return_best,
       method = "db"
     )
+
+    unresolved_ids <- which(unresolved)
     if (return_best) {
-      return(fallback)
+      for (i in seq_along(unresolved_ids)) {
+        unique_candidates[[unresolved_ids[[i]]]] <- fallback[i]
+      }
+    } else {
+      fallback_keys <- as.character(fallback$raw)
+      for (i in seq_along(unresolved_ids)) {
+        key <- as.character(fallback_strucs[i])
+        unique_candidates[[unresolved_ids[[i]]]] <-
+          fallback$enhanced[fallback_keys == key]
+      }
     }
-    fallback$enhanced
   }
 
+  unique_keys <- as.character(unique_strucs)
+  struc_keys <- as.character(strucs)
   candidates <- purrr::map(seq_along(strucs), function(i) {
-    if (is.na(strucs)[[i]]) {
+    if (is_missing[[i]]) {
       if (return_best) {
         return(glyrepr::glycan_structure(NA))
       }
       return(glyrepr::glycan_structure())
     }
-    candidate <- tryCatch(
-      .enhance_n_glycan_topological(strucs[i], return_best),
-      error = function(cnd) glyrepr::glycan_structure()
-    )
-    if (length(candidate) == 0) {
-      candidate <- fallback_candidates(strucs[i])
-    }
-    candidate
+    unique_candidates[[match(struc_keys[[i]], unique_keys)]]
   })
 
   if (return_best) {
@@ -289,10 +302,7 @@ enhance_struc <- function(
 }
 
 .enhance_n_glycan_topological <- function(struc, return_best) {
-  generic_core <- glyrepr::n_glycan_core(
-    linkage = FALSE,
-    mono_type = "generic"
-  )
+  generic_core <- n_glycan_generic_core
   core_matches <- glymotif::match_motif(
     struc,
     generic_core,
@@ -321,7 +331,6 @@ enhance_struc <- function(
   }
 
   branches <- .n_glycan_branch_occurrences(
-    struc,
     input_graph,
     core_graph,
     core_map
@@ -439,6 +448,16 @@ enhance_struc <- function(
   }
 
   reference_graph <- as.list(reference)[[1]]
+  if (return_best) {
+    candidate <- igraph::induced_subgraph(reference_graph, matches[[1]]) |>
+      glyrepr::glycan_structure() |>
+      glyrepr::reduce_structure_level(to_level = "topological")
+    if (nrow(core_additions) > 0) {
+      candidate <- .add_n_glycan_core_additions(candidate, core_additions)
+    }
+    return(candidate)
+  }
+
   graphs <- purrr::map(matches, function(nodes) {
     igraph::induced_subgraph(reference_graph, nodes)
   })
@@ -453,18 +472,11 @@ enhance_struc <- function(
     candidates <- do.call(glyrepr::glycan_structure, graphs)
   }
 
-  if (return_best) {
-    return(candidates[1])
-  }
   candidates
 }
 
 .high_mannose_reference <- function() {
-  glyparse::auto_parse(paste0(
-    "Glc(a1-2)Glc(a1-3)Glc(a1-3)Man(a1-2)Man(a1-2)Man(a1-3)",
-    "[Man(a1-2)Man(a1-3)[Man(a1-2)Man(a1-6)]Man(a1-6)]",
-    "Man(b1-4)GlcNAc(b1-4)GlcNAc(b1-"
-  ))
+  high_mannose_reference
 }
 
 .n_glycan_mannose_extensions <- function(input_graph, core_graph, core_map) {
@@ -636,55 +648,38 @@ enhance_struc <- function(
 }
 
 .n_glycan_branch_occurrences <- function(
-  struc,
   input_graph,
   core_graph,
   core_map
 ) {
-  branch_patterns <- glymotif::extract_branch_motif(struc)
-  if (length(branch_patterns) == 0) {
-    return(list())
-  }
-
-  branch_locations <- glymotif::match_motifs(
-    struc,
-    glymotif::branch_motifs()
-  )
-  candidate_matches <- glymotif::have_motifs(
-    topological_branches,
-    branch_patterns,
-    alignments = "whole"
-  )
   terminal_core <- which(igraph::degree(core_graph, mode = "out") == 0)
   occurrences <- list()
 
-  for (i in seq_along(branch_patterns)) {
-    pattern <- branch_patterns[i]
-    pattern_name <- as.character(pattern)
-    locations <- branch_locations[[pattern_name]][[1]]
-    candidate_ids <- which(candidate_matches[, i])
-    pattern_root <- .glycan_graph_root(as.list(pattern)[[1]])
+  for (core_node in terminal_core) {
+    children <- igraph::neighbors(
+      input_graph,
+      core_map[[core_node]],
+      mode = "out"
+    )
+    children <- setdiff(as.integer(children), core_map)
+    child_monos <- igraph::vertex_attr(input_graph, "mono", index = children)
+    branch_roots <- children[child_monos == "HexNAc"]
 
-    for (location in locations) {
-      branch_root <- location[[pattern_root]]
-      parent <- as.integer(igraph::neighbors(
+    for (branch_root in branch_roots) {
+      subtree_nodes <- igraph::subcomponent(
         input_graph,
         branch_root,
-        mode = "in"
-      ))
-      parent_core <- match(parent, core_map)
-      if (
-        length(parent) != 1 ||
-          is.na(parent_core) ||
-          !parent_core %in% terminal_core
-      ) {
-        cli::cli_abort(
-          "Each N-glycan branch must be attached to a terminal core mannose."
-        )
+        mode = "out"
+      )
+      pattern <- igraph::induced_subgraph(input_graph, subtree_nodes) |>
+        glyrepr::glycan_structure()
+      candidate_ids <- topological_branch_index[[as.character(pattern)]]
+      if (is.null(candidate_ids)) {
+        candidate_ids <- integer()
       }
       occurrences[[length(occurrences) + 1]] <- list(
-        parent_node = parent_core,
-        candidate_ids = candidate_ids
+        parent_node = core_node,
+        candidate_ids = unname(candidate_ids)
       )
     }
   }
@@ -697,7 +692,7 @@ enhance_struc <- function(
   core_additions,
   fixed_extensions = list()
 ) {
-  core <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "concrete")
+  core <- n_glycan_topological_core
   nodes <- glyrepr::structure_nodes(core)
   edges <- glyrepr::structure_edges(core)
 
