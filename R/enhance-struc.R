@@ -345,6 +345,9 @@ enhance_struc <- function(
     return(glyrepr::glycan_structure())
   }
 
+  base <- .topological_n_glycan_base(core_additions, mannose_extensions)
+  branch_templates <- .topological_branch_templates(branches)
+
   if (return_best) {
     confidence <- attr(topological_branches, "confidence")
     # Maximizing the total confidence is separable across branch occurrences.
@@ -353,21 +356,23 @@ enhance_struc <- function(
       scores[is.na(scores)] <- -Inf
       x$candidate_ids[[which.max(scores)]]
     })
-    return(.build_topological_n_glycan(
+    candidate <- .build_topological_n_glycan(
       branch_ids,
       branches,
-      core_additions,
-      mannose_extensions
-    ))
+      base,
+      branch_templates
+    )
+    return(.topological_n_glycan_from_tables(list(candidate)))
   }
 
   if (length(branches) == 0) {
-    return(.build_topological_n_glycan(
+    candidate <- .build_topological_n_glycan(
       integer(),
       branches,
-      core_additions,
-      mannose_extensions
-    ))
+      base,
+      branch_templates
+    )
+    return(.topological_n_glycan_from_tables(list(candidate)))
   }
 
   branch_sets <- expand.grid(
@@ -375,17 +380,17 @@ enhance_struc <- function(
     KEEP.OUT.ATTRS = FALSE,
     stringsAsFactors = FALSE
   )
-  graphs <- purrr::map(seq_len(nrow(branch_sets)), function(i) {
-    candidate <- .build_topological_n_glycan(
+  candidates <- purrr::map(seq_len(nrow(branch_sets)), function(i) {
+    .build_topological_n_glycan(
       as.integer(branch_sets[i, ]),
       branches,
-      core_additions,
-      mannose_extensions
+      base,
+      branch_templates
     )
-    as.list(candidate)[[1]]
   })
 
-  unique(do.call(glyrepr::glycan_structure, graphs))
+  .topological_n_glycan_from_tables(candidates) |>
+    unique()
 }
 
 .classify_n_glycan_topology <- function(input_graph, core_graph, core_map) {
@@ -686,9 +691,7 @@ enhance_struc <- function(
   occurrences
 }
 
-.build_topological_n_glycan <- function(
-  branch_ids,
-  branches,
+.topological_n_glycan_base <- function(
   core_additions,
   fixed_extensions = list()
 ) {
@@ -720,18 +723,43 @@ enhance_struc <- function(
   }
 
   for (extension in fixed_extensions) {
+    template <- .topological_subtree_template(extension$structure)
     state <- .append_topological_subtree(
       nodes,
       edges,
-      extension$structure,
+      template,
       extension$parent_node
     )
     nodes <- state$nodes
     edges <- state$edges
   }
 
+  list(nodes = nodes, edges = edges)
+}
+
+.topological_branch_templates <- function(branches) {
+  branch_ids <- unique(unlist(
+    purrr::map(branches, "candidate_ids"),
+    use.names = FALSE
+  ))
+  templates <- purrr::map(branch_ids, function(id) {
+    .topological_subtree_template(topological_branches[id])
+  })
+  names(templates) <- as.character(branch_ids)
+  templates
+}
+
+.build_topological_n_glycan <- function(
+  branch_ids,
+  branches,
+  base,
+  branch_templates
+) {
+  nodes <- base$nodes
+  edges <- base$edges
+
   for (i in seq_along(branch_ids)) {
-    branch <- topological_branches[branch_ids[[i]]]
+    branch <- branch_templates[[as.character(branch_ids[[i]])]]
     state <- .append_topological_subtree(
       nodes,
       edges,
@@ -743,17 +771,41 @@ enhance_struc <- function(
   }
 
   edges$edge_id <- seq_len(nrow(edges))
+  list(nodes = nodes, edges = edges)
+}
+
+.topological_n_glycan_from_tables <- function(candidates) {
+  ids <- seq_along(candidates)
+  nodes <- purrr::map2(candidates, ids, function(candidate, id) {
+    candidate$nodes$glycan_id <- id
+    candidate$nodes
+  }) |>
+    dplyr::bind_rows()
+  edges <- purrr::map2(candidates, ids, function(candidate, id) {
+    candidate$edges$glycan_id <- id
+    candidate$edges
+  }) |>
+    dplyr::bind_rows()
+
   glyrepr::structure_from_tibbles(
     nodes,
     edges,
-    anomers = glyrepr::get_anomer(core)
+    anomers = rep(glyrepr::get_anomer(n_glycan_topological_core), length(ids))
+  )
+}
+
+.topological_subtree_template <- function(subtree) {
+  list(
+    nodes = glyrepr::structure_nodes(subtree),
+    edges = glyrepr::structure_edges(subtree),
+    root = .glycan_graph_root(as.list(subtree)[[1]])
   )
 }
 
 .append_topological_subtree <- function(nodes, edges, subtree, parent_node) {
-  subtree_nodes <- glyrepr::structure_nodes(subtree)
-  subtree_edges <- glyrepr::structure_edges(subtree)
-  subtree_root <- .glycan_graph_root(as.list(subtree)[[1]])
+  subtree_nodes <- subtree$nodes
+  subtree_edges <- subtree$edges
+  subtree_root <- subtree$root
   node_offset <- max(nodes$node_id)
 
   subtree_nodes$node_id <- subtree_nodes$node_id + node_offset
