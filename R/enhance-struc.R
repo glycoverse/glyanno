@@ -4,11 +4,11 @@
 #' [glyrepr::get_structure_level()] for details), this function gives all
 #' possible glycan structures of higher resolution level.
 #'
-#' With `method = "db"`, the target resolution level is determined from `db`.
-#' When `db` is `NULL`, the default [glydb::glydb_structures()] at "intact"
-#' level is used. With `method = "denovo"`, N-glycans are reconstructed from
-#' their core and branches. Inputs that cannot be reconstructed de novo are
-#' matched with the database method as a fallback.
+#' With `method = "db"`, the target resolution level is determined from `db`,
+#' defaulting to [glydb::glydb_structures()] at "intact" level. With
+#' `method = "denovo"`, N-glycans are reconstructed from their core and
+#' branches. Inputs that cannot be reconstructed de novo are matched against a
+#' fallback database at "topological" level.
 #'
 #' Topological de-novo enhancement preserves optional core fucose and
 #' bisecting GlcNAc residues. Complex N-glycan branches are matched against the
@@ -21,17 +21,20 @@
 #'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
 #' @param db A [glydb::glydb_structures()] vector,
 #'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
-#'   If not provided, a default structure vector is loaded from [glydb::glydb_structures()]
-#'   at "intact" level.
-#'   If `db` has a lower or equal resolution level than `strucs`,
-#'   the result will be the same as `strucs` (no enhancement).
-#'   With `method = "denovo"`, `db` is used only as a fallback for inputs that
-#'   cannot be reconstructed de novo.
+#'   With `method = "db"`, the default is [glydb::glydb_structures()] at
+#'   "intact" level.
+#'   With `method = "db"`, if `db` has a lower or equal resolution level than
+#'   `strucs`, the result will be the same as `strucs` (no enhancement).
+#'   With `method = "denovo"`, the default is [glydb::glydb_structures()] at
+#'   "topological" level. A provided `db` cannot be at "basic" level, and
+#'   "partial" or "intact" structures are reduced to "topological" before
+#'   fallback matching.
 #' @param return_best Logical. If `TRUE`, only return the best matching
 #'   structure (highest confidence) for each input structure. With
 #'   `method = "db"`, `db` must have a `confidence` attribute. With
-#'   `method = "denovo"`, branch confidence scores are used. Default is
-#'   `FALSE`.
+#'   `method = "denovo"`, branch confidence scores are used for reconstructed
+#'   candidates, while fallback database candidates require a `confidence`
+#'   attribute. Default is `FALSE`.
 #' @param method `r lifecycle::badge("experimental")` Enhancement method.
 #'   `"db"` matches complete structures against `db`. `"denovo"` reconstructs
 #'   topological N-glycans from their core and branches.
@@ -205,6 +208,10 @@ enhance_struc <- function(
 }
 
 .enhance_struc_denovo_topological <- function(strucs, db, return_best) {
+  if (!is.null(db)) {
+    db <- .prepare_denovo_struc_db(db)
+  }
+
   if (length(strucs) == 0) {
     if (return_best) {
       return(glyrepr::glycan_structure())
@@ -237,7 +244,11 @@ enhance_struc <- function(
 
   unresolved <- lengths(unique_candidates) == 0
   if (any(unresolved)) {
-    fallback_db <- .prepare_struc_db(db)
+    fallback_db <- if (is.null(db)) {
+      .prepare_denovo_struc_db(NULL)
+    } else {
+      db
+    }
     .check_return_best_arg(fallback_db, return_best)
     fallback_strucs <- unique_strucs[unresolved]
     fallback <- enhance_struc(

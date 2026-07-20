@@ -416,6 +416,56 @@ test_that("enhance_struc de-novo falls back to database matching", {
   expect_equal(as.character(best), c(as.character(db), NA_character_))
 })
 
+test_that("enhance_struc de-novo defaults to a topological fallback", {
+  result <- enhance_struc(
+    "Hex(??-?)HexNAc(??-",
+    method = "denovo"
+  )
+
+  expect_gt(nrow(result), 0)
+  expect_equal(
+    glyrepr::get_structure_level(result$enhanced),
+    "topological"
+  )
+})
+
+test_that("enhance_struc de-novo rejects a basic fallback database", {
+  input <- glyrepr::n_glycan_core(
+    linkage = FALSE,
+    mono_type = "generic"
+  )
+
+  expect_snapshot(
+    error = TRUE,
+    enhance_struc(input, db = input, method = "denovo")
+  )
+})
+
+test_that("enhance_struc de-novo reduces fallback databases", {
+  db <- glyrepr::as_glycan_structure(c(
+    "Gal(b1-?)GlcNAc(b1-",
+    "Gal(b1-4)GlcNAc(b1-",
+    "Man(b1-4)GlcNAc(b1-"
+  ))
+  attr(db, "confidence") <- c(1, 2, 3)
+  input <- "Hex(??-?)HexNAc(??-"
+
+  result <- enhance_struc(input, db = db, method = "denovo")
+  best <- enhance_struc(
+    input,
+    db = db,
+    method = "denovo",
+    return_best = TRUE
+  )
+
+  expect_equal(nrow(result), 2)
+  expect_equal(
+    glyrepr::get_structure_level(result$enhanced),
+    "topological"
+  )
+  expect_equal(as.character(best), "Man(??-?)GlcNAc(??-")
+})
+
 test_that("enhance_struc de-novo falls back after deduction errors", {
   input <- paste0(
     "dHex(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
