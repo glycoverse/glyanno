@@ -112,6 +112,46 @@
   db
 }
 
+.prepare_denovo_struc_db <- function(db) {
+  if (is.null(db)) {
+    return(glydb::glydb_structures(structure_level = "topological"))
+  }
+
+  db <- .prepare_struc_db(db)
+  db_level <- glyrepr::get_structure_level(db)
+  if (identical(db_level, "basic")) {
+    cli::cli_abort(
+      "{.arg db} cannot contain basic structures when {.code method = \"denovo\"}."
+    )
+  }
+
+  confidence <- attr(db, "confidence")
+  if (db_level %in% c("partial", "intact")) {
+    db <- glyrepr::reduce_structure_level(db, "topological")
+  }
+
+  keys <- as.character(db)
+  keep <- !duplicated(keys)
+  if (!is.null(confidence)) {
+    confidence <- vapply(
+      keys[keep],
+      function(key) {
+        values <- confidence[keys == key]
+        if (all(is.na(values))) {
+          return(NA_real_)
+        }
+        max(values, na.rm = TRUE)
+      },
+      numeric(1)
+    )
+  }
+  db <- db[keep]
+  if (!is.null(confidence)) {
+    attr(db, "confidence") <- unname(confidence)
+  }
+  db
+}
+
 .prepare_comp_db <- function(db) {
   if (is.null(db)) {
     db <- glydb::glydb_compositions()
