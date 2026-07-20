@@ -124,12 +124,12 @@ mz_to_comp(933.3175, charge = 1, adduct = "Na+")
 #>      mz composition                   
 #>   <dbl> <comp>                        
 #> 1  933. Glc(1)Gal(2)GlcNAc(1)GalNAc(1)
-#> 2  933. Man(3)GlcNAc(2)               
-#> 3  933. Gal(3)GlcNAc(2)               
-#> 4  933. Gal(3)GlcNAc(1)GalNAc(1)      
-#> 5  933. Glc(1)Gal(2)GalNAc(2)         
-#> 6  933. Man(1)Gal(2)GlcNAc(2)         
-#> 7  933. Glc(1)Gal(2)GlcNAc(2)         
+#> 2  933. Gal(3)GlcNAc(2)               
+#> 3  933. Glc(1)Gal(2)GlcNAc(2)         
+#> 4  933. Man(1)Gal(2)GlcNAc(2)         
+#> 5  933. Man(3)GlcNAc(2)               
+#> 6  933. Gal(3)GlcNAc(1)GalNAc(1)      
+#> 7  933. Glc(1)Gal(2)GalNAc(2)         
 #> 8  933. Man(2)Gal(1)GlcNAc(2)         
 #> 9  933. Gal(3)GalNAc(2)               
 ```

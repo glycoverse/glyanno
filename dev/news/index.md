@@ -2,6 +2,14 @@
 
 ## glyanno (development version)
 
+### New features
+
+- [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md)
+  gains `method = "denovo"` to reconstruct topological complex and
+  hybrid N-glycans from branch candidates and high-mannose N-glycans
+  from biosynthetic precursor subtrees. Database fallbacks are
+  normalized to topological level. (#16)
+
 ### Breaking changes
 
 - Remove

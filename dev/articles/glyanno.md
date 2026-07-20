@@ -83,18 +83,18 @@ you might want to limit the search to only human O-GalNAc glycans.
 
 my_db <- glydb_compositions(species = "Homo sapiens", glycan_type = "O-GalNAc")
 my_db
-#> <glycan_composition[124]>
+#> <glycan_composition[159]>
 #> [1] Gal(1)GalNAc(1)
 #> [2] Gal(1)GlcNAc(1)GalNAc(1)
 #> [3] GlcNAc(1)GalNAc(1)
 #> [4] GlcNAc(2)GalNAc(1)
 #> [5] GalNAc(2)
-#> [6] Gal(2)GlcNAc(1)GalNAc(1)Neu5Ac(1)
-#> [7] Gal(1)GalNAc(2)Neu5Ac(2)
-#> [8] Gal(1)GalNAc(1)Fuc(1)
-#> [9] Gal(2)GlcNAc(2)GalNAc(2)Fuc(1)
-#> [10] Gal(2)GlcNAc(1)GalNAc(1)
-#> ... (114 more not shown)
+#> [6] Gal(1)GlcNAc(1)GalNAc(1)Neu5Ac(1)
+#> [7] Glc(1)Gal(2)GalNAc(1)
+#> [8] Gal(2)GlcNAc(1)GalNAc(1)Neu5Ac(1)
+#> [9] Gal(1)GalNAc(2)Neu5Ac(2)
+#> [10] Gal(1)GalNAc(1)Fuc(1)
+#> ... (149 more not shown)
 ```
 
 `my_db` is simply a
@@ -122,11 +122,12 @@ Gal(1)GalNAc(1). What are the possible structures for this composition?
 
 struc_db <- glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
 comp_to_struc("Gal(1)GalNAc(1)", db = struc_db)
-#> # A tibble: 2 × 2
+#> # A tibble: 3 × 2
 #>   composition     structure          
 #>   <comp>          <struct>           
 #> 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-
-#> 2 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-
+#> 2 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-
+#> 3 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-
 ```
 
 Note that here we use
@@ -257,11 +258,12 @@ enhance_comp("Hex(1)HexNAc(1)", db = glydb_compositions(species = "Homo sapiens"
 ``` r
 
 enhance_struc("Gal(??-?)GalNAc(??-", db = glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc"))
-#> # A tibble: 2 × 2
+#> # A tibble: 3 × 2
 #>   raw                 enhanced           
 #>   <struct>            <struct>           
 #> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-
-#> 2 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-
+#> 2 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(b1-
+#> 3 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-
 ```
 
 You can set `return_best` to `TRUE` as well.

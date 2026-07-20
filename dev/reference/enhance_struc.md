@@ -8,7 +8,7 @@ higher resolution level.
 ## Usage
 
 ``` r
-enhance_struc(strucs, db = NULL, return_best = FALSE)
+enhance_struc(strucs, db = NULL, return_best = FALSE, method = "db")
 ```
 
 ## Arguments
@@ -26,18 +26,30 @@ enhance_struc(strucs, db = NULL, return_best = FALSE)
   [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
   vector, or a character vector of glycan structure strings supported by
   [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
-  If not provided, a default structure vector is loaded from
+  With `method = "db"`, the default is
   [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
-  at "intact" level. If `db` has a lower or equal resolution level than
-  `strucs`, the result will be the same as `strucs` (no enhancement).
+  at "intact" level. With `method = "db"`, if `db` has a lower or equal
+  resolution level than `strucs`, the result will be the same as
+  `strucs` (no enhancement). With `method = "denovo"`, the default is
+  [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
+  at "topological" level. A provided `db` cannot be at "basic" level,
+  and "partial" or "intact" structures are reduced to "topological"
+  before fallback matching.
 
 - return_best:
 
   Logical. If `TRUE`, only return the best matching structure (highest
-  confidence) for each input structure. Requires `db` to have a
-  `confidence` attribute. Use
-  [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
-  for `db` to enable this feature. Default is `FALSE`.
+  confidence) for each input structure. With `method = "db"`, `db` must
+  have a `confidence` attribute. With `method = "denovo"`, branch
+  confidence scores are used for reconstructed candidates, while
+  fallback database candidates require a `confidence` attribute. Default
+  is `FALSE`.
+
+- method:
+
+  **\[experimental\]** Enhancement method. `"db"` matches complete
+  structures against `db`. `"denovo"` reconstructs topological N-glycans
+  from their core and branches.
 
 ## Value
 
@@ -55,10 +67,19 @@ columns:
 
 ## Details
 
-The target resolution level is determined from `db`. When `db` is NULL,
-the default
+With `method = "db"`, the target resolution level is determined from
+`db`, defaulting to
 [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
-at "intact" level is used.
+at "intact" level. With `method = "denovo"`, N-glycans are reconstructed
+from their core and branches. Inputs that cannot be reconstructed de
+novo are matched against a fallback database at "topological" level.
+
+Topological de-novo enhancement preserves optional core fucose and
+bisecting GlcNAc residues. Complex N-glycan branches are matched against
+the internal branch data. For hybrid N-glycans, the all-Hex arm is
+assigned as mannose and the HexNAc-bearing arm uses branch matching.
+High-mannose candidates are constrained to core-aligned subtrees of the
+Glc3Man9 precursor.
 
 ## Examples
 
@@ -87,4 +108,15 @@ enhance_struc("Gal(b1-?)GalNAc(a1-", db = db_intact)
 #>   <struct>            <struct>           
 #> 1 Gal(b1-?)GalNAc(a1- Gal(b1-3)GalNAc(a1-
 #> 2 Gal(b1-?)GalNAc(a1- Gal(b1-4)GalNAc(a1-
+
+# De-novo enhancement of an N-glycan
+n_basic <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "generic")
+enhance_struc(
+  n_basic,
+  method = "denovo",
+  return_best = TRUE
+)
+#> <glycan_structure[1]>
+#> [1] Man(??-?)[Man(??-?)]Man(??-?)GlcNAc(??-?)GlcNAc(??-
+#> # Unique structures: 1
 ```
