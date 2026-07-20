@@ -37,9 +37,31 @@ topological_glycans <- glydb_structures(
 
 intact_branches <- extract_branches(intact_glycans)
 topological_branches <- extract_branches(topological_glycans)
+topological_branch_index <- split(
+  seq_along(topological_branches),
+  as.character(reduce_structure_level(topological_branches, "basic"))
+)
+
+n_glycan_generic_core <- n_glycan_core(
+  linkage = FALSE,
+  mono_type = "generic"
+)
+n_glycan_topological_core <- n_glycan_core(
+  linkage = FALSE,
+  mono_type = "concrete"
+)
+high_mannose_reference <- glyparse::auto_parse(paste0(
+  "Glc(a1-2)Glc(a1-3)Glc(a1-3)Man(a1-2)Man(a1-2)Man(a1-3)",
+  "[Man(a1-2)Man(a1-3)[Man(a1-2)Man(a1-6)]Man(a1-6)]",
+  "Man(b1-4)GlcNAc(b1-4)GlcNAc(b1-"
+))
 
 usethis::use_data(
+  high_mannose_reference,
   intact_branches,
+  n_glycan_generic_core,
+  n_glycan_topological_core,
+  topological_branch_index,
   topological_branches,
   internal = TRUE,
   overwrite = TRUE

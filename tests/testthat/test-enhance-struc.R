@@ -436,3 +436,41 @@ test_that("enhance_struc de-novo falls back after deduction errors", {
 
   expect_equal(as.character(result), as.character(db))
 })
+
+test_that("enhance_struc de-novo preserves repeated inputs", {
+  input <- paste0(
+    "HexNAc(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
+    "HexNAc(??-?)HexNAc(??-"
+  )
+
+  single <- enhance_struc(input, method = "denovo")
+  repeated <- enhance_struc(rep(input, 2), method = "denovo")
+  best <- enhance_struc(
+    rep(input, 2),
+    method = "denovo",
+    return_best = TRUE
+  )
+
+  expect_equal(
+    as.character(repeated$enhanced),
+    rep(as.character(single$enhanced), 2)
+  )
+  expect_equal(as.character(best), rep(as.character(best[1]), 2))
+})
+
+test_that("enhance_struc de-novo batches repeated database fallbacks", {
+  input <- rep("Hex(??-?)HexNAc(??-", 2)
+  db <- glyrepr::as_glycan_structure("Gal(??-?)GlcNAc(??-")
+  attr(db, "confidence") <- 1
+
+  result <- enhance_struc(input, db = db, method = "denovo")
+  best <- enhance_struc(
+    input,
+    db = db,
+    method = "denovo",
+    return_best = TRUE
+  )
+
+  expect_equal(as.character(result$enhanced), rep(as.character(db), 2))
+  expect_equal(as.character(best), rep(as.character(db), 2))
+})
