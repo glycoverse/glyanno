@@ -33,8 +33,7 @@
 #'   structure (highest confidence) for each input structure. With
 #'   `method = "db"`, `db` must have a `confidence` attribute. With
 #'   `method = "denovo"`, this is always forced to `TRUE`; an informative
-#'   message is emitted when `FALSE` is supplied. Branch confidence scores are
-#'   used for reconstructed candidates, while fallback database candidates
+#'   message is emitted when `FALSE` is supplied. Fallback database candidates
 #'   require a `confidence` attribute. Default is `FALSE`.
 #' @param method `r lifecycle::badge("experimental")` Enhancement method.
 #'   `"db"` matches complete structures against `db`. `"denovo"` reconstructs
@@ -403,13 +402,7 @@ enhance_struc <- function(
   branch_templates <- topological_branch_templates
 
   if (return_best) {
-    confidence <- attr(topological_branches, "confidence")
-    # Maximizing the total confidence is separable across branch occurrences.
-    branch_ids <- purrr::map_int(branches, function(x) {
-      scores <- confidence[x$candidate_ids]
-      scores[is.na(scores)] <- -Inf
-      x$candidate_ids[[which.max(scores)]]
-    })
+    branch_ids <- purrr::map_int(branches, \(x) x$candidate_ids[[1]])
     candidate <- .build_topological_n_glycan(
       branch_ids,
       branches,

@@ -338,16 +338,17 @@ test_that("de-novo branch data contain all sialic acid variants", {
     unname(unlist(topological_branch_index)),
     seq_along(topological_branches)
   )
+  expect_equal(
+    unname(lengths(topological_branch_index)),
+    rep(1L, length(topological_branch_index))
+  )
   expected_templates <- purrr::map(
     seq_along(topological_branches),
     \(id) .topological_subtree_template(topological_branches[id])
   )
   names(expected_templates) <- as.character(seq_along(expected_templates))
   expect_equal(topological_branch_templates, expected_templates)
-  expect_length(
-    attr(topological_branches, "confidence"),
-    length(topological_branches)
-  )
+  expect_null(attr(topological_branches, "confidence"))
 
   for (graph in as.list(topological_branches)) {
     monos <- igraph::vertex_attr(graph, "mono")

@@ -25,8 +25,7 @@ fallback matching.}
 structure (highest confidence) for each input structure. With
 \code{method = "db"}, \code{db} must have a \code{confidence} attribute. With
 \code{method = "denovo"}, this is always forced to \code{TRUE}; an informative
-message is emitted when \code{FALSE} is supplied. Branch confidence scores are
-used for reconstructed candidates, while fallback database candidates
+message is emitted when \code{FALSE} is supplied. Fallback database candidates
 require a \code{confidence} attribute. Default is \code{FALSE}.}
 
 \item{method}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Enhancement method.

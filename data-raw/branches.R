@@ -27,7 +27,6 @@ extract_branches <- function(glycans) {
 }
 
 expand_sialic_acid_variants <- function(branches) {
-  branch_confidence <- attr(branches, "confidence")
   expanded_graphs <- map(as.list(branches), function(graph) {
     monos <- igraph::vertex_attr(graph, "mono")
     sialic_nodes <- which(monos %in% c("Neu5Ac", "Neu5Gc"))
@@ -49,25 +48,7 @@ expand_sialic_acid_variants <- function(branches) {
       )
     })
   })
-  expanded_confidence <- rep(branch_confidence, lengths(expanded_graphs))
-  expanded_branches <- as_glycan_structure(
-    unlist(expanded_graphs, recursive = FALSE)
-  )
-  branch_keys <- as.character(expanded_branches)
-  best_branch_ids <- vapply(
-    split(seq_along(expanded_branches), branch_keys),
-    function(ids) {
-      scores <- expanded_confidence[ids]
-      scores[is.na(scores)] <- -Inf
-      ids[[which.max(scores)]]
-    },
-    integer(1)
-  )
-  best_branch_ids <- sort(unname(best_branch_ids))
-  expanded_branches <- expanded_branches[best_branch_ids]
-  attr(expanded_branches, "confidence") <-
-    expanded_confidence[best_branch_ids]
-  expanded_branches
+  unique(as_glycan_structure(unlist(expanded_graphs, recursive = FALSE)))
 }
 
 topological_glycans <- glydb_structures(
@@ -91,7 +72,7 @@ best_branch_ids <- vapply(
 )
 best_branch_ids <- sort(unname(best_branch_ids))
 topological_branches <- topological_branches[best_branch_ids]
-attr(topological_branches, "confidence") <- branch_confidence[best_branch_ids]
+attr(topological_branches, "confidence") <- NULL
 topological_branches <- expand_sialic_acid_variants(topological_branches)
 topological_branch_index <- split(
   seq_along(topological_branches),
