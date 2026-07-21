@@ -376,7 +376,7 @@ enhance_struc <- function(
   }
 
   base <- .topological_n_glycan_base(core_additions, mannose_extensions)
-  branch_templates <- .topological_branch_templates(branches)
+  branch_templates <- topological_branch_templates
 
   if (return_best) {
     confidence <- attr(topological_branches, "confidence")
@@ -765,18 +765,6 @@ enhance_struc <- function(
   }
 
   list(nodes = nodes, edges = edges)
-}
-
-.topological_branch_templates <- function(branches) {
-  branch_ids <- unique(unlist(
-    purrr::map(branches, "candidate_ids"),
-    use.names = FALSE
-  ))
-  templates <- purrr::map(branch_ids, function(id) {
-    .topological_subtree_template(topological_branches[id])
-  })
-  names(templates) <- as.character(branch_ids)
-  templates
 }
 
 .build_topological_n_glycan <- function(

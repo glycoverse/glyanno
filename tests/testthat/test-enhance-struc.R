@@ -333,6 +333,12 @@ test_that("de-novo branch data contain one topological branch per basic branch",
   expect_identical(anyDuplicated(as.character(basic_branches)), 0L)
   expect_identical(unname(direct_keys), unname(as.character(basic_branches)))
   expect_length(topological_branch_index, length(topological_branches))
+  expected_templates <- purrr::map(
+    seq_along(topological_branches),
+    \(id) .topological_subtree_template(topological_branches[id])
+  )
+  names(expected_templates) <- as.character(seq_along(expected_templates))
+  expect_equal(topological_branch_templates, expected_templates)
   expect_equal(
     unname(vapply(topological_branch_index, length, integer(1))),
     rep(1L, length(topological_branch_index))

@@ -52,6 +52,21 @@ topological_branch_index <- split(
   seq_along(topological_branches),
   as.character(reduce_structure_level(topological_branches, "basic"))
 )
+topological_branch_templates <- map(
+  seq_along(topological_branches),
+  function(id) {
+    branch <- topological_branches[id]
+    graph <- as.list(branch)[[1]]
+    list(
+      nodes = structure_nodes(branch),
+      edges = structure_edges(branch),
+      root = which(igraph::degree(graph, mode = "in") == 0)
+    )
+  }
+)
+names(topological_branch_templates) <- as.character(
+  seq_along(topological_branch_templates)
+)
 
 n_glycan_generic_core <- n_glycan_core(
   linkage = FALSE,
@@ -72,6 +87,7 @@ usethis::use_data(
   n_glycan_generic_core,
   n_glycan_topological_core,
   topological_branch_index,
+  topological_branch_templates,
   topological_branches,
   internal = TRUE,
   overwrite = TRUE
