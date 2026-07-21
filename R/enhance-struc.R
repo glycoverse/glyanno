@@ -242,6 +242,7 @@ enhance_struc <- function(
 
   is_missing <- is.na(strucs)
   unique_strucs <- unique(strucs[!is_missing])
+  context <- .denovo_n_glycan_context()
   core_matches <- glymotif::match_motif(
     unique_strucs,
     n_glycan_generic_core,
@@ -252,7 +253,7 @@ enhance_struc <- function(
     core_matches,
     function(struc, matches) {
       tryCatch(
-        .enhance_n_glycan_topological(struc, matches, return_best),
+        .enhance_n_glycan_topological(struc, matches, context, return_best),
         error = function(cnd) glyrepr::glycan_structure()
       )
     }
@@ -343,20 +344,27 @@ enhance_struc <- function(
   glyrepr::new_glycan_structure(iupacs, graphs)
 }
 
-.enhance_n_glycan_topological <- function(struc, core_matches, return_best) {
-  generic_core <- n_glycan_generic_core
+.enhance_n_glycan_topological <- function(
+  struc,
+  core_matches,
+  context,
+  return_best
+) {
   if (length(core_matches) == 0) {
     return(glyrepr::glycan_structure())
   }
 
   input_graph <- as.list(struc)[[1]]
-  core_graph <- as.list(generic_core)[[1]]
   core_map <- core_matches[[1]]
-  topology <- .classify_n_glycan_topology(input_graph, core_graph, core_map)
+  topology <- .classify_n_glycan_topology(
+    input_graph,
+    core_map,
+    context$terminal_core
+  )
   core_additions <- .n_glycan_core_additions(
     input_graph,
-    core_graph,
-    core_map
+    core_map,
+    context
   )
 
   if (topology == "high-mannose") {
@@ -369,11 +377,15 @@ enhance_struc <- function(
 
   branches <- .n_glycan_branch_occurrences(
     input_graph,
-    core_graph,
-    core_map
+    core_map,
+    context$terminal_core
   )
   mannose_extensions <- if (topology == "hybrid") {
-    .n_glycan_mannose_extensions(input_graph, core_graph, core_map)
+    .n_glycan_mannose_extensions(
+      input_graph,
+      core_map,
+      context$terminal_core
+    )
   } else {
     list()
   }
@@ -382,7 +394,12 @@ enhance_struc <- function(
     return(glyrepr::glycan_structure())
   }
 
-  base <- .topological_n_glycan_base(core_additions, mannose_extensions)
+  base <- .topological_n_glycan_base(
+    core_additions,
+    mannose_extensions,
+    context$topological_nodes,
+    context$topological_edges
+  )
   branch_templates <- topological_branch_templates
 
   if (return_best) {
@@ -429,8 +446,27 @@ enhance_struc <- function(
   .new_topological_n_glycan_candidates(candidates)
 }
 
-.classify_n_glycan_topology <- function(input_graph, core_graph, core_map) {
-  terminal_core <- which(igraph::degree(core_graph, mode = "out") == 0)
+.denovo_n_glycan_context <- function() {
+  generic_core_graph <- as.list(n_glycan_generic_core)[[1]]
+  out_degree <- igraph::degree(generic_core_graph, mode = "out")
+  terminal_core <- which(out_degree == 0)
+  central_core <- which(out_degree == 2)
+  reducing_core <- .glycan_graph_root(generic_core_graph)
+
+  list(
+    terminal_core = terminal_core,
+    central_core = central_core,
+    reducing_core = reducing_core,
+    inner_core = setdiff(
+      seq_len(igraph::vcount(generic_core_graph)),
+      c(terminal_core, central_core, reducing_core)
+    ),
+    topological_nodes = glyrepr::structure_nodes(n_glycan_topological_core),
+    topological_edges = glyrepr::structure_edges(n_glycan_topological_core)
+  )
+}
+
+.classify_n_glycan_topology <- function(input_graph, core_map, terminal_core) {
   arm_monos <- purrr::map(terminal_core, function(core_node) {
     children <- igraph::neighbors(
       input_graph,
@@ -520,8 +556,11 @@ enhance_struc <- function(
   high_mannose_reference
 }
 
-.n_glycan_mannose_extensions <- function(input_graph, core_graph, core_map) {
-  terminal_core <- which(igraph::degree(core_graph, mode = "out") == 0)
+.n_glycan_mannose_extensions <- function(
+  input_graph,
+  core_map,
+  terminal_core
+) {
   extensions <- list()
 
   for (core_node in terminal_core) {
@@ -570,11 +609,7 @@ enhance_struc <- function(
   extensions
 }
 
-.n_glycan_core_additions <- function(input_graph, core_graph, core_map) {
-  central_core <- which(igraph::degree(core_graph, mode = "out") == 2)
-  reducing_core <- .glycan_graph_root(core_graph)
-  terminal_core <- which(igraph::degree(core_graph, mode = "out") == 0)
-
+.n_glycan_core_additions <- function(input_graph, core_map, context) {
   extra_children <- function(core_node) {
     children <- igraph::neighbors(
       input_graph,
@@ -584,18 +619,10 @@ enhance_struc <- function(
     setdiff(as.integer(children), core_map)
   }
 
-  bisecting <- extra_children(central_core)
-  core_fuc <- extra_children(reducing_core)
-  inner_core <- setdiff(
-    seq_along(core_map),
-    c(
-      central_core,
-      reducing_core,
-      terminal_core
-    )
-  )
+  bisecting <- extra_children(context$central_core)
+  core_fuc <- extra_children(context$reducing_core)
   unexpected <- unlist(
-    purrr::map(inner_core, extra_children),
+    purrr::map(context$inner_core, extra_children),
     use.names = FALSE
   )
 
@@ -615,7 +642,7 @@ enhance_struc <- function(
     .check_core_addition(input_graph, bisecting, "HexNAc", "bisecting GlcNAc")
     additions <- tibble::add_row(
       additions,
-      parent_node = central_core,
+      parent_node = context$central_core,
       input_node = bisecting,
       mono = "GlcNAc",
       sub = ""
@@ -625,7 +652,7 @@ enhance_struc <- function(
     .check_core_addition(input_graph, core_fuc, "dHex", "core fucose")
     additions <- tibble::add_row(
       additions,
-      parent_node = reducing_core,
+      parent_node = context$reducing_core,
       input_node = core_fuc,
       mono = "Fuc",
       sub = ""
@@ -690,10 +717,9 @@ enhance_struc <- function(
 
 .n_glycan_branch_occurrences <- function(
   input_graph,
-  core_graph,
-  core_map
+  core_map,
+  terminal_core
 ) {
-  terminal_core <- which(igraph::degree(core_graph, mode = "out") == 0)
   occurrences <- list()
 
   for (core_node in terminal_core) {
@@ -729,11 +755,12 @@ enhance_struc <- function(
 
 .topological_n_glycan_base <- function(
   core_additions,
-  fixed_extensions = list()
+  fixed_extensions,
+  core_nodes,
+  core_edges
 ) {
-  core <- n_glycan_topological_core
-  nodes <- glyrepr::structure_nodes(core)
-  edges <- glyrepr::structure_edges(core)
+  nodes <- core_nodes
+  edges <- core_edges
 
   for (i in seq_len(nrow(core_additions))) {
     new_node <- max(nodes$node_id) + 1L
@@ -799,7 +826,8 @@ enhance_struc <- function(
 }
 
 .topological_n_glycan_from_tables <- function(candidates) {
-  graphs <- purrr::map(candidates, .topological_n_glycan_graph)
+  anomer <- glyrepr::get_anomer(n_glycan_topological_core)
+  graphs <- purrr::map(candidates, .topological_n_glycan_graph, anomer = anomer)
   graphs <- purrr::map(graphs, function(graph) {
     graph |>
       glyrepr::validate_glycan_graph() |>
@@ -842,7 +870,7 @@ enhance_struc <- function(
   results
 }
 
-.topological_n_glycan_graph <- function(candidate) {
+.topological_n_glycan_graph <- function(candidate, anomer) {
   nodes <- candidate$nodes[order(candidate$nodes$node_id), , drop = FALSE]
   edges <- candidate$edges[order(candidate$edges$edge_id), , drop = FALSE]
 
@@ -864,7 +892,7 @@ enhance_struc <- function(
   igraph::set_graph_attr(
     graph,
     "anomer",
-    glyrepr::get_anomer(n_glycan_topological_core)
+    anomer
   )
 }
 
