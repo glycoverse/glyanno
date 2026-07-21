@@ -242,12 +242,21 @@ enhance_struc <- function(
 
   is_missing <- is.na(strucs)
   unique_strucs <- unique(strucs[!is_missing])
-  unique_candidates <- purrr::map(seq_along(unique_strucs), function(i) {
-    tryCatch(
-      .enhance_n_glycan_topological(unique_strucs[i], return_best),
-      error = function(cnd) glyrepr::glycan_structure()
-    )
-  })
+  core_matches <- glymotif::match_motif(
+    unique_strucs,
+    n_glycan_generic_core,
+    alignment = "core"
+  )
+  unique_candidates <- purrr::map2(
+    unique_strucs,
+    core_matches,
+    function(struc, matches) {
+      tryCatch(
+        .enhance_n_glycan_topological(struc, matches, return_best),
+        error = function(cnd) glyrepr::glycan_structure()
+      )
+    }
+  )
 
   unresolved <- lengths(unique_candidates) == 0
   if (any(unresolved)) {
@@ -331,13 +340,8 @@ enhance_struc <- function(
   glyrepr::new_glycan_structure(iupacs, graphs)
 }
 
-.enhance_n_glycan_topological <- function(struc, return_best) {
+.enhance_n_glycan_topological <- function(struc, core_matches, return_best) {
   generic_core <- n_glycan_generic_core
-  core_matches <- glymotif::match_motif(
-    struc,
-    generic_core,
-    alignment = "core"
-  )[[1]]
   if (length(core_matches) == 0) {
     return(glyrepr::glycan_structure())
   }

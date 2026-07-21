@@ -562,6 +562,43 @@ test_that("enhance_struc de-novo preserves repeated inputs", {
   expect_equal(as.character(repeated), rep(as.character(single), 2))
 })
 
+test_that("enhance_struc de-novo batches distinct core matches", {
+  inputs <- c(
+    paste0(
+      "HexNAc(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
+      "HexNAc(??-?)HexNAc(??-"
+    ),
+    paste0(
+      "Hex(??-?)Hex(??-?)[Hex(??-?)HexNAc(??-?)Hex(??-?)]",
+      "Hex(??-?)HexNAc(??-?)HexNAc(??-"
+    ),
+    "Hex(??-?)HexNAc(??-"
+  )
+  db <- glyrepr::as_glycan_structure("Gal(??-?)GlcNAc(??-")
+  attr(db, "confidence") <- 1
+
+  batched <- enhance_struc(
+    inputs,
+    db = db,
+    method = "denovo",
+    return_best = TRUE
+  )
+  individual <- vapply(
+    inputs,
+    function(input) {
+      as.character(enhance_struc(
+        input,
+        db = db,
+        method = "denovo",
+        return_best = TRUE
+      ))
+    },
+    character(1)
+  )
+
+  expect_identical(as.character(batched), unname(individual))
+})
+
 test_that("enhance_struc de-novo assembles repeated and missing results", {
   input <- glyrepr::n_glycan_core(
     linkage = FALSE,
