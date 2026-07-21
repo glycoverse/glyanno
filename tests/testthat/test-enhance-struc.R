@@ -324,8 +324,14 @@ test_that("de-novo branch data contain one topological branch per basic branch",
     topological_branches,
     "basic"
   )
+  direct_keys <- vapply(
+    as.list(basic_branches),
+    glyrepr::graph_to_iupac,
+    character(1)
+  )
 
   expect_identical(anyDuplicated(as.character(basic_branches)), 0L)
+  expect_identical(unname(direct_keys), unname(as.character(basic_branches)))
   expect_length(topological_branch_index, length(topological_branches))
   expect_equal(
     unname(vapply(topological_branch_index, length, integer(1))),
