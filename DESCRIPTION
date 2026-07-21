@@ -33,7 +33,6 @@ Imports:
     igraph,
     purrr,
     rlang,
-    stringr,
     tidyselect,
     tidyr,
     tibble,
