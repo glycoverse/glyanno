@@ -4,7 +4,7 @@
 
 * Add `enhance_struc_denovo()` to reconstruct topological N-glycans, with a
   topological database fallback for structures that cannot be reconstructed de
-  novo. (#16, #17)
+  novo. (#16, #17, #18)
 * Expand the internal de-novo branch data with every Neu5Ac/Neu5Gc variant of each sialylated motif.
 
 ## Breaking changes
