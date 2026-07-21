@@ -319,7 +319,7 @@ test_that("enhance_struc de-novo keeps one branch per basic pattern", {
   )
 })
 
-test_that("de-novo branch data contain one topological branch per basic branch", {
+test_that("de-novo branch data contain all sialic acid variants", {
   basic_branches <- glyrepr::reduce_structure_level(
     topological_branches,
     "basic"
@@ -330,23 +330,42 @@ test_that("de-novo branch data contain one topological branch per basic branch",
     character(1)
   )
 
-  expect_identical(anyDuplicated(as.character(basic_branches)), 0L)
+  branch_keys <- as.character(topological_branches)
+  expect_identical(anyDuplicated(branch_keys), 0L)
   expect_identical(unname(direct_keys), unname(as.character(basic_branches)))
-  expect_length(topological_branch_index, length(topological_branches))
+  expect_length(topological_branch_index, length(unique(direct_keys)))
+  expect_setequal(
+    unname(unlist(topological_branch_index)),
+    seq_along(topological_branches)
+  )
   expected_templates <- purrr::map(
     seq_along(topological_branches),
     \(id) .topological_subtree_template(topological_branches[id])
   )
   names(expected_templates) <- as.character(seq_along(expected_templates))
   expect_equal(topological_branch_templates, expected_templates)
-  expect_equal(
-    unname(vapply(topological_branch_index, length, integer(1))),
-    rep(1L, length(topological_branch_index))
-  )
   expect_length(
     attr(topological_branches, "confidence"),
     length(topological_branches)
   )
+
+  for (graph in as.list(topological_branches)) {
+    monos <- igraph::vertex_attr(graph, "mono")
+    for (node in which(monos %in% c("Neu5Ac", "Neu5Gc"))) {
+      replacement <- if (monos[[node]] == "Neu5Ac") "Neu5Gc" else "Neu5Ac"
+      variant <- igraph::set_vertex_attr(
+        graph,
+        "mono",
+        index = node,
+        value = replacement
+      )
+      expect_contains(
+        branch_keys,
+        as.character(glyrepr::as_glycan_structure(variant))
+      )
+    }
+  }
+
   expect_identical(
     exists(
       "intact_branches",
