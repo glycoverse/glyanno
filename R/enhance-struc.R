@@ -706,9 +706,9 @@ enhance_struc <- function(
         branch_root,
         mode = "out"
       )
-      pattern <- igraph::induced_subgraph(input_graph, subtree_nodes) |>
-        glyrepr::glycan_structure()
-      candidate_ids <- topological_branch_index[[as.character(pattern)]]
+      pattern <- igraph::induced_subgraph(input_graph, subtree_nodes)
+      pattern_key <- glyrepr::graph_to_iupac(pattern)
+      candidate_ids <- topological_branch_index[[pattern_key]]
       if (is.null(candidate_ids)) {
         candidate_ids <- integer()
       }
