@@ -27,7 +27,7 @@ Imports:
     dplyr,
     glue,
     glyparse (>= 0.5.3),
-    glyrepr (>= 0.13.0),
+    glyrepr (>= 0.14.0),
     glymotif (>= 0.17.3),
     glydb (>= 0.4.0),
     igraph,

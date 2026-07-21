@@ -2,7 +2,7 @@
 
 ## New features
 
-* `enhance_struc()` gains `method = "denovo"` to reconstruct topological complex and hybrid N-glycans from branch candidates and high-mannose N-glycans from biosynthetic precursor subtrees. Database fallbacks are normalized to topological level. (#16)
+* `enhance_struc()` gains `method = "denovo"` to reconstruct topological complex, hybrid, and high-mannose N-glycans. De-novo enhancement always returns the highest-confidence reconstruction per input, preventing combinatorial branch expansion; `return_best = FALSE` is overridden with an informative message. Best-result assembly now scales linearly for large input vectors. Database fallbacks are normalized to topological level. (#16)
 
 ## Breaking changes
 

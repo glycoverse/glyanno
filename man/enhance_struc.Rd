@@ -24,19 +24,20 @@ fallback matching.}
 \item{return_best}{Logical. If \code{TRUE}, only return the best matching
 structure (highest confidence) for each input structure. With
 \code{method = "db"}, \code{db} must have a \code{confidence} attribute. With
-\code{method = "denovo"}, branch confidence scores are used for reconstructed
-candidates, while fallback database candidates require a \code{confidence}
-attribute. Default is \code{FALSE}.}
+\code{method = "denovo"}, this is always forced to \code{TRUE}; an informative
+message is emitted when \code{FALSE} is supplied. Branch confidence scores are
+used for reconstructed candidates, while fallback database candidates
+require a \code{confidence} attribute. Default is \code{FALSE}.}
 
 \item{method}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Enhancement method.
 \code{"db"} matches complete structures against \code{db}. \code{"denovo"} reconstructs
 topological N-glycans from their core and branches.}
 }
 \value{
-If \code{return_best=TRUE}:
+With \code{method = "denovo"}, or if \code{return_best=TRUE}:
 An unnamed \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector with the same length as \code{strucs}.
 Unmatched structures are returned as \code{NA}.
-If \code{return_best=FALSE}:
+With \code{method = "db"} and \code{return_best=FALSE}:
 A tibble with the following columns:
 \itemize{
 \item \code{raw}: The original glycan structures.
