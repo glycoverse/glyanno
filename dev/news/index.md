@@ -8,6 +8,8 @@
   gains `method = "denovo"` to reconstruct topological N-glycans.
   `return_best = FALSE` is overridden when `method = "denovo"`. (#16,
   \#17)
+- Expand the internal de-novo branch data with every Neu5Ac/Neu5Gc
+  variant of each sialylated motif.
 
 ### Breaking changes
 

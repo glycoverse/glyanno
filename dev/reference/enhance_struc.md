@@ -42,8 +42,7 @@ enhance_struc(strucs, db = NULL, return_best = FALSE, method = "db")
   confidence) for each input structure. With `method = "db"`, `db` must
   have a `confidence` attribute. With `method = "denovo"`, this is
   always forced to `TRUE`; an informative message is emitted when
-  `FALSE` is supplied. Branch confidence scores are used for
-  reconstructed candidates, while fallback database candidates require a
+  `FALSE` is supplied. Fallback database candidates require a
   `confidence` attribute. Default is `FALSE`.
 
 - method:
