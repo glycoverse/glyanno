@@ -538,6 +538,19 @@ test_that("enhance_struc de-novo reduces fallback databases", {
   expect_equal(as.character(result), "Man(??-?)GlcNAc(??-")
 })
 
+test_that("de-novo fallback preparation preserves all-missing confidence", {
+  db <- glyrepr::as_glycan_structure(c(
+    "Gal(b1-?)GlcNAc(b1-",
+    "Gal(b1-4)GlcNAc(b1-"
+  ))
+  attr(db, "confidence") <- c(NA_real_, NA_real_)
+
+  result <- .prepare_denovo_struc_db(db)
+
+  expect_length(result, 1)
+  expect_identical(attr(result, "confidence"), NA_real_)
+})
+
 test_that("enhance_struc de-novo falls back after deduction errors", {
   input <- paste0(
     "dHex(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",

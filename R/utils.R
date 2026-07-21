@@ -133,10 +133,14 @@
   keys <- as.character(db)
   keep <- !duplicated(keys)
   if (!is.null(confidence)) {
+    groups <- match(keys, keys[keep])
+    confidence_groups <- split(
+      confidence,
+      factor(groups, levels = seq_along(keys[keep]))
+    )
     confidence <- vapply(
-      keys[keep],
-      function(key) {
-        values <- confidence[keys == key]
+      confidence_groups,
+      function(values) {
         if (all(is.na(values))) {
           return(NA_real_)
         }
