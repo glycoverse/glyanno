@@ -84,7 +84,7 @@ and linkage information.</p>
 <p><code>glyanno</code> bridges this gap. This package is designed to
 maximize the utility of your mass spectrometry data by annotating it
 with probable biological context derived from knowledge bases. The
-package features four core functions:</p>
+package features five core functions:</p>
 <ul>
 <li>
 <code><a href="../reference/mz_to_comp.html">mz_to_comp()</a></code>: Identifies possible glycan compositions
@@ -99,6 +99,9 @@ into concrete, monosaccharide-specific compositions.</li>
 <code><a href="../reference/enhance_struc.html">enhance_struc()</a></code>: Resolves low-resolution glycan
 structures into high-resolution structures with linkage
 information.</li>
+<li>
+<code><a href="../reference/enhance_struc_denovo.html">enhance_struc_denovo()</a></code>: Reconstructs basic N-glycans at
+topological resolution from their cores and branches.</li>
 </ul>
 <p><img src="diagram.png" width="500"></p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -285,6 +288,16 @@ well.</p>
 <span><span class="co">#&gt; &lt;glycan_structure[1]&gt;</span></span>
 <span><span class="co">#&gt; [1] <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
 <span><span class="co">#&gt; # Unique structures: 1</span></span></code></pre></div>
+<p>For basic N-glycans, <code><a href="../reference/enhance_struc_denovo.html">enhance_struc_denovo()</a></code> reconstructs
+a single topological structure directly from the conserved core and
+observed branches. If reconstruction is not possible, it uses a
+topological structure database as a fallback.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">n_basic</span> <span class="op">&lt;-</span> <span class="fu">glyrepr</span><span class="fu">::</span><span class="fu"><a href="https://glycoverse.github.io/glyrepr/reference/n_glycan_core.html" class="external-link">n_glycan_core</a></span><span class="op">(</span>linkage <span class="op">=</span> <span class="cn">FALSE</span>, mono_type <span class="op">=</span> <span class="st">"generic"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/enhance_struc_denovo.html">enhance_struc_denovo</a></span><span class="op">(</span><span class="va">n_basic</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;glycan_structure[1]&gt;</span></span>
+<span><span class="co">#&gt; [1] <span style="color: #00AF5F;">Man</span>(??-?)[<span style="color: #00AF5F;">Man</span>(??-?)]<span style="color: #00AF5F;">Man</span>(??-?)<span style="color: #0087D7;">GlcNAc</span>(??-?)<span style="color: #0087D7;">GlcNAc</span>(??-</span></span>
+<span><span class="co">#&gt; # Unique structures: 1</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="bidirectional-conversion">Bidirectional Conversion<a class="anchor" aria-label="anchor" href="#bidirectional-conversion"></a>
@@ -296,6 +309,10 @@ operations—simplifying detailed structures back to their
 lower-resolution representations.</p>
 <p>A summary of these relationships:</p>
 <table class="table">
+<colgroup>
+<col width="60%">
+<col width="40%">
+</colgroup>
 <thead><tr class="header">
 <th>Enhance</th>
 <th>Back</th>
@@ -314,7 +331,10 @@ lower-resolution representations.</p>
 <td><code><a href="https://glycoverse.github.io/glyrepr/reference/convert_to_generic.html" class="external-link">glyrepr::convert_to_generic()</a></code></td>
 </tr>
 <tr class="even">
-<td><code><a href="../reference/enhance_struc.html">enhance_struc()</a></code></td>
+<td>
+<code><a href="../reference/enhance_struc.html">enhance_struc()</a></code> /
+<code><a href="../reference/enhance_struc_denovo.html">enhance_struc_denovo()</a></code>
+</td>
 <td><code><a href="https://glycoverse.github.io/glyrepr/reference/reduce_structure_level.html" class="external-link">glyrepr::reduce_structure_level()</a></code></td>
 </tr>
 </tbody>

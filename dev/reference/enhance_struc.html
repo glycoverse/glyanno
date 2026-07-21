@@ -44,7 +44,7 @@ possible glycan structures of higher resolution level.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">enhance_struc</span><span class="op">(</span><span class="va">strucs</span>, db <span class="op">=</span> <span class="cn">NULL</span>, return_best <span class="op">=</span> <span class="cn">FALSE</span>, method <span class="op">=</span> <span class="st">"db"</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">enhance_struc</span><span class="op">(</span><span class="va">strucs</span>, db <span class="op">=</span> <span class="cn">NULL</span>, return_best <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -59,37 +59,23 @@ or a character vector of glycan structure strings supported by <code><a href="ht
 <dt id="arg-db">db<a class="anchor" aria-label="anchor" href="#arg-db"></a></dt>
 <dd><p>A <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code> vector,
 or a character vector of glycan structure strings supported by <code><a href="https://glycoverse.github.io/glyparse/reference/auto_parse.html" class="external-link">glyparse::auto_parse()</a></code>.
-With <code>method = "db"</code>, the default is <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code> at
-"intact" level.
-With <code>method = "db"</code>, if <code>db</code> has a lower or equal resolution level than
-<code>strucs</code>, the result will be the same as <code>strucs</code> (no enhancement).
-With <code>method = "denovo"</code>, the default is <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code> at
-"topological" level. A provided <code>db</code> cannot be at "basic" level, and
-"partial" or "intact" structures are reduced to "topological" before
-fallback matching.</p></dd>
+The default is <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code> at "intact" level. If <code>db</code> has
+a lower or equal resolution level than <code>strucs</code>, the result will be the
+same as <code>strucs</code> (no enhancement).</p></dd>
 
 
 <dt id="arg-return-best">return_best<a class="anchor" aria-label="anchor" href="#arg-return-best"></a></dt>
 <dd><p>Logical. If <code>TRUE</code>, only return the best matching
-structure (highest confidence) for each input structure. With
-<code>method = "db"</code>, <code>db</code> must have a <code>confidence</code> attribute. With
-<code>method = "denovo"</code>, this is always forced to <code>TRUE</code>; an informative
-message is emitted when <code>FALSE</code> is supplied. Fallback database candidates
-require a <code>confidence</code> attribute. Default is <code>FALSE</code>.</p></dd>
-
-
-<dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
-<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a> Enhancement method.
-<code>"db"</code> matches complete structures against <code>db</code>. <code>"denovo"</code> reconstructs
-topological N-glycans from their core and branches.</p></dd>
+structure (highest confidence) for each input structure. <code>db</code> must have a
+<code>confidence</code> attribute. Default is <code>FALSE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>With <code>method = "denovo"</code>, or if <code>return_best=TRUE</code>:
+    <p>If <code>return_best=TRUE</code>:
 An unnamed <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_structure.html" class="external-link">glyrepr::glycan_structure()</a></code> vector with the same length as <code>strucs</code>.
 Unmatched structures are returned as <code>NA</code>.
-With <code>method = "db"</code> and <code>return_best=FALSE</code>:
+If <code>return_best=FALSE</code>:
 A tibble with the following columns:</p><ul><li><p><code>raw</code>: The original glycan structures.</p></li>
 <li><p><code>enhanced</code>: The enhanced glycan structures.
 Note that one <code>raw</code> glycan structure can have different <code>enhanced</code> glycan structures
@@ -97,17 +83,8 @@ as multiple rows in the result.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>With <code>method = "db"</code>, the target resolution level is determined from <code>db</code>,
-defaulting to <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code> at "intact" level. With
-<code>method = "denovo"</code>, N-glycans are reconstructed from their core and
-branches. Inputs that cannot be reconstructed de novo are matched against a
-fallback database at "topological" level.</p>
-<p>Topological de-novo enhancement preserves optional core fucose and
-bisecting GlcNAc residues. Complex N-glycan branches are matched against the
-internal branch data. For hybrid N-glycans, the all-Hex arm is assigned as
-mannose and the HexNAc-bearing arm uses branch matching. High-mannose
-candidates are constrained to core-aligned subtrees of the Glc3Man9
-precursor.</p>
+    <p>The target resolution level is determined from <code>db</code>, defaulting to
+<code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code> at "intact" level.</p>
     </div>
 
     <div class="section level2">
@@ -136,17 +113,6 @@ precursor.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(b1-?)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #FFD700;">Gal</span>(b1-?)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># De-novo enhancement of an N-glycan</span></span></span>
-<span class="r-in"><span><span class="va">n_basic</span> <span class="op">&lt;-</span> <span class="fu">glyrepr</span><span class="fu">::</span><span class="fu"><a href="https://glycoverse.github.io/glyrepr/reference/n_glycan_core.html" class="external-link">n_glycan_core</a></span><span class="op">(</span>linkage <span class="op">=</span> <span class="cn">FALSE</span>, mono_type <span class="op">=</span> <span class="st">"generic"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">enhance_struc</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">n_basic</span>,</span></span>
-<span class="r-in"><span>  method <span class="op">=</span> <span class="st">"denovo"</span>,</span></span>
-<span class="r-in"><span>  return_best <span class="op">=</span> <span class="cn">TRUE</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;glycan_structure[1]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] <span style="color: #00AF5F;">Man</span>(??-?)[<span style="color: #00AF5F;">Man</span>(??-?)]<span style="color: #00AF5F;">Man</span>(??-?)<span style="color: #0087D7;">GlcNAc</span>(??-?)<span style="color: #0087D7;">GlcNAc</span>(??-</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # Unique structures: 1</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

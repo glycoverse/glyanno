@@ -25,7 +25,7 @@ linkage information.
 `glyanno` bridges this gap. This package is designed to maximize the
 utility of your mass spectrometry data by annotating it with probable
 biological context derived from knowledge bases. The package features
-four core functions:
+five core functions:
 
 - [`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md):
   Identifies possible glycan compositions from m/z values.
@@ -37,6 +37,9 @@ four core functions:
 - [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md):
   Resolves low-resolution glycan structures into high-resolution
   structures with linkage information.
+- [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc_denovo.md):
+  Reconstructs basic N-glycans at topological resolution from their
+  cores and branches.
 
 ![](diagram.png)
 
@@ -280,6 +283,21 @@ enhance_struc(
 #> # Unique structures: 1
 ```
 
+For basic N-glycans,
+[`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc_denovo.md)
+reconstructs a single topological structure directly from the conserved
+core and observed branches. If reconstruction is not possible, it uses a
+topological structure database as a fallback.
+
+``` r
+
+n_basic <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "generic")
+enhance_struc_denovo(n_basic)
+#> <glycan_structure[1]>
+#> [1] Man(??-?)[Man(??-?)]Man(??-?)GlcNAc(??-?)GlcNAc(??-
+#> # Unique structures: 1
+```
+
 ## Bidirectional Conversion
 
 While `glyanno` focuses on inferring high-resolution information from
@@ -294,4 +312,4 @@ A summary of these relationships:
 | [`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md) | [`calculate_mz()`](https://glycoverse.github.io/glyanno/dev/reference/calculate_mz.md) |
 | [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md) | [`glyrepr::as_glycan_composition()`](https://glycoverse.github.io/glyrepr/reference/as_glycan_composition.html) |
 | [`enhance_comp()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_comp.md) | [`glyrepr::convert_to_generic()`](https://glycoverse.github.io/glyrepr/reference/convert_to_generic.html) |
-| [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md) | [`glyrepr::reduce_structure_level()`](https://glycoverse.github.io/glyrepr/reference/reduce_structure_level.html) |
+| [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md) / [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc_denovo.md) | [`glyrepr::reduce_structure_level()`](https://glycoverse.github.io/glyrepr/reference/reduce_structure_level.html) |
