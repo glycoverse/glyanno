@@ -88,10 +88,10 @@
 
 #' Check if db has confidence attribute when return_best is TRUE
 #' @noRd
-.check_return_best_arg <- function(db, return_best) {
+.check_return_best_arg <- function(db, return_best, arg = "db") {
   if (isTRUE(return_best) && !.is_glydb_vector(db)) {
     cli::cli_abort(c(
-      "`db` must have a {.val confidence} attribute when {.val return_best} is {.val TRUE}.",
+      "{.arg {arg}} must have a {.val confidence} attribute when selecting the best match.",
       "i" = "Use {.fun glydb::glydb_compositions} or {.fun glydb::glydb_structures} to get a database with confidence scores."
     ))
   }
@@ -112,16 +112,16 @@
   db
 }
 
-.prepare_denovo_struc_db <- function(db) {
-  if (is.null(db)) {
+.prepare_denovo_struc_db <- function(fallback_db) {
+  if (is.null(fallback_db)) {
     return(glydb::glydb_structures(structure_level = "topological"))
   }
 
-  db <- .prepare_struc_db(db)
+  db <- .prepare_struc_db(fallback_db)
   db_level <- glyrepr::get_structure_level(db)
   if (identical(db_level, "basic")) {
     cli::cli_abort(
-      "{.arg db} cannot contain basic structures when {.code method = \"denovo\"}."
+      "{.arg fallback_db} cannot contain basic structures."
     )
   }
 

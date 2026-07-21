@@ -4,45 +4,24 @@
 #' [glyrepr::get_structure_level()] for details), this function gives all
 #' possible glycan structures of higher resolution level.
 #'
-#' With `method = "db"`, the target resolution level is determined from `db`,
-#' defaulting to [glydb::glydb_structures()] at "intact" level. With
-#' `method = "denovo"`, N-glycans are reconstructed from their core and
-#' branches. Inputs that cannot be reconstructed de novo are matched against a
-#' fallback database at "topological" level.
-#'
-#' Topological de-novo enhancement preserves optional core fucose and
-#' bisecting GlcNAc residues. Complex N-glycan branches are matched against the
-#' internal branch data. For hybrid N-glycans, the all-Hex arm is assigned as
-#' mannose and the HexNAc-bearing arm uses branch matching. High-mannose
-#' candidates are constrained to core-aligned subtrees of the Glc3Man9
-#' precursor.
+#' The target resolution level is determined from `db`, defaulting to
+#' [glydb::glydb_structures()] at "intact" level.
 #'
 #' @param strucs A [glyrepr::glycan_structure()] vector,
 #'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
 #' @param db A [glydb::glydb_structures()] vector,
 #'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
-#'   With `method = "db"`, the default is [glydb::glydb_structures()] at
-#'   "intact" level.
-#'   With `method = "db"`, if `db` has a lower or equal resolution level than
-#'   `strucs`, the result will be the same as `strucs` (no enhancement).
-#'   With `method = "denovo"`, the default is [glydb::glydb_structures()] at
-#'   "topological" level. A provided `db` cannot be at "basic" level, and
-#'   "partial" or "intact" structures are reduced to "topological" before
-#'   fallback matching.
+#'   The default is [glydb::glydb_structures()] at "intact" level. If `db` has
+#'   a lower or equal resolution level than `strucs`, the result will be the
+#'   same as `strucs` (no enhancement).
 #' @param return_best Logical. If `TRUE`, only return the best matching
-#'   structure (highest confidence) for each input structure. With
-#'   `method = "db"`, `db` must have a `confidence` attribute. With
-#'   `method = "denovo"`, this is always forced to `TRUE`; an informative
-#'   message is emitted when `FALSE` is supplied. Fallback database candidates
-#'   require a `confidence` attribute. Default is `FALSE`.
-#' @param method `r lifecycle::badge("experimental")` Enhancement method.
-#'   `"db"` matches complete structures against `db`. `"denovo"` reconstructs
-#'   topological N-glycans from their core and branches.
+#'   structure (highest confidence) for each input structure. `db` must have a
+#'   `confidence` attribute. Default is `FALSE`.
 #'
-#' @returns With `method = "denovo"`, or if `return_best=TRUE`:
+#' @returns If `return_best=TRUE`:
 #'   An unnamed [glyrepr::glycan_structure()] vector with the same length as `strucs`.
 #'   Unmatched structures are returned as `NA`.
-#'   With `method = "db"` and `return_best=FALSE`:
+#'   If `return_best=FALSE`:
 #'   A tibble with the following columns:
 #'   - `raw`: The original glycan structures.
 #'   - `enhanced`: The enhanced glycan structures.
@@ -61,37 +40,15 @@
 #' # From partial level to intact level
 #' enhance_struc("Gal(b1-?)GalNAc(a1-", db = db_intact)
 #'
-#' # De-novo enhancement of an N-glycan
-#' n_basic <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "generic")
-#' enhance_struc(
-#'   n_basic,
-#'   method = "denovo",
-#'   return_best = TRUE
-#' )
-#'
 #' @export
 enhance_struc <- function(
   strucs,
   db = NULL,
-  return_best = FALSE,
-  method = "db"
+  return_best = FALSE
 ) {
-  lifecycle::signal_stage("experimental", "enhance_struc(method)")
-
   # Input validation and preparation
   strucs <- .ensure_glycan_structure(strucs)
   checkmate::assert_flag(return_best)
-  checkmate::assert_choice(method, c("db", "denovo"))
-
-  if (method == "denovo") {
-    if (!return_best) {
-      cli::cli_inform(
-        "{.arg return_best} is forced to {.val TRUE} when {.code method = \"denovo\"}."
-      )
-      return_best <- TRUE
-    }
-    return(.enhance_struc_denovo_topological(strucs, db, return_best))
-  }
 
   db <- .prepare_struc_db(db)
   .check_return_best_arg(db, return_best)
@@ -213,30 +170,60 @@ enhance_struc <- function(
   res |> dplyr::select(-all_of("row_id"))
 }
 
-.enhance_struc_denovo_topological <- function(strucs, db, return_best) {
-  if (!is.null(db)) {
-    db <- .prepare_denovo_struc_db(db)
+#' Reconstruct topological N-glycan structures de novo
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' Reconstructs basic-resolution N-glycans from their core and branches. Inputs
+#' that cannot be reconstructed de novo are matched against a fallback database
+#' at "topological" level.
+#'
+#' Topological de-novo enhancement preserves optional core fucose and
+#' bisecting GlcNAc residues. Complex N-glycan branches are matched against the
+#' internal branch data. For hybrid N-glycans, the all-Hex arm is assigned as
+#' mannose and the HexNAc-bearing arm uses branch matching. High-mannose
+#' candidates are constrained to core-aligned subtrees of the Glc3Man9
+#' precursor.
+#'
+#' @param strucs A [glyrepr::glycan_structure()] vector, or a character vector
+#'   of glycan structure strings supported by [glyparse::auto_parse()].
+#' @param fallback_db A [glydb::glydb_structures()] vector, or a character
+#'   vector of glycan structure strings supported by [glyparse::auto_parse()].
+#'   The default is [glydb::glydb_structures()] at "topological" level. A
+#'   provided database cannot be at "basic" level. "partial" or "intact"
+#'   structures are reduced to "topological" before fallback matching.
+#'   Fallback candidates require a `confidence` attribute.
+#'
+#' @returns An unnamed [glyrepr::glycan_structure()] vector with the same length
+#'   as `strucs`. Unmatched structures are returned as `NA`.
+#'
+#' @examples
+#' n_basic <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "generic")
+#' enhance_struc_denovo(n_basic)
+#'
+#' @export
+enhance_struc_denovo <- function(strucs, fallback_db = NULL) {
+  lifecycle::signal_stage("experimental", "enhance_struc_denovo()")
+  strucs <- .ensure_glycan_structure(strucs)
+  .enhance_struc_denovo_topological(strucs, fallback_db)
+}
+
+.enhance_struc_denovo_topological <- function(strucs, fallback_db) {
+  if (!is.null(fallback_db)) {
+    fallback_db <- .prepare_denovo_struc_db(fallback_db)
   }
 
   if (length(strucs) == 0) {
-    if (return_best) {
-      return(glyrepr::glycan_structure())
-    }
-    return(.empty_enhance_struc_result())
+    return(glyrepr::glycan_structure())
   }
 
   if (all(is.na(strucs))) {
-    if (return_best) {
-      return(strucs)
-    }
-    return(tibble::tibble(raw = strucs, enhanced = strucs))
+    return(strucs)
   }
 
   if (glyrepr::get_structure_level(strucs) != "basic") {
-    if (return_best) {
-      return(unname(strucs))
-    }
-    return(tibble::tibble(raw = strucs, enhanced = strucs))
+    return(unname(strucs))
   }
 
   is_missing <- is.na(strucs)
@@ -252,7 +239,7 @@ enhance_struc <- function(
     core_matches,
     function(struc, matches) {
       tryCatch(
-        .enhance_n_glycan_topological(struc, matches, context, return_best),
+        .enhance_n_glycan_topological(struc, matches, context),
         error = function(cnd) glyrepr::glycan_structure()
       )
     }
@@ -263,32 +250,22 @@ enhance_struc <- function(
 
   unresolved <- lengths(unique_candidates) == 0
   if (any(unresolved)) {
-    fallback_db <- if (is.null(db)) {
+    fallback_db <- if (is.null(fallback_db)) {
       .prepare_denovo_struc_db(NULL)
     } else {
-      db
+      fallback_db
     }
-    .check_return_best_arg(fallback_db, return_best)
+    .check_return_best_arg(fallback_db, TRUE, arg = "fallback_db")
     fallback_strucs <- unique_strucs[unresolved]
     fallback <- enhance_struc(
       fallback_strucs,
       db = fallback_db,
-      return_best = return_best,
-      method = "db"
+      return_best = TRUE
     )
 
     unresolved_ids <- which(unresolved)
-    if (return_best) {
-      for (i in seq_along(unresolved_ids)) {
-        unique_candidates[[unresolved_ids[[i]]]] <- fallback[i]
-      }
-    } else {
-      fallback_keys <- as.character(fallback$raw)
-      for (i in seq_along(unresolved_ids)) {
-        key <- as.character(fallback_strucs[i])
-        unique_candidates[[unresolved_ids[[i]]]] <-
-          fallback$enhanced[fallback_keys == key]
-      }
+    for (i in seq_along(unresolved_ids)) {
+      unique_candidates[[unresolved_ids[[i]]]] <- fallback[i]
     }
   }
 
@@ -296,39 +273,18 @@ enhance_struc <- function(
   struc_keys <- as.character(strucs)
   candidates <- purrr::map(seq_along(strucs), function(i) {
     if (is_missing[[i]]) {
-      if (return_best) {
-        return(glyrepr::glycan_structure(NA))
-      }
-      return(glyrepr::glycan_structure())
+      return(glyrepr::glycan_structure(NA))
     }
     unique_candidates[[match(struc_keys[[i]], unique_keys)]]
   })
 
-  if (return_best) {
-    best <- purrr::map(candidates, function(x) {
-      if (length(x) == 0) {
-        return(glyrepr::glycan_structure(NA))
-      }
-      x[1]
-    })
-    return(.combine_glycan_structures(best))
-  }
-
-  res <- purrr::map2(candidates, seq_along(strucs), function(x, i) {
+  best <- purrr::map(candidates, function(x) {
     if (length(x) == 0) {
-      return(NULL)
+      return(glyrepr::glycan_structure(NA))
     }
-    tibble::tibble(
-      raw = strucs[rep.int(i, length(x))],
-      enhanced = x
-    )
-  }) |>
-    dplyr::bind_rows()
-
-  if (nrow(res) == 0) {
-    return(.empty_enhance_struc_result())
-  }
-  res
+    x[1]
+  })
+  .combine_glycan_structures(best)
 }
 
 .combine_glycan_structures <- function(strucs) {
@@ -346,8 +302,7 @@ enhance_struc <- function(
 .enhance_n_glycan_topological <- function(
   struc,
   core_matches,
-  context,
-  return_best
+  context
 ) {
   if (length(core_matches) == 0) {
     return(glyrepr::glycan_structure())
@@ -369,7 +324,6 @@ enhance_struc <- function(
   if (topology == "high-mannose") {
     return(.enhance_high_mannose_topological(
       struc,
-      return_best,
       core_additions
     ))
   }
@@ -401,42 +355,14 @@ enhance_struc <- function(
   )
   branch_templates <- topological_branch_templates
 
-  if (return_best) {
-    branch_ids <- purrr::map_int(branches, \(x) x$candidate_ids[[1]])
-    candidate <- .build_topological_n_glycan(
-      branch_ids,
-      branches,
-      base,
-      branch_templates
-    )
-    return(.new_topological_n_glycan_candidates(list(candidate)))
-  }
-
-  if (length(branches) == 0) {
-    candidate <- .build_topological_n_glycan(
-      integer(),
-      branches,
-      base,
-      branch_templates
-    )
-    return(.new_topological_n_glycan_candidates(list(candidate)))
-  }
-
-  branch_sets <- expand.grid(
-    purrr::map(branches, "candidate_ids"),
-    KEEP.OUT.ATTRS = FALSE,
-    stringsAsFactors = FALSE
+  branch_ids <- purrr::map_int(branches, \(x) x$candidate_ids[[1]])
+  candidate <- .build_topological_n_glycan(
+    branch_ids,
+    branches,
+    base,
+    branch_templates
   )
-  candidates <- purrr::map(seq_len(nrow(branch_sets)), function(i) {
-    .build_topological_n_glycan(
-      as.integer(branch_sets[i, ]),
-      branches,
-      base,
-      branch_templates
-    )
-  })
-
-  .new_topological_n_glycan_candidates(candidates)
+  .new_topological_n_glycan_candidates(list(candidate))
 }
 
 .denovo_n_glycan_context <- function() {
@@ -495,7 +421,6 @@ enhance_struc <- function(
 
 .enhance_high_mannose_topological <- function(
   struc,
-  return_best,
   core_additions
 ) {
   reference <- .high_mannose_reference()
@@ -518,31 +443,13 @@ enhance_struc <- function(
   }
 
   reference_graph <- as.list(reference)[[1]]
-  if (return_best) {
-    candidate <- igraph::induced_subgraph(reference_graph, matches[[1]]) |>
-      glyrepr::glycan_structure() |>
-      glyrepr::reduce_structure_level(to_level = "topological")
-    if (nrow(core_additions) > 0) {
-      candidate <- .add_n_glycan_core_additions(candidate, core_additions)
-    }
-    return(candidate)
-  }
-
-  graphs <- purrr::map(matches, function(nodes) {
-    igraph::induced_subgraph(reference_graph, nodes)
-  })
-  candidates <- do.call(glyrepr::glycan_structure, graphs) |>
-    glyrepr::reduce_structure_level(to_level = "topological") |>
-    unique()
+  candidate <- igraph::induced_subgraph(reference_graph, matches[[1]]) |>
+    glyrepr::glycan_structure() |>
+    glyrepr::reduce_structure_level(to_level = "topological")
   if (nrow(core_additions) > 0) {
-    graphs <- purrr::map(candidates, function(candidate) {
-      enhanced <- .add_n_glycan_core_additions(candidate, core_additions)
-      as.list(enhanced)[[1]]
-    })
-    candidates <- do.call(glyrepr::glycan_structure, graphs)
+    candidate <- .add_n_glycan_core_additions(candidate, core_additions)
   }
-
-  candidates
+  candidate
 }
 
 .high_mannose_reference <- function() {
@@ -929,11 +836,4 @@ enhance_struc <- function(
     )
   }
   roots
-}
-
-.empty_enhance_struc_result <- function() {
-  tibble::tibble(
-    raw = glyrepr::glycan_structure(),
-    enhanced = glyrepr::glycan_structure()
-  )
 }

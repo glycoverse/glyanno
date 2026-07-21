@@ -31,12 +31,13 @@ require fully resolved glycan structures, including specific monosaccharide iden
 
 `glyanno` bridges this gap.
 This package is designed to maximize the utility of your mass spectrometry data by annotating it with probable biological context derived from knowledge bases.
-The package features four core functions:
+The package features five core functions:
 
 - `mz_to_comp()`: Identifies possible glycan compositions from m/z values.
 - `comp_to_struc()`: Maps glycan compositions to potential glycan structures.
 - `enhance_comp()`: Refines generic glycan compositions into concrete, monosaccharide-specific compositions.
 - `enhance_struc()`: Resolves low-resolution glycan structures into high-resolution structures with linkage information.
+- `enhance_struc_denovo()`: Reconstructs basic N-glycans at topological resolution from their cores and branches.
 
 ![](diagram.png){width=500}
 
@@ -169,6 +170,16 @@ enhance_struc(
 )
 ```
 
+For basic N-glycans, `enhance_struc_denovo()` reconstructs a single
+topological structure directly from the conserved core and observed branches.
+If reconstruction is not possible, it uses a topological structure database as
+a fallback.
+
+```{r}
+n_basic <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "generic")
+enhance_struc_denovo(n_basic)
+```
+
 ## Bidirectional Conversion
 
 While `glyanno` focuses on inferring high-resolution information from low-resolution data,
@@ -181,4 +192,4 @@ A summary of these relationships:
 | `mz_to_comp()` | `calculate_mz()` |
 | `comp_to_struc()` | `glyrepr::as_glycan_composition()` |
 | `enhance_comp()` | `glyrepr::convert_to_generic()` |
-| `enhance_struc()` | `glyrepr::reduce_structure_level()` |
+| `enhance_struc()` / `enhance_struc_denovo()` | `glyrepr::reduce_structure_level()` |
