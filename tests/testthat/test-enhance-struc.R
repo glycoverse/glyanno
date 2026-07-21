@@ -376,6 +376,23 @@ test_that("enhance_struc de-novo ranks branches and enhances core additions", {
   expect_equal(as.character(result), expected)
 })
 
+test_that("de-novo table materialization follows the validated graph pipeline", {
+  expected <- glyrepr::as_glycan_structure(paste0(
+    "GlcNAc(??-?)Man(??-?)[GlcNAc(??-?)Man(??-?)]",
+    "Man(??-?)GlcNAc(??-?)GlcNAc(??-"
+  ))
+  candidate <- list(
+    nodes = glyrepr::structure_nodes(expected),
+    edges = glyrepr::structure_edges(expected)
+  )
+
+  result <- .topological_n_glycan_from_tables(list(candidate, candidate))
+
+  expect_s3_class(result, "glyrepr_structure")
+  expect_identical(as.character(result), rep(as.character(expected), 2))
+  expect_length(attr(result, "graphs"), 1)
+})
+
 test_that("enhance_struc de-novo handles hybrid N-glycans", {
   input <- paste0(
     "Hex(??-?)Hex(??-?)[Hex(??-?)HexNAc(??-?)Hex(??-?)]",

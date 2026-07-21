@@ -257,6 +257,9 @@ enhance_struc <- function(
       )
     }
   )
+  unique_candidates <- .materialize_topological_n_glycan_candidates(
+    unique_candidates
+  )
 
   unresolved <- lengths(unique_candidates) == 0
   if (any(unresolved)) {
@@ -396,7 +399,7 @@ enhance_struc <- function(
       base,
       branch_templates
     )
-    return(.topological_n_glycan_from_tables(list(candidate)))
+    return(.new_topological_n_glycan_candidates(list(candidate)))
   }
 
   if (length(branches) == 0) {
@@ -406,7 +409,7 @@ enhance_struc <- function(
       base,
       branch_templates
     )
-    return(.topological_n_glycan_from_tables(list(candidate)))
+    return(.new_topological_n_glycan_candidates(list(candidate)))
   }
 
   branch_sets <- expand.grid(
@@ -423,8 +426,7 @@ enhance_struc <- function(
     )
   })
 
-  .topological_n_glycan_from_tables(candidates) |>
-    unique()
+  .new_topological_n_glycan_candidates(candidates)
 }
 
 .classify_n_glycan_topology <- function(input_graph, core_graph, core_map) {
@@ -797,22 +799,72 @@ enhance_struc <- function(
 }
 
 .topological_n_glycan_from_tables <- function(candidates) {
-  ids <- seq_along(candidates)
-  nodes <- purrr::map2(candidates, ids, function(candidate, id) {
-    candidate$nodes$glycan_id <- id
-    candidate$nodes
-  }) |>
-    dplyr::bind_rows()
-  edges <- purrr::map2(candidates, ids, function(candidate, id) {
-    candidate$edges$glycan_id <- id
-    candidate$edges
-  }) |>
-    dplyr::bind_rows()
+  graphs <- purrr::map(candidates, .topological_n_glycan_graph)
+  graphs <- purrr::map(graphs, function(graph) {
+    graph |>
+      glyrepr::validate_glycan_graph() |>
+      glyrepr::canonicalize_glycan_graph()
+  })
+  glyrepr::validate_glycan_graph_vector(graphs)
 
-  glyrepr::structure_from_tibbles(
-    nodes,
-    edges,
-    anomers = rep(glyrepr::get_anomer(n_glycan_topological_core), length(ids))
+  iupacs <- purrr::map_chr(graphs, glyrepr::graph_to_iupac)
+  keep <- !duplicated(iupacs)
+  unique_graphs <- graphs[keep]
+  names(unique_graphs) <- iupacs[keep]
+  glyrepr::new_glycan_structure(iupacs, unique_graphs)
+}
+
+.new_topological_n_glycan_candidates <- function(candidates) {
+  structure(candidates, class = "glyanno_topological_n_glycan_candidates")
+}
+
+.materialize_topological_n_glycan_candidates <- function(results) {
+  candidate_ids <- which(purrr::map_lgl(
+    results,
+    inherits,
+    "glyanno_topological_n_glycan_candidates"
+  ))
+  if (length(candidate_ids) == 0) {
+    return(results)
+  }
+
+  counts <- lengths(results[candidate_ids])
+  candidates <- unlist(
+    purrr::map(results[candidate_ids], unclass),
+    recursive = FALSE
+  )
+  structures <- .topological_n_glycan_from_tables(candidates)
+  ends <- cumsum(counts)
+  starts <- ends - counts + 1L
+  for (i in seq_along(candidate_ids)) {
+    results[[candidate_ids[[i]]]] <- structures[starts[[i]]:ends[[i]]]
+  }
+  results
+}
+
+.topological_n_glycan_graph <- function(candidate) {
+  nodes <- candidate$nodes[order(candidate$nodes$node_id), , drop = FALSE]
+  edges <- candidate$edges[order(candidate$edges$edge_id), , drop = FALSE]
+
+  graph <- igraph::make_empty_graph(n = nrow(nodes), directed = TRUE)
+  if (nrow(edges) > 0) {
+    graph <- igraph::add_edges(
+      graph,
+      c(rbind(edges$from_node, edges$to_node))
+    )
+  }
+  graph <- igraph::set_vertex_attr(
+    graph,
+    "name",
+    value = as.character(seq_len(nrow(nodes)))
+  )
+  graph <- igraph::set_vertex_attr(graph, "mono", value = nodes$mono)
+  graph <- igraph::set_vertex_attr(graph, "sub", value = nodes$sub)
+  graph <- igraph::set_edge_attr(graph, "linkage", value = edges$linkage)
+  igraph::set_graph_attr(
+    graph,
+    "anomer",
+    glyrepr::get_anomer(n_glycan_topological_core)
   )
 }
 
