@@ -5,10 +5,14 @@
 ### New features
 
 - [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md)
-  gains `method = "denovo"` to reconstruct topological complex and
-  hybrid N-glycans from branch candidates and high-mannose N-glycans
-  from biosynthetic precursor subtrees. Database fallbacks are
-  normalized to topological level. (#16)
+  gains `method = "denovo"` to reconstruct topological complex, hybrid,
+  and high-mannose N-glycans. De-novo enhancement always returns the
+  highest-confidence reconstruction per input, preventing combinatorial
+  branch expansion; `return_best = FALSE` is overridden with an
+  informative message. Best-result assembly now scales linearly for
+  large input vectors, and pre-parsed de-novo reconstruction is 2.1
+  times faster on a representative 3,045-structure workload. Database
+  fallbacks are normalized to topological level. (#16, \#17)
 
 ### Breaking changes
 

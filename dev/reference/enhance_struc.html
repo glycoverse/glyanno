@@ -73,9 +73,10 @@ fallback matching.</p></dd>
 <dd><p>Logical. If <code>TRUE</code>, only return the best matching
 structure (highest confidence) for each input structure. With
 <code>method = "db"</code>, <code>db</code> must have a <code>confidence</code> attribute. With
-<code>method = "denovo"</code>, branch confidence scores are used for reconstructed
-candidates, while fallback database candidates require a <code>confidence</code>
-attribute. Default is <code>FALSE</code>.</p></dd>
+<code>method = "denovo"</code>, this is always forced to <code>TRUE</code>; an informative
+message is emitted when <code>FALSE</code> is supplied. Branch confidence scores are
+used for reconstructed candidates, while fallback database candidates
+require a <code>confidence</code> attribute. Default is <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
@@ -86,10 +87,10 @@ topological N-glycans from their core and branches.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>If <code>return_best=TRUE</code>:
+    <p>With <code>method = "denovo"</code>, or if <code>return_best=TRUE</code>:
 An unnamed <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_structure.html" class="external-link">glyrepr::glycan_structure()</a></code> vector with the same length as <code>strucs</code>.
 Unmatched structures are returned as <code>NA</code>.
-If <code>return_best=FALSE</code>:
+With <code>method = "db"</code> and <code>return_best=FALSE</code>:
 A tibble with the following columns:</p><ul><li><p><code>raw</code>: The original glycan structures.</p></li>
 <li><p><code>enhanced</code>: The enhanced glycan structures.
 Note that one <code>raw</code> glycan structure can have different <code>enhanced</code> glycan structures

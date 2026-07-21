@@ -40,10 +40,11 @@ enhance_struc(strucs, db = NULL, return_best = FALSE, method = "db")
 
   Logical. If `TRUE`, only return the best matching structure (highest
   confidence) for each input structure. With `method = "db"`, `db` must
-  have a `confidence` attribute. With `method = "denovo"`, branch
-  confidence scores are used for reconstructed candidates, while
-  fallback database candidates require a `confidence` attribute. Default
-  is `FALSE`.
+  have a `confidence` attribute. With `method = "denovo"`, this is
+  always forced to `TRUE`; an informative message is emitted when
+  `FALSE` is supplied. Branch confidence scores are used for
+  reconstructed candidates, while fallback database candidates require a
+  `confidence` attribute. Default is `FALSE`.
 
 - method:
 
@@ -53,11 +54,11 @@ enhance_struc(strucs, db = NULL, return_best = FALSE, method = "db")
 
 ## Value
 
-If `return_best=TRUE`: An unnamed
+With `method = "denovo"`, or if `return_best=TRUE`: An unnamed
 [`glyrepr::glycan_structure()`](https://glycoverse.github.io/glyrepr/reference/glycan_structure.html)
 vector with the same length as `strucs`. Unmatched structures are
-returned as `NA`. If `return_best=FALSE`: A tibble with the following
-columns:
+returned as `NA`. With `method = "db"` and `return_best=FALSE`: A tibble
+with the following columns:
 
 - `raw`: The original glycan structures.
 
