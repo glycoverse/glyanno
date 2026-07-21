@@ -4,7 +4,7 @@
 \alias{enhance_struc}
 \title{Enhance glycan structure}
 \usage{
-enhance_struc(strucs, db = NULL, return_best = FALSE, method = "db")
+enhance_struc(strucs, db = NULL, return_best = FALSE)
 }
 \arguments{
 \item{strucs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector,
@@ -12,31 +12,19 @@ or a character vector of glycan structure strings supported by \code{\link[glypa
 
 \item{db}{A \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} vector,
 or a character vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
-With \code{method = "db"}, the default is \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at
-"intact" level.
-With \code{method = "db"}, if \code{db} has a lower or equal resolution level than
-\code{strucs}, the result will be the same as \code{strucs} (no enhancement).
-With \code{method = "denovo"}, the default is \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at
-"topological" level. A provided \code{db} cannot be at "basic" level, and
-"partial" or "intact" structures are reduced to "topological" before
-fallback matching.}
+The default is \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "intact" level. If \code{db} has
+a lower or equal resolution level than \code{strucs}, the result will be the
+same as \code{strucs} (no enhancement).}
 
 \item{return_best}{Logical. If \code{TRUE}, only return the best matching
-structure (highest confidence) for each input structure. With
-\code{method = "db"}, \code{db} must have a \code{confidence} attribute. With
-\code{method = "denovo"}, this is always forced to \code{TRUE}; an informative
-message is emitted when \code{FALSE} is supplied. Fallback database candidates
-require a \code{confidence} attribute. Default is \code{FALSE}.}
-
-\item{method}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Enhancement method.
-\code{"db"} matches complete structures against \code{db}. \code{"denovo"} reconstructs
-topological N-glycans from their core and branches.}
+structure (highest confidence) for each input structure. \code{db} must have a
+\code{confidence} attribute. Default is \code{FALSE}.}
 }
 \value{
-With \code{method = "denovo"}, or if \code{return_best=TRUE}:
+If \code{return_best=TRUE}:
 An unnamed \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector with the same length as \code{strucs}.
 Unmatched structures are returned as \code{NA}.
-With \code{method = "db"} and \code{return_best=FALSE}:
+If \code{return_best=FALSE}:
 A tibble with the following columns:
 \itemize{
 \item \code{raw}: The original glycan structures.
@@ -51,18 +39,8 @@ Given a glycan structure vector of any resolution level (see
 possible glycan structures of higher resolution level.
 }
 \details{
-With \code{method = "db"}, the target resolution level is determined from \code{db},
-defaulting to \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "intact" level. With
-\code{method = "denovo"}, N-glycans are reconstructed from their core and
-branches. Inputs that cannot be reconstructed de novo are matched against a
-fallback database at "topological" level.
-
-Topological de-novo enhancement preserves optional core fucose and
-bisecting GlcNAc residues. Complex N-glycan branches are matched against the
-internal branch data. For hybrid N-glycans, the all-Hex arm is assigned as
-mannose and the HexNAc-bearing arm uses branch matching. High-mannose
-candidates are constrained to core-aligned subtrees of the Glc3Man9
-precursor.
+The target resolution level is determined from \code{db}, defaulting to
+\code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "intact" level.
 }
 \examples{
 # From topological level to intact level
@@ -75,13 +53,5 @@ enhance_struc("Hex(??-?)HexNAc(??-", db = db_topo)
 
 # From partial level to intact level
 enhance_struc("Gal(b1-?)GalNAc(a1-", db = db_intact)
-
-# De-novo enhancement of an N-glycan
-n_basic <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "generic")
-enhance_struc(
-  n_basic,
-  method = "denovo",
-  return_best = TRUE
-)
 
 }

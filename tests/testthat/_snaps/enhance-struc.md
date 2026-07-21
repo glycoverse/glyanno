@@ -1,8 +1,8 @@
-# enhance_struc de-novo rejects a basic fallback database
+# enhance_struc_denovo rejects a basic fallback database
 
     Code
-      enhance_struc(input, db = input, method = "denovo", return_best = TRUE)
+      enhance_struc_denovo(input, fallback_db = input)
     Condition
       Error in `.prepare_denovo_struc_db()`:
-      ! `db` cannot contain basic structures when `method = "denovo"`.
+      ! `fallback_db` cannot contain basic structures.
 

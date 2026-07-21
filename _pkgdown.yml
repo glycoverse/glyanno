@@ -4,3 +4,18 @@ template:
 
 development:
   mode: auto
+
+reference:
+- title: Annotation
+  contents:
+  - calculate_mz
+  - mz_to_comp
+  - comp_to_struc
+  - enhance_comp
+  - enhance_struc
+  - enhance_struc_denovo
+  - struc_to_glytoucan
+- title: Utilities
+  contents:
+  - ppm
+  - glyanno_mass_dict

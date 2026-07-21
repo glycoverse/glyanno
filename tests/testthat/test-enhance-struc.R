@@ -6,6 +6,17 @@ test_that("enhance_struc enhances basic to topological level", {
   expect_equal(as.character(res$enhanced), "Gal(??-?)GalNAc(??-")
 })
 
+test_that("structure enhancement functions expose separate contracts", {
+  expect_identical(
+    names(formals(enhance_struc)),
+    c("strucs", "db", "return_best")
+  )
+  expect_identical(
+    names(formals(enhance_struc_denovo)),
+    c("strucs", "fallback_db")
+  )
+})
+
 test_that("enhance_struc enhances topological to intact level", {
   db_intact <- c(
     "Gal(b1-3)GalNAc(a1-",
@@ -263,7 +274,7 @@ test_that("enhance_struc with return_best=TRUE returns NA for no match", {
   expect_true(is.na(result[2]))
 })
 
-test_that("enhance_struc de-novo enhances an N-glycan core", {
+test_that("enhance_struc_denovo enhances an N-glycan core", {
   input <- glyrepr::n_glycan_core(
     linkage = FALSE,
     mono_type = "generic"
@@ -273,43 +284,21 @@ test_that("enhance_struc de-novo enhances an N-glycan core", {
     mono_type = "concrete"
   )
 
-  result <- enhance_struc(
-    input,
-    method = "denovo",
-    return_best = TRUE
+  result <- enhance_struc_denovo(
+    input
   )
 
   expect_equal(as.character(result), as.character(expected))
 })
 
-test_that("enhance_struc de-novo forces return_best to TRUE", {
-  input <- glyrepr::n_glycan_core(
-    linkage = FALSE,
-    mono_type = "generic"
-  )
-
-  expect_message(
-    result <- enhance_struc(
-      input,
-      method = "denovo",
-      return_best = FALSE
-    ),
-    "return_best.*forced to.*TRUE"
-  )
-  expect_s3_class(result, "glyrepr_structure")
-  expect_length(result, 1)
-})
-
-test_that("enhance_struc de-novo keeps one branch per basic pattern", {
+test_that("enhance_struc_denovo keeps one branch per basic pattern", {
   input <- paste0(
     "HexNAc(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
     "HexNAc(??-?)HexNAc(??-"
   )
 
-  result <- enhance_struc(
-    input,
-    method = "denovo",
-    return_best = TRUE
+  result <- enhance_struc_denovo(
+    input
   )
 
   expect_length(result, 1)
@@ -377,7 +366,7 @@ test_that("de-novo branch data contain all sialic acid variants", {
   )
 })
 
-test_that("enhance_struc de-novo ranks branches and enhances core additions", {
+test_that("enhance_struc_denovo ranks branches and enhances core additions", {
   input <- paste0(
     "HexNAc(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]",
     "[HexNAc(??-?)]Hex(??-?)HexNAc(??-?)[dHex(??-?)]HexNAc(??-"
@@ -387,10 +376,8 @@ test_that("enhance_struc de-novo ranks branches and enhances core additions", {
     "[GlcNAc(??-?)]Man(??-?)GlcNAc(??-?)[Fuc(??-?)]GlcNAc(??-"
   )
 
-  result <- enhance_struc(
-    input,
-    method = "denovo",
-    return_best = TRUE
+  result <- enhance_struc_denovo(
+    input
   )
 
   expect_equal(as.character(result), expected)
@@ -413,7 +400,7 @@ test_that("de-novo table materialization follows the validated graph pipeline", 
   expect_length(attr(result, "graphs"), 1)
 })
 
-test_that("enhance_struc de-novo handles hybrid N-glycans", {
+test_that("enhance_struc_denovo handles hybrid N-glycans", {
   input <- paste0(
     "Hex(??-?)Hex(??-?)[Hex(??-?)HexNAc(??-?)Hex(??-?)]",
     "Hex(??-?)HexNAc(??-?)HexNAc(??-"
@@ -423,16 +410,14 @@ test_that("enhance_struc de-novo handles hybrid N-glycans", {
     "Man(??-?)GlcNAc(??-?)GlcNAc(??-"
   )
 
-  result <- enhance_struc(
-    input,
-    method = "denovo",
-    return_best = TRUE
+  result <- enhance_struc_denovo(
+    input
   )
 
   expect_equal(as.character(result), expected)
 })
 
-test_that("enhance_struc de-novo constrains high-mannose N-glycans", {
+test_that("enhance_struc_denovo constrains high-mannose N-glycans", {
   reference <- paste0(
     "Glc(a1-2)Glc(a1-3)Glc(a1-3)Man(a1-2)Man(a1-2)Man(a1-3)",
     "[Man(a1-2)Man(a1-3)[Man(a1-2)Man(a1-6)]Man(a1-6)]",
@@ -442,16 +427,14 @@ test_that("enhance_struc de-novo constrains high-mannose N-glycans", {
   input <- glyrepr::reduce_structure_level(reference, "basic")
   expected <- glyrepr::reduce_structure_level(reference, "topological")
 
-  result <- enhance_struc(
-    input,
-    method = "denovo",
-    return_best = TRUE
+  result <- enhance_struc_denovo(
+    input
   )
 
   expect_equal(as.character(result), as.character(expected))
 })
 
-test_that("enhance_struc returns only high-mannose reference subtrees", {
+test_that("enhance_struc_denovo returns high-mannose reference subtrees", {
   input <- paste0(
     "Hex(??-?)Hex(??-?)[Hex(??-?)]Hex(??-?)",
     "HexNAc(??-?)HexNAc(??-"
@@ -461,16 +444,14 @@ test_that("enhance_struc returns only high-mannose reference subtrees", {
     "GlcNAc(??-?)GlcNAc(??-"
   )
 
-  result <- enhance_struc(
-    input,
-    method = "denovo",
-    return_best = TRUE
+  result <- enhance_struc_denovo(
+    input
   )
 
   expect_equal(as.character(result), expected)
 })
 
-test_that("enhance_struc preserves high-mannose core additions", {
+test_that("enhance_struc_denovo preserves high-mannose core additions", {
   input <- paste0(
     "Hex(??-?)Hex(??-?)[Hex(??-?)][HexNAc(??-?)]Hex(??-?)",
     "HexNAc(??-?)[dHex(??-?)]HexNAc(??-"
@@ -480,16 +461,14 @@ test_that("enhance_struc preserves high-mannose core additions", {
     "GlcNAc(??-?)[Fuc(??-?)]GlcNAc(??-"
   )
 
-  result <- enhance_struc(
-    input,
-    method = "denovo",
-    return_best = TRUE
+  result <- enhance_struc_denovo(
+    input
   )
 
   expect_equal(as.character(result), expected)
 })
 
-test_that("enhance_struc de-novo falls back to database matching", {
+test_that("enhance_struc_denovo falls back to database matching", {
   db <- glyrepr::as_glycan_structure("Gal(??-?)GlcNAc(??-")
   attr(db, "confidence") <- 1
   input <- c(
@@ -497,21 +476,17 @@ test_that("enhance_struc de-novo falls back to database matching", {
     "Hex(??-?)Hex(??-"
   )
 
-  result <- enhance_struc(
+  result <- enhance_struc_denovo(
     input,
-    db = db,
-    method = "denovo",
-    return_best = TRUE
+    fallback_db = db
   )
 
   expect_equal(as.character(result), c(as.character(db), NA_character_))
 })
 
-test_that("enhance_struc de-novo defaults to a topological fallback", {
-  result <- enhance_struc(
-    "Hex(??-?)HexNAc(??-",
-    method = "denovo",
-    return_best = TRUE
+test_that("enhance_struc_denovo defaults to a topological fallback", {
+  result <- enhance_struc_denovo(
+    "Hex(??-?)HexNAc(??-"
   )
 
   expect_length(result, 1)
@@ -521,7 +496,7 @@ test_that("enhance_struc de-novo defaults to a topological fallback", {
   )
 })
 
-test_that("enhance_struc de-novo rejects a basic fallback database", {
+test_that("enhance_struc_denovo rejects a basic fallback database", {
   input <- glyrepr::n_glycan_core(
     linkage = FALSE,
     mono_type = "generic"
@@ -529,16 +504,14 @@ test_that("enhance_struc de-novo rejects a basic fallback database", {
 
   expect_snapshot(
     error = TRUE,
-    enhance_struc(
+    enhance_struc_denovo(
       input,
-      db = input,
-      method = "denovo",
-      return_best = TRUE
+      fallback_db = input
     )
   )
 })
 
-test_that("enhance_struc de-novo reduces fallback databases", {
+test_that("enhance_struc_denovo reduces fallback databases", {
   db <- glyrepr::as_glycan_structure(c(
     "Gal(b1-?)GlcNAc(b1-",
     "Gal(b1-4)GlcNAc(b1-",
@@ -547,11 +520,9 @@ test_that("enhance_struc de-novo reduces fallback databases", {
   attr(db, "confidence") <- c(1, 2, 3)
   input <- "Hex(??-?)HexNAc(??-"
 
-  result <- enhance_struc(
+  result <- enhance_struc_denovo(
     input,
-    db = db,
-    method = "denovo",
-    return_best = TRUE
+    fallback_db = db
   )
 
   expect_equal(glyrepr::get_structure_level(result), "topological")
@@ -571,7 +542,7 @@ test_that("de-novo fallback preparation preserves all-missing confidence", {
   expect_identical(attr(result, "confidence"), NA_real_)
 })
 
-test_that("enhance_struc de-novo falls back after deduction errors", {
+test_that("enhance_struc_denovo falls back after deduction errors", {
   input <- paste0(
     "dHex(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
     "HexNAc(??-?)HexNAc(??-"
@@ -582,37 +553,31 @@ test_that("enhance_struc de-novo falls back after deduction errors", {
   ))
   attr(db, "confidence") <- 1
 
-  result <- enhance_struc(
+  result <- enhance_struc_denovo(
     input,
-    db = db,
-    method = "denovo",
-    return_best = TRUE
+    fallback_db = db
   )
 
   expect_equal(as.character(result), as.character(db))
 })
 
-test_that("enhance_struc de-novo preserves repeated inputs", {
+test_that("enhance_struc_denovo preserves repeated inputs", {
   input <- paste0(
     "HexNAc(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
     "HexNAc(??-?)HexNAc(??-"
   )
 
-  single <- enhance_struc(
-    input,
-    method = "denovo",
-    return_best = TRUE
+  single <- enhance_struc_denovo(
+    input
   )
-  repeated <- enhance_struc(
-    rep(input, 2),
-    method = "denovo",
-    return_best = TRUE
+  repeated <- enhance_struc_denovo(
+    rep(input, 2)
   )
 
   expect_equal(as.character(repeated), rep(as.character(single), 2))
 })
 
-test_that("enhance_struc de-novo batches distinct core matches", {
+test_that("enhance_struc_denovo batches distinct core matches", {
   inputs <- c(
     paste0(
       "HexNAc(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
@@ -627,20 +592,16 @@ test_that("enhance_struc de-novo batches distinct core matches", {
   db <- glyrepr::as_glycan_structure("Gal(??-?)GlcNAc(??-")
   attr(db, "confidence") <- 1
 
-  batched <- enhance_struc(
+  batched <- enhance_struc_denovo(
     inputs,
-    db = db,
-    method = "denovo",
-    return_best = TRUE
+    fallback_db = db
   )
   individual <- vapply(
     inputs,
     function(input) {
-      as.character(enhance_struc(
+      as.character(enhance_struc_denovo(
         input,
-        db = db,
-        method = "denovo",
-        return_best = TRUE
+        fallback_db = db
       ))
     },
     character(1)
@@ -649,7 +610,7 @@ test_that("enhance_struc de-novo batches distinct core matches", {
   expect_identical(as.character(batched), unname(individual))
 })
 
-test_that("enhance_struc de-novo assembles repeated and missing results", {
+test_that("enhance_struc_denovo assembles repeated and missing results", {
   input <- glyrepr::n_glycan_core(
     linkage = FALSE,
     mono_type = "generic"
@@ -659,10 +620,8 @@ test_that("enhance_struc de-novo assembles repeated and missing results", {
     mono_type = "concrete"
   )
 
-  result <- enhance_struc(
-    c(input, NA, input),
-    method = "denovo",
-    return_best = TRUE
+  result <- enhance_struc_denovo(
+    c(input, NA, input)
   )
 
   expect_s3_class(result, "glyrepr_structure")
@@ -673,16 +632,14 @@ test_that("enhance_struc de-novo assembles repeated and missing results", {
   )
 })
 
-test_that("enhance_struc de-novo batches repeated database fallbacks", {
+test_that("enhance_struc_denovo batches repeated database fallbacks", {
   input <- rep("Hex(??-?)HexNAc(??-", 2)
   db <- glyrepr::as_glycan_structure("Gal(??-?)GlcNAc(??-")
   attr(db, "confidence") <- 1
 
-  result <- enhance_struc(
+  result <- enhance_struc_denovo(
     input,
-    db = db,
-    method = "denovo",
-    return_best = TRUE
+    fallback_db = db
   )
 
   expect_equal(as.character(result), rep(as.character(db), 2))
