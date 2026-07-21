@@ -32,17 +32,18 @@
 #' @param return_best Logical. If `TRUE`, only return the best matching
 #'   structure (highest confidence) for each input structure. With
 #'   `method = "db"`, `db` must have a `confidence` attribute. With
-#'   `method = "denovo"`, branch confidence scores are used for reconstructed
-#'   candidates, while fallback database candidates require a `confidence`
-#'   attribute. Default is `FALSE`.
+#'   `method = "denovo"`, this is always forced to `TRUE`; an informative
+#'   message is emitted when `FALSE` is supplied. Branch confidence scores are
+#'   used for reconstructed candidates, while fallback database candidates
+#'   require a `confidence` attribute. Default is `FALSE`.
 #' @param method `r lifecycle::badge("experimental")` Enhancement method.
 #'   `"db"` matches complete structures against `db`. `"denovo"` reconstructs
 #'   topological N-glycans from their core and branches.
 #'
-#' @returns If `return_best=TRUE`:
+#' @returns With `method = "denovo"`, or if `return_best=TRUE`:
 #'   An unnamed [glyrepr::glycan_structure()] vector with the same length as `strucs`.
 #'   Unmatched structures are returned as `NA`.
-#'   If `return_best=FALSE`:
+#'   With `method = "db"` and `return_best=FALSE`:
 #'   A tibble with the following columns:
 #'   - `raw`: The original glycan structures.
 #'   - `enhanced`: The enhanced glycan structures.
@@ -84,6 +85,12 @@ enhance_struc <- function(
   checkmate::assert_choice(method, c("db", "denovo"))
 
   if (method == "denovo") {
+    if (!return_best) {
+      cli::cli_inform(
+        "{.arg return_best} is forced to {.val TRUE} when {.code method = \"denovo\"}."
+      )
+      return_best <- TRUE
+    }
     return(.enhance_struc_denovo_topological(strucs, db, return_best))
   }
 
@@ -292,7 +299,7 @@ enhance_struc <- function(
       }
       x[1]
     })
-    return(unname(do.call(c, best)))
+    return(.combine_glycan_structures(best))
   }
 
   res <- purrr::map2(candidates, seq_along(strucs), function(x, i) {
@@ -310,6 +317,18 @@ enhance_struc <- function(
     return(.empty_enhance_struc_result())
   }
   res
+}
+
+.combine_glycan_structures <- function(strucs) {
+  iupacs <- unname(purrr::map_chr(strucs, as.character))
+  graph_ids <- which(!is.na(iupacs) & !duplicated(iupacs))
+  graphs <- purrr::map(
+    strucs[graph_ids],
+    glyrepr::get_structure_graphs
+  )
+  names(graphs) <- iupacs[graph_ids]
+
+  glyrepr::new_glycan_structure(iupacs, graphs)
 }
 
 .enhance_n_glycan_topological <- function(struc, return_best) {

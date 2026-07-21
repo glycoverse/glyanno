@@ -1,5 +1,5 @@
-# This script extracts topological and intact N-glycan branching motifs
-# from `glydb::glydb_structures()`.
+# This script extracts topological N-glycan branching motifs from
+# `glydb::glydb_structures()`.
 
 library(tidyverse)
 library(glyrepr)
@@ -26,17 +26,28 @@ extract_branches <- function(glycans) {
   branches
 }
 
-intact_glycans <- glydb_structures(
-  structure_level = "intact",
-  glycan_type = "N"
-)
 topological_glycans <- glydb_structures(
   structure_level = "topological",
   glycan_type = "N"
 )
 
-intact_branches <- extract_branches(intact_glycans)
 topological_branches <- extract_branches(topological_glycans)
+basic_branches <- as.character(
+  reduce_structure_level(topological_branches, "basic")
+)
+branch_confidence <- attr(topological_branches, "confidence")
+best_branch_ids <- vapply(
+  split(seq_along(topological_branches), basic_branches),
+  function(ids) {
+    scores <- branch_confidence[ids]
+    scores[is.na(scores)] <- -Inf
+    ids[[which.max(scores)]]
+  },
+  integer(1)
+)
+best_branch_ids <- sort(unname(best_branch_ids))
+topological_branches <- topological_branches[best_branch_ids]
+attr(topological_branches, "confidence") <- branch_confidence[best_branch_ids]
 topological_branch_index <- split(
   seq_along(topological_branches),
   as.character(reduce_structure_level(topological_branches, "basic"))
@@ -58,7 +69,6 @@ high_mannose_reference <- glyparse::auto_parse(paste0(
 
 usethis::use_data(
   high_mannose_reference,
-  intact_branches,
   n_glycan_generic_core,
   n_glycan_topological_core,
   topological_branch_index,
