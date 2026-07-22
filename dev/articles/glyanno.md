@@ -25,7 +25,7 @@ linkage information.
 `glyanno` bridges this gap. This package is designed to maximize the
 utility of your mass spectrometry data by annotating it with probable
 biological context derived from knowledge bases. The package features
-five core functions:
+four core functions:
 
 - [`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md):
   Identifies possible glycan compositions from m/z values.
@@ -37,9 +37,6 @@ five core functions:
 - [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md):
   Resolves low-resolution glycan structures into high-resolution
   structures with linkage information.
-- [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc_denovo.md):
-  Reconstructs basic N-glycans at topological resolution from their
-  cores and branches.
 
 ![](diagram.png)
 
@@ -283,20 +280,31 @@ enhance_struc(
 #> # Unique structures: 1
 ```
 
-For basic N-glycans,
+## De novo enhancement of N-glycans
+
+N-glycans have many possible branching patterns, but databases of human-
+detected glycans cover only a fraction of this potential structure
+space.
 [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc_denovo.md)
-reconstructs a single topological structure directly from the conserved
-core and observed branches. If reconstruction is not possible, it uses a
-topological structure database as a fallback.
+reconstructs basic N-glycans from their conserved core and branches,
+returning one topological candidate per input. It preserves optional
+core fucose and bisecting GlcNAc residues. Inputs that cannot be
+reconstructed are matched against a topological fallback database.
+
+![](enhance_struc_denovo.png)
 
 ``` r
 
-n_basic <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "generic")
-enhance_struc_denovo(n_basic)
+glycan <- "NeuAc(??-?)Hex(??-?)HexNAc(??-?)Hex(??-?)HexNAc(??-?)Hex(??-?)[HexNAc(??-?)[NeuAc(??-?)]Hex(??-?)HexNAc(??-?)Hex(??-?)]Hex(??-?)HexNAc(??-?)[dHex(??-?)]HexNAc(??-"
+enhance_struc_denovo(glycan)
 #> <glycan_structure[1]>
-#> [1] Man(??-?)[Man(??-?)]Man(??-?)GlcNAc(??-?)GlcNAc(??-
+#> [1] Neu5Ac(??-?)Gal(??-?)GlcNAc(??-?)Gal(??-?)GlcNAc(??-?)Man(??-?)[Neu5Ac(??-?)[GalNAc(??-?)]Gal(??-?)GlcNAc(??-?)Man(??-?)]Man(??-?)GlcNAc(??-?)[Fuc(??-?)]GlcNAc(??-
 #> # Unique structures: 1
 ```
+
+For now,
+[`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc_denovo.md)
+can only be used to enhance “basic” glycans to “topological” ones.
 
 ## Bidirectional Conversion
 
@@ -312,4 +320,4 @@ A summary of these relationships:
 | [`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md) | [`calculate_mz()`](https://glycoverse.github.io/glyanno/dev/reference/calculate_mz.md) |
 | [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md) | [`glyrepr::as_glycan_composition()`](https://glycoverse.github.io/glyrepr/reference/as_glycan_composition.html) |
 | [`enhance_comp()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_comp.md) | [`glyrepr::convert_to_generic()`](https://glycoverse.github.io/glyrepr/reference/convert_to_generic.html) |
-| [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md) / [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc_denovo.md) | [`glyrepr::reduce_structure_level()`](https://glycoverse.github.io/glyrepr/reference/reduce_structure_level.html) |
+| [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md) | [`glyrepr::reduce_structure_level()`](https://glycoverse.github.io/glyrepr/reference/reduce_structure_level.html) |
