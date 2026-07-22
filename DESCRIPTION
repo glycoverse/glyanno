@@ -34,7 +34,6 @@ Imports:
     purrr,
     rlang,
     tidyselect,
-    tidyr,
     tibble,
     httr2,
     lifecycle
