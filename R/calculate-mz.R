@@ -74,17 +74,25 @@ calculate_mz <- function(
     names(mass_dict)
   )
   subs <- intersect(glyrepr::available_substituents(), names(mass_dict))
-  counts <- purrr::map(c(monos, subs), ~ glyrepr::count_mono(comps, .))
+  generic_comps <- glyrepr::convert_to_generic(comps)
+  counts <- purrr::map(
+    c(monos, subs),
+    \(component) glyrepr::count_mono(generic_comps, component)
+  )
 
   bad_monos <- setdiff(glyrepr::available_monosaccharides("generic"), monos)
   bad_subs <- setdiff(glyrepr::available_substituents(), subs)
   bad_components <- c(bad_monos, bad_subs)
   bad_component_counts <- purrr::map(
     bad_components,
-    ~ glyrepr::count_mono(comps, .)
+    \(component) glyrepr::count_mono(generic_comps, component)
   )
+  bad_component_totals <- purrr::map_int(
+    bad_component_counts,
+    \(counts) sum(counts, na.rm = TRUE)
+  )
+  has_bad_components <- bad_component_totals > 0
   if (safe) {
-    has_bad_components <- purrr::map_int(bad_component_counts, sum) > 0
     if (any(has_bad_components)) {
       cli::cli_abort(c(
         "Unsupported monosaccharides or substituents found in the glycans.",
@@ -93,10 +101,10 @@ calculate_mz <- function(
         "i" = "Use {.fn glyrepr::count_mono} to find the invalid glycans."
       ))
     }
-  } else {
+  } else if (any(has_bad_components)) {
     cli::cli_warn(c(
       "Unsupported monosaccharides or substituents found in the glycans.",
-      "x" = "Unsupported monosaccharides or substituents: {.val {bad_components}}",
+      "x" = "Unsupported monosaccharides or substituents: {.val {bad_components[has_bad_components]}}",
       "i" = "Supported monosaccharides or substituents: {.val {c(monos, subs)}}",
       "i" = "Use {.fn glyrepr::count_mono} to find the invalid glycans.",
       "i" = "m/z values for invalid glycans are set to NA."
@@ -113,7 +121,7 @@ calculate_mz <- function(
     mz <- mz / abs(charge)
   }
   if (!safe) {
-    mz[rowSums(do.call(cbind, bad_component_counts)) > 0] <- NA
+    mz[rowSums(do.call(cbind, bad_component_counts), na.rm = TRUE) > 0] <- NA
   }
   mz
 }
