@@ -116,51 +116,41 @@ mz_to_comp <- function(
   if (!is.null(confidences)) {
     confidences <- confidences[!db_na_mask]
   }
-  db_df <- tibble::tibble(
-    composition = db,
-    mz = db_mz,
-    confidence = confidences
-  ) |>
-    dplyr::mutate(
-      tol = ifelse(is.numeric(.env$tol), .env$tol, .env$tol(.data$mz)),
-      upper = .data$mz + .data$tol,
-      lower = .data$mz - .data$tol
-    )
+  tolerances <- if (is.numeric(tol)) {
+    rep(tol, length(db_mz))
+  } else {
+    tol(db_mz)
+  }
+  upper <- db_mz + tolerances
+  lower <- db_mz - tolerances
 
   find_one <- function(mz) {
-    matches <- db_df |>
-      dplyr::filter(.env$mz > .data$lower & .env$mz < .data$upper)
-    if (nrow(matches) == 0) {
-      if (return_best) {
-        return(NA_character_)
-      } else {
-        return(glyrepr::glycan_composition())
-      }
+    match_ids <- which(mz > lower & mz < upper)
+    if (length(match_ids) == 0) {
+      return(integer())
     }
-    if (return_best && nrow(matches) > 1) {
-      # Arrange by desc(confidence), treating NA as lowest
-      matches <- matches |>
-        dplyr::mutate(
-          conf_sort = ifelse(is.na(.data$confidence), -Inf, .data$confidence)
-        ) |>
-        dplyr::arrange(dplyr::desc(.data$conf_sort)) |>
-        dplyr::select(-"conf_sort")
-      matches <- matches[1, ]
+    if (return_best && length(match_ids) > 1) {
+      match_confidences <- confidences[match_ids]
+      match_confidences[is.na(match_confidences)] <- -Inf
+      return(match_ids[which.max(match_confidences)])
     }
-    matches |> dplyr::pull(.data$composition)
+    match_ids
   }
 
-  res_comps <- purrr::map(mz_to_process, find_one)
+  match_ids <- purrr::map(mz_to_process, find_one)
   if (return_best) {
-    # Build result with same length as original mz, inserting NAs at NA input positions
-    char_comps <- purrr::map(res_comps, function(x) {
-      if (length(x) == 0 || is.na(x)) NA_character_ else as.character(x)
-    })
-    full_char_comps <- rep(NA_character_, length(mz))
-    full_char_comps[!na_input_mask] <- unname(unlist(char_comps))
-    glyrepr::as_glycan_composition(full_char_comps)
+    best_ids <- purrr::map_int(
+      match_ids,
+      \(ids) if (length(ids) == 0) NA_integer_ else ids[[1]]
+    )
+    full_ids <- rep(NA_integer_, length(mz))
+    full_ids[!na_input_mask] <- best_ids
+    unname(db[full_ids])
   } else {
-    res_df <- tibble::tibble(mz = mz_to_process, composition = res_comps)
-    tidyr::unnest(res_df, all_of("composition"))
+    match_counts <- lengths(match_ids)
+    tibble::tibble(
+      mz = rep(mz_to_process, match_counts),
+      composition = db[unlist(match_ids, use.names = FALSE)]
+    )
   }
 }
