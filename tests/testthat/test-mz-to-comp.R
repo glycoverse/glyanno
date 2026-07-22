@@ -75,6 +75,38 @@ test_that("mz_to_comp works for a simple two m/z case", {
   expect_equal(result, expected)
 })
 
+test_that("mz_to_comp preserves duplicated m/z values", {
+  db <- glyrepr::glycan_composition(
+    c(Glc = 2),
+    c(Gal = 2),
+    c(Glc = 1)
+  )
+  attr(db, "confidence") <- c(1, 2, 3)
+  mz <- c(365, 203, 365)
+
+  best <- mz_to_comp(
+    mz,
+    db = db,
+    adduct = "Na+",
+    mass_dict = mass_dict_for_test(),
+    return_best = TRUE
+  )
+  expanded <- mz_to_comp(
+    mz,
+    db = db,
+    adduct = "Na+",
+    mass_dict = mass_dict_for_test(),
+    return_best = FALSE
+  )
+
+  expect_equal(as.character(best), c("Gal(2)", "Glc(1)", "Gal(2)"))
+  expect_equal(expanded$mz, c(365, 365, 203, 365, 365))
+  expect_equal(
+    as.character(expanded$composition),
+    c("Glc(2)", "Gal(2)", "Glc(1)", "Glc(2)", "Gal(2)")
+  )
+})
+
 test_that("mz_to_comp works for custom numeric tol", {
   simple_db <- glyrepr::glycan_composition(c(Hex = 2))
   mz <- c(365.5, 366.5, 366)

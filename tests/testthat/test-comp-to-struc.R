@@ -97,13 +97,16 @@ test_that("comp_to_struc handles duplicate compositions", {
     "HexNAc(1)",
     "Hex(1)HexNAc(1)"
   ))
+  attr(db, "confidence") <- c(1, 2)
   result <- comp_to_struc(comps, db) |>
     dplyr::mutate(structure = as.character(structure))
+  best <- comp_to_struc(comps, db, return_best = TRUE)
   expected <- tibble::tibble(
     composition = comps,
     structure = c("Hex(??-?)HexNAc(??-", "HexNAc(??-", "Hex(??-?)HexNAc(??-")
   )
   expect_equal(result, expected)
+  expect_equal(as.character(best), expected$structure)
 })
 
 test_that("comp_to_struc accepts empty compositions", {

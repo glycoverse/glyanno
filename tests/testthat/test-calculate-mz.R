@@ -76,6 +76,16 @@ test_that("calculate_mz works for vector input", {
   expect_mass(calculate_mz(comps, charge = 0), c(2368.84, 910.33))
 })
 
+test_that("calculate_mz preserves duplicated glycans", {
+  unique_comps <- c("Hex(2)", "Hex(1)")
+  comps <- unique_comps[c(1, 2, 1)]
+
+  result <- calculate_mz(comps, charge = 0)
+  expected <- calculate_mz(unique_comps, charge = 0)[c(1, 2, 1)]
+
+  expect_equal(result, expected)
+})
+
 # ===== Test substituents =====
 test_that("calculate_mz works for compositions with substituents", {
   comp <- glyrepr::glycan_composition(c(Glc = 1, S = 1))
