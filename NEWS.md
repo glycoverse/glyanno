@@ -13,7 +13,7 @@
 
 ## Minor improvements and bug fixes
 
-* `enhance_struc()` now accepts duplicated input structures, preserves their order and per-occurrence results, and matches each unique non-missing structure only once. (#19)
+* `enhance_struc()` now accepts duplicated input structures, preserves their order and per-occurrence results, and matches each unique non-missing structure only once. (#21)
 * `calculate_mz()` now processes vector inputs substantially faster by reusing generic composition conversion, and `safe = FALSE` stays quiet when all components are supported. (#20)
 * `comp_to_struc()` now reuses its prepared default structure database and selects best matches without materializing every candidate. (#20)
 * `enhance_comp()` now reuses its prepared default composition database and selects best matches by direct lookup. (#20)
