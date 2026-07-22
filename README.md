@@ -59,10 +59,10 @@ glycoverse](https://github.com/glycoverse/glycoverse#installation).
 
 ## Documentation
 
--   🚀 Get started:
-    [Here](https://glycoverse.github.io/glyanno/articles/glyanno.html)
--   📚 Reference:
-    [Here](https://glycoverse.github.io/glyanno/reference/index.html)
+- 🚀 Get started:
+  [Here](https://glycoverse.github.io/glyanno/articles/glyanno.html)
+- 📚 Reference:
+  [Here](https://glycoverse.github.io/glyanno/reference/index.html)
 
 ## Role in `glycoverse`
 
@@ -78,9 +78,7 @@ other tools that demand high-resolution structural information.
 ``` r
 library(glyanno)
 library(glyrepr)
-#> Warning: 程序包'glyrepr'是用R版本4.5.2 来建造的
 library(glydb)
-#> Warning: 程序包'glydb'是用R版本4.5.2 来建造的
 
 mz_to_comp(406.1325, charge = 1, adduct = "Na+")
 #> # A tibble: 4 × 2
@@ -122,19 +120,19 @@ comp_to_struc("Gal(1)GalNAc(1)")
 # Use custom db to narrow down the search space
 my_db <- glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
 comp_to_struc("Gal(1)GalNAc(1)", db = my_db)
-#> # A tibble: 2 × 2
+#> # A tibble: 3 × 2
 #>   composition     structure          
 #>   <comp>          <struct>           
 #> 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-
-#> 2 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-
+#> 2 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-
+#> 3 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-
 ```
 
 ``` r
 # Use `return_best` to pick the most likely match
 # Core 1 is more likely than Core 5
 comp_to_struc("Gal(1)GalNAc(1)", db = my_db, return_best = TRUE)
-#> # A tibble: 1 × 2
-#>   composition     structure          
-#>   <comp>          <struct>           
-#> 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-
+#> <glycan_structure[1]>
+#> [1] Gal(b1-3)GalNAc(a1-
+#> # Unique structures: 1
 ```

@@ -72,7 +72,7 @@ Users can leverage glyanno to make educated guesses from incomplete data, thereb
 
 ## Example
 
-```{r}
+```{r, message=FALSE}
 library(glyanno)
 library(glyrepr)
 library(glydb)
