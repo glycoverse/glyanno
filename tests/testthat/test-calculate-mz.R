@@ -61,6 +61,15 @@ test_that("calculate_mz works for unsupported monosaccharides with safe = FALSE"
   expect_mass(result, c(NA, 2368.84))
 })
 
+test_that("calculate_mz is quiet for supported glycans with safe = FALSE", {
+  comp <- glyrepr::glycan_composition(c(Hex = 1))
+
+  expect_no_warning(
+    result <- calculate_mz(comp, charge = 0, safe = FALSE)
+  )
+  expect_mass(result, 180.06)
+})
+
 # ===== Test vectorization =====
 test_that("calculate_mz works for vector input", {
   comps <- c("Hex(5)HexNAc(4)dHex(1)NeuAc(2)", "HexNAc(2)Hex(3)")
