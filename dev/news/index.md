@@ -2,15 +2,14 @@
 
 ## glyanno (development version)
 
+## glyanno 0.6.0
+
 ### New features
 
-- Add
+- New
   [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc_denovo.md)
-  to reconstruct topological N-glycans, with a topological database
-  fallback for structures that cannot be reconstructed de novo. (#16,
-  \#17, \#18)
-- Expand the internal de-novo branch data with every Neu5Ac/Neu5Gc
-  variant of each sialylated motif.
+  reconstructs topological N-glycans and falls back to the topological
+  database when reconstruction is not possible. (#16, \#17, \#18)
 
 ### Breaking changes
 
@@ -26,19 +25,13 @@
   now accepts duplicated input structures, preserves their order and
   per-occurrence results, and matches each unique non-missing structure
   only once. (#21)
-- [`calculate_mz()`](https://glycoverse.github.io/glyanno/dev/reference/calculate_mz.md)
-  now processes vector inputs substantially faster by reusing generic
-  composition conversion, and `safe = FALSE` stays quiet when all
-  components are supported. (#20)
-- [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md)
-  now reuses its prepared default structure database and selects best
-  matches without materializing every candidate. (#20)
-- [`enhance_comp()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_comp.md)
-  now reuses its prepared default composition database and selects best
-  matches by direct lookup. (#20)
-- [`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md)
-  now matches batches of masses using direct numeric indexing instead of
-  per-mass data-frame filtering. (#20)
+- [`calculate_mz()`](https://glycoverse.github.io/glyanno/dev/reference/calculate_mz.md),
+  [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md),
+  [`enhance_comp()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_comp.md),
+  and
+  [`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md)
+  now process vector inputs substantially faster by reusing prepared
+  databases and direct lookups. (#20)
 - [`struc_to_glytoucan()`](https://glycoverse.github.io/glyanno/dev/reference/struc_to_glytoucan.md)
   now looks up accessions from
   [`glydb::glydb_data`](https://glycoverse.github.io/glydb/reference/glydb_data.html)

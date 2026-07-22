@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">glyanno</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.5.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,27 +33,23 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="glyanno-development-version">glyanno (development version)<a class="anchor" aria-label="anchor" href="#glyanno-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.0" id="glyanno-060">glyanno 0.6.0<a class="anchor" aria-label="anchor" href="#glyanno-060"></a></h2>
 <div class="section level3">
-<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
-<ul><li>Add <code><a href="../reference/enhance_struc_denovo.html">enhance_struc_denovo()</a></code> to reconstruct topological N-glycans, with a topological database fallback for structures that cannot be reconstructed de novo. (#16, #17, #18)</li>
-<li>Expand the internal de-novo branch data with every Neu5Ac/Neu5Gc variant of each sialylated motif.</li>
+<h3 id="new-features-0-6-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-6-0"></a></h3>
+<ul><li>New <code><a href="../reference/enhance_struc_denovo.html">enhance_struc_denovo()</a></code> reconstructs topological N-glycans and falls back to the topological database when reconstruction is not possible. (#16, #17, #18)</li>
 </ul></div>
 <div class="section level3">
-<h3 id="breaking-changes-development-version">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-development-version"></a></h3>
+<h3 id="breaking-changes-0-6-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-6-0"></a></h3>
 <ul><li>Remove <code><a href="https://glycoverse.github.io/glyrepr/reference/fill_anomer_pos.html" class="external-link">fill_anomer_pos()</a></code> from the exported namespace. Use <code><a href="https://glycoverse.github.io/glyrepr/reference/fill_anomer_pos.html" class="external-link">glyrepr::fill_anomer_pos()</a></code> instead. (#15)</li>
 </ul></div>
 <div class="section level3">
-<h3 id="minor-improvements-and-bug-fixes-development-version">Minor improvements and bug fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-bug-fixes-development-version"></a></h3>
+<h3 id="minor-improvements-and-bug-fixes-0-6-0">Minor improvements and bug fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-bug-fixes-0-6-0"></a></h3>
 <ul><li>
 <code><a href="../reference/enhance_struc.html">enhance_struc()</a></code> now accepts duplicated input structures, preserves their order and per-occurrence results, and matches each unique non-missing structure only once. (#21)</li>
 <li>
-<code><a href="../reference/calculate_mz.html">calculate_mz()</a></code> now processes vector inputs substantially faster by reusing generic composition conversion, and <code>safe = FALSE</code> stays quiet when all components are supported. (#20)</li>
-<li>
-<code><a href="../reference/comp_to_struc.html">comp_to_struc()</a></code> now reuses its prepared default structure database and selects best matches without materializing every candidate. (#20)</li>
-<li>
-<code><a href="../reference/enhance_comp.html">enhance_comp()</a></code> now reuses its prepared default composition database and selects best matches by direct lookup. (#20)</li>
-<li>
-<code><a href="../reference/mz_to_comp.html">mz_to_comp()</a></code> now matches batches of masses using direct numeric indexing instead of per-mass data-frame filtering. (#20)</li>
+<code><a href="../reference/calculate_mz.html">calculate_mz()</a></code>, <code><a href="../reference/comp_to_struc.html">comp_to_struc()</a></code>, <code><a href="../reference/enhance_comp.html">enhance_comp()</a></code>, and <code><a href="../reference/mz_to_comp.html">mz_to_comp()</a></code> now process vector inputs substantially faster by reusing prepared databases and direct lookups. (#20)</li>
 <li>
 <code><a href="../reference/struc_to_glytoucan.html">struc_to_glytoucan()</a></code> now looks up accessions from <code><a href="https://glycoverse.github.io/glydb/reference/glydb_data.html" class="external-link">glydb::glydb_data</a></code> first and only falls back to the online GlycanFormatConverter API for missing structures. (#14)</li>
 </ul></div>
