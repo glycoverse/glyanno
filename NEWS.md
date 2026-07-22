@@ -15,6 +15,7 @@
 
 * `calculate_mz()` now processes vector inputs substantially faster by reusing generic composition conversion, and `safe = FALSE` stays quiet when all components are supported.
 * `comp_to_struc()` now reuses its prepared default structure database and selects best matches without materializing every candidate.
+* `enhance_comp()` now reuses its prepared default composition database and selects best matches by direct lookup.
 * `mz_to_comp()` now matches batches of masses using direct numeric indexing instead of per-mass data-frame filtering.
 * `struc_to_glytoucan()` now looks up accessions from `glydb::glydb_data` first and only falls back to the online GlycanFormatConverter API for missing structures. (#14)
 
