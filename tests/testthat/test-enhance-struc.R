@@ -140,6 +140,74 @@ test_that("enhance_struc works with multiple glycans", {
   expect_equal(as.character(res$enhanced), as.character(expected$enhanced))
 })
 
+test_that("enhance_struc restores repeated and missing inputs", {
+  db <- glyrepr::as_glycan_structure(c(
+    "Gal(b1-3)GalNAc(a1-",
+    "Gal(b1-4)GalNAc(a1-",
+    "GalNAc(a1-"
+  ))
+  attr(db, "confidence") <- c(1, 2, 3)
+  strucs <- glyrepr::as_glycan_structure(c(
+    "Hex(??-?)HexNAc(??-",
+    NA,
+    "HexNAc(??-",
+    "Hex(??-?)HexNAc(??-"
+  ))
+
+  best <- enhance_struc(strucs, db = db, return_best = TRUE)
+  expanded <- enhance_struc(strucs, db = db, return_best = FALSE)
+
+  expect_equal(
+    as.character(best),
+    c("Gal(b1-4)GalNAc(a1-", NA, "GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
+  )
+  expect_equal(
+    as.character(expanded$raw),
+    c(
+      "Hex(??-?)HexNAc(??-",
+      "Hex(??-?)HexNAc(??-",
+      "HexNAc(??-",
+      "Hex(??-?)HexNAc(??-",
+      "Hex(??-?)HexNAc(??-"
+    )
+  )
+  expect_equal(
+    as.character(expanded$enhanced),
+    c(
+      "Gal(b1-3)GalNAc(a1-",
+      "Gal(b1-4)GalNAc(a1-",
+      "GalNAc(a1-",
+      "Gal(b1-3)GalNAc(a1-",
+      "Gal(b1-4)GalNAc(a1-"
+    )
+  )
+})
+
+test_that("enhance_struc matches each unique non-missing input once", {
+  matched_patterns <- NULL
+  local_mocked_bindings(
+    have_motifs = function(glycans, motifs, ...) {
+      matched_patterns <<- motifs
+      matrix(TRUE, nrow = length(glycans), ncol = length(motifs))
+    },
+    .package = "glymotif"
+  )
+  db <- glyrepr::as_glycan_structure("Gal(b1-3)GalNAc(a1-")
+  attr(db, "confidence") <- 1
+  strucs <- glyrepr::as_glycan_structure(c(
+    rep("Hex(??-?)HexNAc(??-", 100),
+    "HexNAc(??-",
+    NA
+  ))
+
+  enhance_struc(strucs, db = db, return_best = TRUE)
+
+  expect_equal(
+    as.character(matched_patterns),
+    c("Hex(??-?)HexNAc(??-", "HexNAc(??-")
+  )
+})
+
 test_that("enhance_struc with return_best=TRUE filters enhanced structures by confidence", {
   db <- glyrepr::as_glycan_structure(c(
     "Gal(b1-3)GalNAc(a1-",

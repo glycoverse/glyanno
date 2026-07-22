@@ -93,59 +93,58 @@ enhance_struc <- function(
       dplyr::mutate(enhanced = .data$raw)
   } else {
     to_enhance <- strucs_df$raw
+    is_missing <- is.na(to_enhance)
+    unique_to_enhance <- unique(to_enhance[!is_missing])
+    unique_ids <- match(
+      as.character(to_enhance),
+      as.character(unique_to_enhance)
+    )
     # Check matches
-    # db are targets (glycans), to_enhance are patterns (motifs)
-    matches <- glymotif::have_motifs(db, to_enhance, alignments = "whole")
+    # db are targets (glycans), unique_to_enhance are patterns (motifs)
+    matches <- glymotif::have_motifs(
+      db,
+      unique_to_enhance,
+      alignments = "whole"
+    )
 
     # For return_best=TRUE: one row per to_enhance, best match or NA
     # For return_best=FALSE: one row per match
     if (return_best) {
-      # Build result for each pattern - one best match or NA
-      res_list <- purrr::map(seq_along(to_enhance), function(i) {
+      # Find one best match or NA for each unique pattern, then restore inputs.
+      best_matches <- purrr::map(seq_along(unique_to_enhance), function(i) {
         col_matches <- which(matches[, i])
         if (length(col_matches) > 0) {
           # Find best match by confidence
           confs <- attr(db, "confidence")[col_matches]
           best_col <- col_matches[which.max(confs)]
-          tibble::tibble(
-            raw = to_enhance[i],
-            enhanced = db[best_col],
-            row_id = strucs_df$row_id[i]
-          )
+          db[best_col]
         } else {
-          # No match - NA
-          tibble::tibble(
-            raw = to_enhance[i],
-            enhanced = glyrepr::glycan_structure(NA),
-            row_id = strucs_df$row_id[i]
-          )
+          glyrepr::glycan_structure(NA)
         }
       })
-      res <- dplyr::bind_rows(res_list)
+      best_matches <- do.call(c, best_matches)
+      res <- tibble::tibble(
+        raw = to_enhance,
+        enhanced = best_matches[unique_ids],
+        row_id = strucs_df$row_id
+      )
     } else {
-      # matches: rows=db, cols=to_enhance
-      match_indices <- which(matches, arr.ind = TRUE)
-
-      if (nrow(match_indices) > 0) {
-        # match_indices[, "col"] are indices into to_enhance
-        # match_indices[, "row"] are indices into db
-        matched_row_ids <- strucs_df$row_id[match_indices[, "col"]]
-        matched_raw <- strucs_df$raw[match_indices[, "col"]]
-        matched_enhanced <- db[match_indices[, "row"]]
-
-        res <- tibble::tibble(
-          raw = matched_raw,
-          enhanced = matched_enhanced,
-          row_id = matched_row_ids
+      # Restore the matches for each original occurrence of a unique pattern.
+      res <- purrr::map_dfr(seq_along(to_enhance), function(i) {
+        if (is_missing[[i]]) {
+          return(tibble::tibble(
+            raw = to_enhance[integer(0)],
+            enhanced = db[integer(0)],
+            row_id = integer(0)
+          ))
+        }
+        db_ids <- which(matches[, unique_ids[[i]]])
+        tibble::tibble(
+          raw = rep(to_enhance[i], length(db_ids)),
+          enhanced = db[db_ids],
+          row_id = rep(strucs_df$row_id[[i]], length(db_ids))
         )
-      } else {
-        # No matches found
-        res <- tibble::tibble(
-          raw = to_enhance[integer(0)],
-          enhanced = db[integer(0)],
-          row_id = integer(0)
-        )
-      }
+      })
     }
   }
 
