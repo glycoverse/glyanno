@@ -36,11 +36,10 @@
 comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
   checkmate::assert_flag(return_best)
   comps <- .ensure_glycan_composition(comps, allow_structure = FALSE)
-  db <- .prepare_struc_db(db)
-  .check_return_best_arg(db, return_best)
 
-  # Handle empty compositions early (before calling get_mono_type)
   if (length(comps) == 0) {
+    db <- .prepare_struc_db(db)
+    .check_return_best_arg(db, return_best)
     if (return_best) {
       return(glyrepr::glycan_structure())
     }
@@ -50,47 +49,42 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
     ))
   }
 
-  # Get mono type to determine matching strategy
   mono_type <- glyrepr::get_mono_type(comps)
+  db_index <- .prepare_comp_to_struc_index(db, mono_type)
+  db <- db_index$db
+  .check_return_best_arg(db, return_best)
 
   if (mono_type == "generic") {
-    # For generic compositions, convert both to generic for matching
-    db_comps_generic <- glyrepr::convert_to_generic(glyrepr::as_glycan_composition(
-      db
-    ))
-    db_df <- tibble::tibble(
-      composition = db_comps_generic,
-      structure = db,
-      confidence = attr(db, "confidence")
-    )
-    comps_df <- tibble::tibble(
-      composition = glyrepr::convert_to_generic(comps),
-      row_id = seq_along(comps)
-    )
-    res <- comps_df |>
-      dplyr::left_join(db_df, by = "composition")
+    comp_keys <- glyrepr::convert_to_generic(comps)
   } else {
-    # For concrete compositions, match directly to concrete structures only
-    # After glyrepr 0.9.0.9000, db must be homogeneous (all generic or all concrete)
     if (glyrepr::get_mono_type(db) == "generic") {
-      # Concrete comps cannot match generic structures - this is a usage error
       cli::cli_abort(c(
         "Concrete compositions cannot be matched against a generic structure database.",
         "i" = "Use generic compositions (e.g. {.val Hex(1)HexNAc(1)}) or provide a concrete structure database."
       ))
     }
-    db_concrete_df <- tibble::tibble(
-      composition = glyrepr::as_glycan_composition(db),
-      structure = db,
-      confidence = attr(db, "confidence")
-    )
-    comps_df <- tibble::tibble(
-      composition = comps,
-      row_id = seq_along(comps)
-    )
-    res <- comps_df |>
-      dplyr::left_join(db_concrete_df, by = "composition")
+    comp_keys <- comps
   }
+
+  if (return_best) {
+    match_ids <- match(
+      comp_keys,
+      db_index$composition[db_index$best_order]
+    )
+    return(unname(db[db_index$best_order][match_ids]))
+  }
+
+  db_df <- tibble::tibble(
+    composition = db_index$composition,
+    structure = db,
+    confidence = attr(db, "confidence")
+  )
+  comps_df <- tibble::tibble(
+    composition = comp_keys,
+    row_id = seq_along(comps)
+  )
+  res <- comps_df |>
+    dplyr::left_join(db_df, by = "composition", relationship = "many-to-many")
 
   .prepare_result(
     res,
@@ -98,4 +92,37 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
     raw_col = "composition",
     new_col = "structure"
   )
+}
+
+.comp_to_struc_cache <- new.env(parent = emptyenv())
+
+.prepare_comp_to_struc_index <- function(db, mono_type) {
+  if (!is.null(db)) {
+    return(.new_comp_to_struc_index(.prepare_struc_db(db), mono_type))
+  }
+
+  cache_key <- paste0("default_", mono_type)
+  if (!exists(cache_key, envir = .comp_to_struc_cache, inherits = FALSE)) {
+    index <- .new_comp_to_struc_index(
+      glydb::glydb_structures(structure_level = "intact"),
+      mono_type
+    )
+    assign(cache_key, index, envir = .comp_to_struc_cache)
+  }
+  get(cache_key, envir = .comp_to_struc_cache, inherits = FALSE)
+}
+
+.new_comp_to_struc_index <- function(db, mono_type) {
+  composition <- glyrepr::as_glycan_composition(db)
+  if (mono_type == "generic") {
+    composition <- glyrepr::convert_to_generic(composition)
+  }
+
+  confidence <- attr(db, "confidence")
+  best_order <- order(
+    replace(confidence, is.na(confidence), -Inf),
+    decreasing = TRUE,
+    method = "radix"
+  )
+  list(db = db, composition = composition, best_order = best_order)
 }

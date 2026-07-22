@@ -199,6 +199,15 @@ test_that("comp_to_struc works with db=NULL (regression: confidences undefined)"
   expect_gt(nrow(result), 0)
 })
 
+test_that("comp_to_struc reuses the prepared default database", {
+  comps <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)")
+
+  first <- comp_to_struc(comps, db = NULL, return_best = TRUE)
+  second <- comp_to_struc(comps, db = NULL, return_best = TRUE)
+
+  expect_equal(second, first)
+})
+
 test_that("comp_to_struc with return_best=TRUE returns NA for no match", {
   db <- glyrepr::as_glycan_structure(c("Gal(b1-3)GalNAc(a1-"))
   attr(db, "confidence") <- c(1.0)
