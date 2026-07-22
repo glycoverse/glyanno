@@ -38,7 +38,8 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
   checkmate::assert_flag(return_best)
   # Input validation and preparation
   comps <- .ensure_glycan_composition(comps, allow_structure = FALSE)
-  db <- .prepare_comp_db(db)
+  db_index <- .prepare_enhance_comp_index(db)
+  db <- db_index$db
   .check_return_best_arg(db, return_best)
 
   # Handle empty composition case
@@ -61,19 +62,31 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
   comps_type <- glyrepr::get_mono_type(comps)
 
   if (comps_type == "generic") {
-    # Generic compositions: match via generic conversion
+    comp_keys <- glyrepr::convert_to_generic(comps)
+    if (return_best) {
+      match_ids <- match(
+        comp_keys,
+        db_index$generic[db_index$best_order]
+      )
+      return(unname(db[db_index$best_order][match_ids]))
+    }
+
     db_df <- tibble::tibble(
-      generic = glyrepr::convert_to_generic(db),
+      generic = db_index$generic,
       concrete = db,
       confidence = attr(db, "confidence") %||% NA_real_
     )
     comps_df <- tibble::tibble(
-      composition = glyrepr::convert_to_generic(comps),
+      composition = comp_keys,
       row_id = seq_along(comps)
     )
 
     res <- comps_df |>
-      dplyr::left_join(db_df, by = c("composition" = "generic")) |>
+      dplyr::left_join(
+        db_df,
+        by = c("composition" = "generic"),
+        relationship = "many-to-many"
+      ) |>
       dplyr::select(all_of(c(
         "raw" = "composition",
         "enhanced" = "concrete",
@@ -97,4 +110,33 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
     )
   }
   res
+}
+
+.enhance_comp_cache <- new.env(parent = emptyenv())
+
+.prepare_enhance_comp_index <- function(db) {
+  if (!is.null(db)) {
+    return(.new_enhance_comp_index(.prepare_comp_db(db)))
+  }
+
+  cache_key <- "default"
+  if (!exists(cache_key, envir = .enhance_comp_cache, inherits = FALSE)) {
+    index <- .new_enhance_comp_index(glydb::glydb_compositions())
+    assign(cache_key, index, envir = .enhance_comp_cache)
+  }
+  get(cache_key, envir = .enhance_comp_cache, inherits = FALSE)
+}
+
+.new_enhance_comp_index <- function(db) {
+  confidence <- attr(db, "confidence")
+  best_order <- order(
+    replace(confidence, is.na(confidence), -Inf),
+    decreasing = TRUE,
+    method = "radix"
+  )
+  list(
+    db = db,
+    generic = glyrepr::convert_to_generic(db),
+    best_order = best_order
+  )
 }

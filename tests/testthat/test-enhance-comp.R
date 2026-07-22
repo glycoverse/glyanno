@@ -122,6 +122,15 @@ test_that("enhance_comp works with db=NULL (regression: confidences undefined)",
   expect_named(result, c("raw", "enhanced"))
 })
 
+test_that("enhance_comp reuses the prepared default database", {
+  comps <- glyrepr::as_glycan_composition("Hex(1)")
+
+  first <- enhance_comp(comps, db = NULL, return_best = TRUE)
+  second <- enhance_comp(comps, db = NULL, return_best = TRUE)
+
+  expect_equal(second, first)
+})
+
 test_that("enhance_comp with return_best=TRUE returns vector with NA for no match", {
   db <- glyrepr::glycan_composition(
     c(Glc = 2)
