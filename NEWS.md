@@ -1,11 +1,8 @@
-# glyanno (development version)
+# glyanno 0.6.0
 
 ## New features
 
-* Add `enhance_struc_denovo()` to reconstruct topological N-glycans, with a
-  topological database fallback for structures that cannot be reconstructed de
-  novo. (#16, #17, #18)
-* Expand the internal de-novo branch data with every Neu5Ac/Neu5Gc variant of each sialylated motif.
+* New `enhance_struc_denovo()` reconstructs topological N-glycans and falls back to the topological database when reconstruction is not possible. (#16, #17, #18)
 
 ## Breaking changes
 
@@ -14,10 +11,7 @@
 ## Minor improvements and bug fixes
 
 * `enhance_struc()` now accepts duplicated input structures, preserves their order and per-occurrence results, and matches each unique non-missing structure only once. (#21)
-* `calculate_mz()` now processes vector inputs substantially faster by reusing generic composition conversion, and `safe = FALSE` stays quiet when all components are supported. (#20)
-* `comp_to_struc()` now reuses its prepared default structure database and selects best matches without materializing every candidate. (#20)
-* `enhance_comp()` now reuses its prepared default composition database and selects best matches by direct lookup. (#20)
-* `mz_to_comp()` now matches batches of masses using direct numeric indexing instead of per-mass data-frame filtering. (#20)
+* `calculate_mz()`, `comp_to_struc()`, `enhance_comp()`, and `mz_to_comp()` now process vector inputs substantially faster by reusing prepared databases and direct lookups. (#20)
 * `struc_to_glytoucan()` now looks up accessions from `glydb::glydb_data` first and only falls back to the online GlycanFormatConverter API for missing structures. (#14)
 
 # glyanno 0.5.0
