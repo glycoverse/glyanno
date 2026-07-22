@@ -1,5 +1,41 @@
 # Changelog
 
+## glyanno 0.6.0
+
+### New features
+
+- New
+  [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/reference/enhance_struc_denovo.md)
+  reconstructs topological N-glycans and falls back to the topological
+  database when reconstruction is not possible. (#16, \#17, \#18)
+
+### Breaking changes
+
+- Remove
+  [`fill_anomer_pos()`](https://glycoverse.github.io/glyrepr/reference/fill_anomer_pos.html)
+  from the exported namespace. Use
+  [`glyrepr::fill_anomer_pos()`](https://glycoverse.github.io/glyrepr/reference/fill_anomer_pos.html)
+  instead. (#15)
+
+### Minor improvements and bug fixes
+
+- [`enhance_struc()`](https://glycoverse.github.io/glyanno/reference/enhance_struc.md)
+  now accepts duplicated input structures, preserves their order and
+  per-occurrence results, and matches each unique non-missing structure
+  only once. (#21)
+- [`calculate_mz()`](https://glycoverse.github.io/glyanno/reference/calculate_mz.md),
+  [`comp_to_struc()`](https://glycoverse.github.io/glyanno/reference/comp_to_struc.md),
+  [`enhance_comp()`](https://glycoverse.github.io/glyanno/reference/enhance_comp.md),
+  and
+  [`mz_to_comp()`](https://glycoverse.github.io/glyanno/reference/mz_to_comp.md)
+  now process vector inputs substantially faster by reusing prepared
+  databases and direct lookups. (#20)
+- [`struc_to_glytoucan()`](https://glycoverse.github.io/glyanno/reference/struc_to_glytoucan.md)
+  now looks up accessions from
+  [`glydb::glydb_data`](https://glycoverse.github.io/glydb/reference/glydb_data.html)
+  first and only falls back to the online GlycanFormatConverter API for
+  missing structures. (#14)
+
 ## glyanno 0.5.0
 
 ### New features
@@ -8,7 +44,7 @@
   [`struc_to_glytoucan()`](https://glycoverse.github.io/glyanno/reference/struc_to_glytoucan.md)
   to map glycan structures to GlyTouCan accessions (#11).
 - Add
-  [`fill_anomer_pos()`](https://glycoverse.github.io/glyanno/reference/fill_anomer_pos.md)
+  [`fill_anomer_pos()`](https://glycoverse.github.io/glyrepr/reference/fill_anomer_pos.html)
   to fill in missing anomeric position information in glycan structures
   (#13).
 

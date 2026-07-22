@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Get Started with glyanno • glyanno</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get Started with glyanno">
 </head>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">glyanno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -134,18 +134,18 @@ glycans.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_db</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glycoverse.github.io/glydb/reference/glydb_compositions.html" class="external-link">glydb_compositions</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span></span>
 <span><span class="va">my_db</span></span>
-<span><span class="co">#&gt; &lt;glycan_composition[124]&gt;</span></span>
+<span><span class="co">#&gt; &lt;glycan_composition[159]&gt;</span></span>
 <span><span class="co">#&gt; [1] <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)</span></span>
 <span><span class="co">#&gt; [2] <span style="color: #FFD700;">Gal</span>(1)<span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)</span></span>
 <span><span class="co">#&gt; [3] <span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)</span></span>
 <span><span class="co">#&gt; [4] <span style="color: #0087D7;">GlcNAc</span>(2)<span style="color: #FFD700;">GalNAc</span>(1)</span></span>
 <span><span class="co">#&gt; [5] <span style="color: #FFD700;">GalNAc</span>(2)</span></span>
-<span><span class="co">#&gt; [6] <span style="color: #FFD700;">Gal</span>(2)<span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)<span style="color: #AF5FAF;">Neu5Ac</span>(1)</span></span>
-<span><span class="co">#&gt; [7] <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(2)<span style="color: #AF5FAF;">Neu5Ac</span>(2)</span></span>
-<span><span class="co">#&gt; [8] <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)<span style="color: #FF0000;">Fuc</span>(1)</span></span>
-<span><span class="co">#&gt; [9] <span style="color: #FFD700;">Gal</span>(2)<span style="color: #0087D7;">GlcNAc</span>(2)<span style="color: #FFD700;">GalNAc</span>(2)<span style="color: #FF0000;">Fuc</span>(1)</span></span>
-<span><span class="co">#&gt; [10] <span style="color: #FFD700;">Gal</span>(2)<span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)</span></span>
-<span><span class="co">#&gt; ... (114 more not shown)</span></span></code></pre></div>
+<span><span class="co">#&gt; [6] <span style="color: #FFD700;">Gal</span>(1)<span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)<span style="color: #AF5FAF;">Neu5Ac</span>(1)</span></span>
+<span><span class="co">#&gt; [7] <span style="color: #0087D7;">Glc</span>(1)<span style="color: #FFD700;">Gal</span>(2)<span style="color: #FFD700;">GalNAc</span>(1)</span></span>
+<span><span class="co">#&gt; [8] <span style="color: #FFD700;">Gal</span>(2)<span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)<span style="color: #AF5FAF;">Neu5Ac</span>(1)</span></span>
+<span><span class="co">#&gt; [9] <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(2)<span style="color: #AF5FAF;">Neu5Ac</span>(2)</span></span>
+<span><span class="co">#&gt; [10] <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)<span style="color: #FF0000;">Fuc</span>(1)</span></span>
+<span><span class="co">#&gt; ... (149 more not shown)</span></span></code></pre></div>
 <p><code>my_db</code> is simply a
 <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_composition.html" class="external-link">glyrepr::glycan_composition()</a></code> vector. You can pass it to
 the <code>db</code> argument of <code><a href="../reference/mz_to_comp.html">mz_to_comp()</a></code> to filter
@@ -165,11 +165,12 @@ composition?</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">struc_db</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb_structures</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, db <span class="op">=</span> <span class="va">struc_db</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
 <span><span class="co">#&gt;   composition     structure          </span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>           </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1) <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1) <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1) <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">b1-</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1) <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span></code></pre></div>
 <p>Note that here we use <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb_structures()</a></code> instead of
 <code><a href="https://glycoverse.github.io/glydb/reference/glydb_compositions.html" class="external-link">glydb_compositions()</a></code> to create a structure-specific
 database.</p>
@@ -266,11 +267,12 @@ to biologically relevant candidates.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="color: #000000;">Hex</span>(1)<span style="color: #000000;">HexNAc</span>(1) <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)</span></span></code></pre></div>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enhance_struc.html">enhance_struc</a></span><span class="op">(</span><span class="st">"Gal(??-?)GalNAc(??-"</span>, db <span class="op">=</span> <span class="fu"><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb_structures</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
 <span><span class="co">#&gt;   raw                 enhanced           </span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>           </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??- <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??- <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??- <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">b1-</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??- <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span></code></pre></div>
 <p>You can set <code>return_best</code> to <code>TRUE</code> as
 well.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
@@ -282,6 +284,26 @@ well.</p>
 <span><span class="co">#&gt; &lt;glycan_structure[1]&gt;</span></span>
 <span><span class="co">#&gt; [1] <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
 <span><span class="co">#&gt; # Unique structures: 1</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="de-novo-enhancement-of-n-glycans">De novo enhancement of N-glycans<a class="anchor" aria-label="anchor" href="#de-novo-enhancement-of-n-glycans"></a>
+</h2>
+<p>N-glycans have many possible branching patterns, but databases of
+human- detected glycans cover only a fraction of this potential
+structure space. <code><a href="../reference/enhance_struc_denovo.html">enhance_struc_denovo()</a></code> reconstructs basic
+N-glycans from their conserved core and branches, returning one
+topological candidate per input. It preserves optional core fucose and
+bisecting GlcNAc residues. Inputs that cannot be reconstructed are
+matched against a topological fallback database.</p>
+<p><img src="enhance_struc_denovo.png"></p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">glycan</span> <span class="op">&lt;-</span> <span class="st">"NeuAc(??-?)Hex(??-?)HexNAc(??-?)Hex(??-?)HexNAc(??-?)Hex(??-?)[HexNAc(??-?)[NeuAc(??-?)]Hex(??-?)HexNAc(??-?)Hex(??-?)]Hex(??-?)HexNAc(??-?)[dHex(??-?)]HexNAc(??-"</span></span>
+<span><span class="fu"><a href="../reference/enhance_struc_denovo.html">enhance_struc_denovo</a></span><span class="op">(</span><span class="va">glycan</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;glycan_structure[1]&gt;</span></span>
+<span><span class="co">#&gt; [1] <span style="color: #AF5FAF;">Neu5Ac</span>(??-?)<span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #0087D7;">GlcNAc</span>(??-?)<span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #0087D7;">GlcNAc</span>(??-?)<span style="color: #00AF5F;">Man</span>(??-?)[<span style="color: #AF5FAF;">Neu5Ac</span>(??-?)[<span style="color: #FFD700;">GalNAc</span>(??-?)]<span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #0087D7;">GlcNAc</span>(??-?)<span style="color: #00AF5F;">Man</span>(??-?)]<span style="color: #00AF5F;">Man</span>(??-?)<span style="color: #0087D7;">GlcNAc</span>(??-?)[<span style="color: #FF0000;">Fuc</span>(??-?)]<span style="color: #0087D7;">GlcNAc</span>(??-</span></span>
+<span><span class="co">#&gt; # Unique structures: 1</span></span></code></pre></div>
+<p>For now, <code><a href="../reference/enhance_struc_denovo.html">enhance_struc_denovo()</a></code> can only be used to
+enhance “basic” glycans to “topological” ones.</p>
 </div>
 <div class="section level2">
 <h2 id="bidirectional-conversion">Bidirectional Conversion<a class="anchor" aria-label="anchor" href="#bidirectional-conversion"></a>
@@ -328,7 +350,7 @@ lower-resolution representations.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

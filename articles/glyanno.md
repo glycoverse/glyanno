@@ -83,18 +83,18 @@ you might want to limit the search to only human O-GalNAc glycans.
 
 my_db <- glydb_compositions(species = "Homo sapiens", glycan_type = "O-GalNAc")
 my_db
-#> <glycan_composition[124]>
+#> <glycan_composition[159]>
 #> [1] Gal(1)GalNAc(1)
 #> [2] Gal(1)GlcNAc(1)GalNAc(1)
 #> [3] GlcNAc(1)GalNAc(1)
 #> [4] GlcNAc(2)GalNAc(1)
 #> [5] GalNAc(2)
-#> [6] Gal(2)GlcNAc(1)GalNAc(1)Neu5Ac(1)
-#> [7] Gal(1)GalNAc(2)Neu5Ac(2)
-#> [8] Gal(1)GalNAc(1)Fuc(1)
-#> [9] Gal(2)GlcNAc(2)GalNAc(2)Fuc(1)
-#> [10] Gal(2)GlcNAc(1)GalNAc(1)
-#> ... (114 more not shown)
+#> [6] Gal(1)GlcNAc(1)GalNAc(1)Neu5Ac(1)
+#> [7] Glc(1)Gal(2)GalNAc(1)
+#> [8] Gal(2)GlcNAc(1)GalNAc(1)Neu5Ac(1)
+#> [9] Gal(1)GalNAc(2)Neu5Ac(2)
+#> [10] Gal(1)GalNAc(1)Fuc(1)
+#> ... (149 more not shown)
 ```
 
 `my_db` is simply a
@@ -122,11 +122,12 @@ Gal(1)GalNAc(1). What are the possible structures for this composition?
 
 struc_db <- glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
 comp_to_struc("Gal(1)GalNAc(1)", db = struc_db)
-#> # A tibble: 2 × 2
+#> # A tibble: 3 × 2
 #>   composition     structure          
 #>   <comp>          <struct>           
 #> 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-
-#> 2 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-
+#> 2 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-
+#> 3 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-
 ```
 
 Note that here we use
@@ -257,11 +258,12 @@ enhance_comp("Hex(1)HexNAc(1)", db = glydb_compositions(species = "Homo sapiens"
 ``` r
 
 enhance_struc("Gal(??-?)GalNAc(??-", db = glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc"))
-#> # A tibble: 2 × 2
+#> # A tibble: 3 × 2
 #>   raw                 enhanced           
 #>   <struct>            <struct>           
 #> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-
-#> 2 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-
+#> 2 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(b1-
+#> 3 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-
 ```
 
 You can set `return_best` to `TRUE` as well.
@@ -277,6 +279,32 @@ enhance_struc(
 #> [1] Gal(b1-3)GalNAc(a1-
 #> # Unique structures: 1
 ```
+
+## De novo enhancement of N-glycans
+
+N-glycans have many possible branching patterns, but databases of human-
+detected glycans cover only a fraction of this potential structure
+space.
+[`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/reference/enhance_struc_denovo.md)
+reconstructs basic N-glycans from their conserved core and branches,
+returning one topological candidate per input. It preserves optional
+core fucose and bisecting GlcNAc residues. Inputs that cannot be
+reconstructed are matched against a topological fallback database.
+
+![](enhance_struc_denovo.png)
+
+``` r
+
+glycan <- "NeuAc(??-?)Hex(??-?)HexNAc(??-?)Hex(??-?)HexNAc(??-?)Hex(??-?)[HexNAc(??-?)[NeuAc(??-?)]Hex(??-?)HexNAc(??-?)Hex(??-?)]Hex(??-?)HexNAc(??-?)[dHex(??-?)]HexNAc(??-"
+enhance_struc_denovo(glycan)
+#> <glycan_structure[1]>
+#> [1] Neu5Ac(??-?)Gal(??-?)GlcNAc(??-?)Gal(??-?)GlcNAc(??-?)Man(??-?)[Neu5Ac(??-?)[GalNAc(??-?)]Gal(??-?)GlcNAc(??-?)Man(??-?)]Man(??-?)GlcNAc(??-?)[Fuc(??-?)]GlcNAc(??-
+#> # Unique structures: 1
+```
+
+For now,
+[`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/reference/enhance_struc_denovo.md)
+can only be used to enhance “basic” glycans to “topological” ones.
 
 ## Bidirectional Conversion
 

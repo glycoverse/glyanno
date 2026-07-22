@@ -26,7 +26,7 @@ enhance_struc(strucs, db = NULL, return_best = FALSE)
   [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
   vector, or a character vector of glycan structure strings supported by
   [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
-  If not provided, a default structure vector is loaded from
+  The default is
   [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
   at "intact" level. If `db` has a lower or equal resolution level than
   `strucs`, the result will be the same as `strucs` (no enhancement).
@@ -34,10 +34,8 @@ enhance_struc(strucs, db = NULL, return_best = FALSE)
 - return_best:
 
   Logical. If `TRUE`, only return the best matching structure (highest
-  confidence) for each input structure. Requires `db` to have a
-  `confidence` attribute. Use
-  [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
-  for `db` to enable this feature. Default is `FALSE`.
+  confidence) for each input structure. `db` must have a `confidence`
+  attribute. Default is `FALSE`.
 
 ## Value
 
@@ -55,10 +53,9 @@ columns:
 
 ## Details
 
-The target resolution level is determined from `db`. When `db` is NULL,
-the default
+The target resolution level is determined from `db`, defaulting to
 [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
-at "intact" level is used.
+at "intact" level.
 
 ## Examples
 

@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Hierarchical Glycan Annotation • glyanno</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Hierarchical Glycan Annotation">
 <meta name="description" content='Hierarchical annotation of glycans based on molecule mass, composition, and structure. Starting from a molecule mass, glyanno calculates possible glycan compositions. Given a glycan composition, glyanno further deduces possible glycan structures. For glycan structures with generic monosaccharides (e.g., "Hex", "HexNAc"), glyanno refines them into specific types (e.g., "Glc", "Gal"). For structures lacking linkage information (e.g., "Gal(??-?)GalNAc(??-"), glyanno infers the most likely linkages (e.g., "Gal(b1-3)GalNAc(a1-").'>
@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">glyanno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,9 +95,7 @@
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glycoverse.github.io/glyanno/">glyanno</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glycoverse.github.io/glyrepr/" class="external-link">glyrepr</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: 程序包'glyrepr'是用R版本4.5.2 来建造的</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glycoverse.github.io/glydb/" class="external-link">glydb</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: 程序包'glydb'是用R版本4.5.2 来建造的</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/mz_to_comp.html">mz_to_comp</a></span><span class="op">(</span><span class="fl">406.1325</span>, charge <span class="op">=</span> <span class="fl">1</span>, adduct <span class="op">=</span> <span class="st">"Na+"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 4 × 2</span></span>
@@ -135,19 +133,19 @@
 <code class="sourceCode R"><span><span class="co"># Use custom db to narrow down the search space</span></span>
 <span><span class="va">my_db</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb_structures</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, db <span class="op">=</span> <span class="va">my_db</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 2</span></span>
+<span><span class="co">#&gt; # A tibble: 3 × 2</span></span>
 <span><span class="co">#&gt;   composition     structure          </span></span>
 <span><span class="co">#&gt;   &lt;comp&gt;          &lt;struct&gt;           </span></span>
 <span><span class="co">#&gt; 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-</span></span>
-<span><span class="co">#&gt; 2 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-</span></span></code></pre></div>
+<span><span class="co">#&gt; 2 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-</span></span>
+<span><span class="co">#&gt; 3 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Use `return_best` to pick the most likely match</span></span>
 <span><span class="co"># Core 1 is more likely than Core 5</span></span>
 <span><span class="fu"><a href="reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, db <span class="op">=</span> <span class="va">my_db</span>, return_best <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 2</span></span>
-<span><span class="co">#&gt;   composition     structure          </span></span>
-<span><span class="co">#&gt;   &lt;comp&gt;          &lt;struct&gt;           </span></span>
-<span><span class="co">#&gt; 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-</span></span></code></pre></div>
+<span><span class="co">#&gt; &lt;glycan_structure[1]&gt;</span></span>
+<span><span class="co">#&gt; [1] Gal(b1-3)GalNAc(a1-</span></span>
+<span><span class="co">#&gt; # Unique structures: 1</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
@@ -192,7 +190,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>
