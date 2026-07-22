@@ -22,6 +22,10 @@
 
 ### Minor improvements and bug fixes
 
+- [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md)
+  now accepts duplicated input structures, preserves their order and
+  per-occurrence results, and matches each unique non-missing structure
+  only once. (#21)
 - [`calculate_mz()`](https://glycoverse.github.io/glyanno/dev/reference/calculate_mz.md)
   now processes vector inputs substantially faster by reusing generic
   composition conversion, and `safe = FALSE` stays quiet when all

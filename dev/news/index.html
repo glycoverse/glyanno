@@ -45,6 +45,8 @@
 <div class="section level3">
 <h3 id="minor-improvements-and-bug-fixes-development-version">Minor improvements and bug fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-bug-fixes-development-version"></a></h3>
 <ul><li>
+<code><a href="../reference/enhance_struc.html">enhance_struc()</a></code> now accepts duplicated input structures, preserves their order and per-occurrence results, and matches each unique non-missing structure only once. (#21)</li>
+<li>
 <code><a href="../reference/calculate_mz.html">calculate_mz()</a></code> now processes vector inputs substantially faster by reusing generic composition conversion, and <code>safe = FALSE</code> stays quiet when all components are supported. (#20)</li>
 <li>
 <code><a href="../reference/comp_to_struc.html">comp_to_struc()</a></code> now reuses its prepared default structure database and selects best matches without materializing every candidate. (#20)</li>
