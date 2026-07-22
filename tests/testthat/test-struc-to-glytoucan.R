@@ -33,6 +33,20 @@ test_that("struc_to_glytoucan maps successful responses to accessions", {
   expect_true(all(grepl("iupaccondensed2wurcs", performed_urls, fixed = TRUE)))
 })
 
+test_that("struc_to_glytoucan preserves duplicated structures", {
+  local_mocked_bindings(
+    req_perform = function(req) {
+      glytoucan_response(body = '{"id":"G00005MO"}')
+    },
+    .package = "httr2"
+  )
+  struc <- glyrepr::as_glycan_structure("Man(b1-2)Gal(a1-")
+
+  accessions <- suppressMessages(struc_to_glytoucan(rep(struc, 2)))
+
+  expect_equal(accessions, rep("G00005MO", 2))
+})
+
 test_that("struc_to_glytoucan returns NA for unsuccessful responses", {
   responses <- list(
     glytoucan_response(status_code = 404),

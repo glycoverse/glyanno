@@ -54,6 +54,29 @@ test_that("enhance_comp works with generic and compositions", {
   expect_equal(result, expected)
 })
 
+test_that("enhance_comp preserves duplicated compositions", {
+  db <- glyrepr::glycan_composition(
+    c(Glc = 2),
+    c(Gal = 2),
+    c(Glc = 1)
+  )
+  attr(db, "confidence") <- c(1, 2, 3)
+  comps <- glyrepr::as_glycan_composition(c("Hex(2)", "Hex(1)", "Hex(2)"))
+
+  best <- enhance_comp(comps, db, return_best = TRUE)
+  expanded <- enhance_comp(comps, db, return_best = FALSE)
+
+  expect_equal(as.character(best), c("Gal(2)", "Glc(1)", "Gal(2)"))
+  expect_equal(
+    as.character(expanded$raw),
+    c("Hex(2)", "Hex(2)", "Hex(1)", "Hex(2)", "Hex(2)")
+  )
+  expect_equal(
+    as.character(expanded$enhanced),
+    c("Glc(2)", "Gal(2)", "Glc(1)", "Glc(2)", "Gal(2)")
+  )
+})
+
 test_that("enhance_comp works with concrete compositions", {
   comps <- "Gal(1)GalNAc(1)"
   db <- c("Glc(1)GalNAc(1)", "Glc(1)GlcNAc(1)")
