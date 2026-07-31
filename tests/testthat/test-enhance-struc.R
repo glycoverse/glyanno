@@ -90,7 +90,8 @@ test_that("enhance_struc accepts empty structures", {
     res,
     tibble::tibble(
       raw = glyrepr::glycan_structure(),
-      enhanced = glyrepr::glycan_structure()
+      enhanced = glyrepr::glycan_structure(),
+      confidence = numeric()
     )
   )
 })
@@ -107,7 +108,8 @@ test_that("enhance_struc accepts all-NA structures", {
     res,
     tibble::tibble(
       raw = input_na,
-      enhanced = input_na
+      enhanced = input_na,
+      confidence = c(NA_real_, NA_real_)
     )
   )
   expect_equal(best, input_na)
@@ -181,6 +183,7 @@ test_that("enhance_struc restores repeated and missing inputs", {
       "Gal(b1-4)GalNAc(a1-"
     )
   )
+  expect_equal(expanded$confidence, c(1, 2, 3, 1, 2))
 })
 
 test_that("enhance_struc matches each unique non-missing input once", {
@@ -284,8 +287,8 @@ test_that("enhance_struc works with db=NULL (regression: confidences undefined)"
       return_best = FALSE
     )
   )
-  # Result should be a tibble with raw and enhanced columns
-  expect_named(result, c("raw", "enhanced"))
+  expect_named(result, c("raw", "enhanced", "confidence"))
+  expect_false(all(is.na(result$confidence)))
   # Should have at least one match from default glydb
   expect_gt(nrow(result), 0)
 })

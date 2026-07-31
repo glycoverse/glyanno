@@ -188,7 +188,7 @@
     res |>
       dplyr::filter(!is.na(.data[[new_col]])) |>
       dplyr::arrange(.data$row_id) |>
-      dplyr::select(all_of(c(raw_col, new_col)))
+      dplyr::select(all_of(c(raw_col, new_col, "confidence")))
   }
 }
 

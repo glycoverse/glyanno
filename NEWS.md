@@ -1,5 +1,9 @@
 # glyanno (development version)
 
+* `mz_to_comp()`, `enhance_comp()`, `comp_to_struc()`, and `enhance_struc()`
+  now include a `confidence` column in expanded results for customized
+  prioritization. (#23)
+
 # glyanno 0.6.0
 
 ## New features

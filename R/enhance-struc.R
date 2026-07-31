@@ -25,6 +25,8 @@
 #'   A tibble with the following columns:
 #'   - `raw`: The original glycan structures.
 #'   - `enhanced`: The enhanced glycan structures.
+#'   - `confidence`: The database confidence score for each enhanced
+#'     structure, or `NA` when no score is available.
 #'     Note that one `raw` glycan structure can have different `enhanced` glycan structures
 #'     as multiple rows in the result.
 #'
@@ -59,7 +61,8 @@ enhance_struc <- function(
     }
     return(tibble::tibble(
       raw = glyrepr::glycan_structure(),
-      enhanced = glyrepr::glycan_structure()
+      enhanced = glyrepr::glycan_structure(),
+      confidence = numeric()
     ))
   }
 
@@ -69,7 +72,8 @@ enhance_struc <- function(
     }
     return(tibble::tibble(
       raw = strucs,
-      enhanced = strucs
+      enhanced = strucs,
+      confidence = NA_real_
     ))
   }
 
@@ -90,7 +94,10 @@ enhance_struc <- function(
 
   if (struc_rank >= target_rank) {
     res <- strucs_df |>
-      dplyr::mutate(enhanced = .data$raw)
+      dplyr::mutate(
+        enhanced = .data$raw,
+        confidence = NA_real_
+      )
   } else {
     to_enhance <- strucs_df$raw
     is_missing <- is.na(to_enhance)
@@ -126,7 +133,8 @@ enhance_struc <- function(
       res <- tibble::tibble(
         raw = to_enhance,
         enhanced = best_matches[unique_ids],
-        row_id = strucs_df$row_id
+        row_id = strucs_df$row_id,
+        confidence = NA_real_
       )
     } else {
       # Restore the matches for each original occurrence of a unique pattern.
@@ -135,14 +143,18 @@ enhance_struc <- function(
           return(tibble::tibble(
             raw = to_enhance[integer(0)],
             enhanced = db[integer(0)],
-            row_id = integer(0)
+            row_id = integer(0),
+            confidence = numeric(0)
           ))
         }
         db_ids <- which(matches[, unique_ids[[i]]])
         tibble::tibble(
           raw = rep(to_enhance[i], length(db_ids)),
           enhanced = db[db_ids],
-          row_id = rep(strucs_df$row_id[[i]], length(db_ids))
+          row_id = rep(strucs_df$row_id[[i]], length(db_ids)),
+          confidence = (attr(db, "confidence") %||% rep(NA_real_, length(db)))[
+            db_ids
+          ]
         )
       })
     }
@@ -150,13 +162,14 @@ enhance_struc <- function(
 
   res <- res |>
     dplyr::arrange(.data$row_id) |>
-    dplyr::select(all_of(c("raw", "enhanced", "row_id")))
+    dplyr::select(all_of(c("raw", "enhanced", "confidence", "row_id")))
 
   # Handle empty result
   if (nrow(res) == 0) {
     res <- tibble::tibble(
       raw = glyrepr::glycan_structure(),
       enhanced = glyrepr::glycan_structure(),
+      confidence = numeric(0),
       row_id = integer(0)
     )
   }

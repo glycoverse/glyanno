@@ -5,7 +5,11 @@ test_that("enhance_comp works for a basic case", {
     c(Glc = 1, GalNAc = 1)
   )
   result <- enhance_comp(comps, db)
-  expected <- tibble::tibble(raw = comps, enhanced = db)
+  expected <- tibble::tibble(
+    raw = comps,
+    enhanced = db,
+    confidence = c(NA_real_, NA_real_)
+  )
   expect_equal(result, expected)
 })
 
@@ -18,7 +22,8 @@ test_that("enhance_comp accepts character input", {
     enhanced = glyrepr::glycan_composition(
       c(Gal = 1, GalNAc = 1),
       c(Glc = 1, GalNAc = 1)
-    )
+    ),
+    confidence = c(NA_real_, NA_real_)
   )
   expect_equal(result, expected)
 })
@@ -32,7 +37,8 @@ test_that("enhance_comp works with empty input", {
   result <- enhance_comp(comps, db)
   expected <- tibble::tibble(
     raw = glyrepr::glycan_composition(),
-    enhanced = glyrepr::glycan_composition()
+    enhanced = glyrepr::glycan_composition(),
+    confidence = numeric()
   )
   expect_equal(result, expected)
 })
@@ -49,7 +55,8 @@ test_that("enhance_comp works with generic and compositions", {
     enhanced = glyrepr::as_glycan_composition(c(
       "Glc(1)GalNAc(1)",
       "Glc(1)GlcNAc(1)"
-    ))
+    )),
+    confidence = c(NA_real_, NA_real_)
   )
   expect_equal(result, expected)
 })
@@ -75,6 +82,7 @@ test_that("enhance_comp preserves duplicated compositions", {
     as.character(expanded$enhanced),
     c("Glc(2)", "Gal(2)", "Glc(1)", "Glc(2)", "Gal(2)")
   )
+  expect_equal(expanded$confidence, c(1, 2, 3, 1, 2))
 })
 
 test_that("enhance_comp works with concrete compositions", {
@@ -83,7 +91,8 @@ test_that("enhance_comp works with concrete compositions", {
   result <- enhance_comp(comps, db)
   expected <- tibble::tibble(
     raw = glyrepr::as_glycan_composition("Gal(1)GalNAc(1)"),
-    enhanced = glyrepr::as_glycan_composition("Gal(1)GalNAc(1)")
+    enhanced = glyrepr::as_glycan_composition("Gal(1)GalNAc(1)"),
+    confidence = NA_real_
   )
   expect_equal(result, expected)
 })
@@ -141,8 +150,8 @@ test_that("enhance_comp works with db=NULL (regression: confidences undefined)",
   expect_no_error(
     result <- enhance_comp(comps, db = NULL, return_best = FALSE)
   )
-  # Result should be a tibble with raw and enhanced columns
-  expect_named(result, c("raw", "enhanced"))
+  expect_named(result, c("raw", "enhanced", "confidence"))
+  expect_false(all(is.na(result$confidence)))
 })
 
 test_that("enhance_comp reuses the prepared default database", {

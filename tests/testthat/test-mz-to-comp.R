@@ -51,6 +51,7 @@ test_that("mz_to_comp works for a simple one m/z case", {
   expected <- tibble::tibble(
     mz = 365,
     composition = glyrepr::glycan_composition(c(Hex = 2)),
+    confidence = NA_real_
   )
   expect_equal(result, expected)
 })
@@ -71,6 +72,7 @@ test_that("mz_to_comp works for a simple two m/z case", {
   expected <- tibble::tibble(
     mz = c(203, 365, 365),
     composition = simple_db[1:3],
+    confidence = c(NA_real_, NA_real_, NA_real_)
   )
   expect_equal(result, expected)
 })
@@ -105,6 +107,7 @@ test_that("mz_to_comp preserves duplicated m/z values", {
     as.character(expanded$composition),
     c("Glc(2)", "Gal(2)", "Glc(1)", "Glc(2)", "Gal(2)")
   )
+  expect_equal(expanded$confidence, c(1, 2, 3, 1, 2))
 })
 
 test_that("mz_to_comp works for custom numeric tol", {
@@ -120,7 +123,8 @@ test_that("mz_to_comp works for custom numeric tol", {
     ),
     tibble::tibble(
       mz = 365.5,
-      composition = glyrepr::glycan_composition(c(Hex = 2))
+      composition = glyrepr::glycan_composition(c(Hex = 2)),
+      confidence = NA_real_
     )
   )
 })
@@ -137,7 +141,11 @@ test_that("mz_to_comp works for custom ppm tol", {
       adduct = "Na+",
       mass_dict = mass_dict_for_test()
     ),
-    tibble::tibble(mz = c(mz2), composition = simple_db)
+    tibble::tibble(
+      mz = c(mz2),
+      composition = simple_db,
+      confidence = NA_real_
+    )
   )
 })
 
@@ -156,7 +164,8 @@ test_that("mz_to_comp handles db with glycans that cannot be calculated m/z valu
     result,
     tibble::tibble(
       mz = 203,
-      composition = glyrepr::glycan_composition(c(Glc = 1))
+      composition = glyrepr::glycan_composition(c(Glc = 1)),
+      confidence = NA_real_
     )
   )
 })
@@ -169,7 +178,11 @@ test_that("mz_to_comp returns empty tibble with empty mz", {
       adduct = "Na+",
       mass_dict = mass_dict_for_test()
     ),
-    tibble::tibble(mz = numeric(0), composition = glyrepr::glycan_composition())
+    tibble::tibble(
+      mz = numeric(0),
+      composition = glyrepr::glycan_composition(),
+      confidence = numeric()
+    )
   )
 })
 
@@ -183,7 +196,8 @@ test_that("mz_to_comp returns handles NA", {
     ),
     tibble::tibble(
       mz = 365,
-      composition = glyrepr::glycan_composition(c(Hex = 2))
+      composition = glyrepr::glycan_composition(c(Hex = 2)),
+      confidence = NA_real_
     )
   )
 })
@@ -244,6 +258,7 @@ test_that("mz_to_comp accepts glycan composition strings as db", {
   expected <- tibble::tibble(
     mz = 365,
     composition = glyrepr::glycan_composition(c(Hex = 2)),
+    confidence = NA_real_
   )
   expect_equal(result, expected)
 })
@@ -343,8 +358,8 @@ test_that("mz_to_comp works with db=NULL (regression: confidences undefined)", {
       return_best = FALSE
     )
   )
-  # Result should be a tibble with mz and composition columns
-  expect_named(result, c("mz", "composition"))
+  expect_named(result, c("mz", "composition", "confidence"))
+  expect_false(all(is.na(result$confidence)))
   # Should have at least one match from default glydb
   expect_gt(nrow(result), 0)
 })
