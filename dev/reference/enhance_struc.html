@@ -77,7 +77,9 @@ An unnamed <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_
 Unmatched structures are returned as <code>NA</code>.
 If <code>return_best=FALSE</code>:
 A tibble with the following columns:</p><ul><li><p><code>raw</code>: The original glycan structures.</p></li>
-<li><p><code>enhanced</code>: The enhanced glycan structures.
+<li><p><code>enhanced</code>: The enhanced glycan structures.</p></li>
+<li><p><code>confidence</code>: The database confidence score for each enhanced
+structure, or <code>NA</code> when no score is available.
 Note that one <code>raw</code> glycan structure can have different <code>enhanced</code> glycan structures
 as multiple rows in the result.</p></li>
 </ul></div>
@@ -92,27 +94,27 @@ as multiple rows in the result.</p></li>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># From topological level to intact level</span></span></span>
 <span class="r-in"><span><span class="va">db_intact</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gal(b1-3)GalNAc(a1-"</span>, <span class="st">"Gal(b1-4)GalNAc(a1-"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">enhance_struc</span><span class="op">(</span><span class="st">"Gal(??-?)GalNAc(??-"</span>, db <span class="op">=</span> <span class="va">db_intact</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   raw                 enhanced           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??- <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??- <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   raw                 enhanced            confidence</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??- <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span>         <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??- <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span>         <span style="color: #BB0000;">NA</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># From basic level to topological level</span></span></span>
 <span class="r-in"><span><span class="va">db_topo</span> <span class="op">&lt;-</span> <span class="st">"Gal(??-?)GalNAc(??-"</span></span></span>
 <span class="r-in"><span><span class="fu">enhance_struc</span><span class="op">(</span><span class="st">"Hex(??-?)HexNAc(??-"</span>, db <span class="op">=</span> <span class="va">db_topo</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   raw                 enhanced           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #000000;">Hex</span>(??-?)<span style="color: #000000;">HexNAc</span>(??- <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??-</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   raw                 enhanced            confidence</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #000000;">Hex</span>(??-?)<span style="color: #000000;">HexNAc</span>(??- <span style="color: #FFD700;">Gal</span>(??-?)<span style="color: #FFD700;">GalNAc</span>(??-         <span style="color: #BB0000;">NA</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># From partial level to intact level</span></span></span>
 <span class="r-in"><span><span class="fu">enhance_struc</span><span class="op">(</span><span class="st">"Gal(b1-?)GalNAc(a1-"</span>, db <span class="op">=</span> <span class="va">db_intact</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   raw                 enhanced           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(b1-?)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #FFD700;">Gal</span>(b1-?)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   raw                 enhanced            confidence</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(b1-?)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span>         <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #FFD700;">Gal</span>(b1-?)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span>         <span style="color: #BB0000;">NA</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

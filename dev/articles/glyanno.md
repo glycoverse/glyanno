@@ -63,13 +63,13 @@ m/z value.
 ``` r
 
 mz_to_comp(406.1325, charge = 1, adduct = "Na+")
-#> # A tibble: 4 × 2
-#>      mz composition    
-#>   <dbl> <comp>         
-#> 1  406. Gal(1)GalNAc(1)
-#> 2  406. Gal(1)GlcNAc(1)
-#> 3  406. Glc(1)GlcNAc(1)
-#> 4  406. Man(1)GlcNAc(1)
+#> # A tibble: 4 × 3
+#>      mz composition     confidence
+#>   <dbl> <comp>               <dbl>
+#> 1  406. Gal(1)GalNAc(1)      5.32 
+#> 2  406. Gal(1)GlcNAc(1)      2.71 
+#> 3  406. Glc(1)GlcNAc(1)      0.693
+#> 4  406. Man(1)GlcNAc(1)      2.08
 ```
 
 This returns every composition in `glydb` matching the m/z of 406.1325.
@@ -106,10 +106,10 @@ to filter results.
 ``` r
 
 mz_to_comp(406.1325, charge = 1, adduct = "Na+", db = my_db)
-#> # A tibble: 1 × 2
-#>      mz composition    
-#>   <dbl> <comp>         
-#> 1  406. Gal(1)GalNAc(1)
+#> # A tibble: 1 × 3
+#>      mz composition     confidence
+#>   <dbl> <comp>               <dbl>
+#> 1  406. Gal(1)GalNAc(1)       5.32
 ```
 
 The results are now significantly more relevant to our specific context.
@@ -122,12 +122,12 @@ Gal(1)GalNAc(1). What are the possible structures for this composition?
 
 struc_db <- glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
 comp_to_struc("Gal(1)GalNAc(1)", db = struc_db)
-#> # A tibble: 3 × 2
-#>   composition     structure          
-#>   <comp>          <struct>           
-#> 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-
-#> 2 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-
-#> 3 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-
+#> # A tibble: 3 × 3
+#>   composition     structure           confidence
+#>   <comp>          <struct>                 <dbl>
+#> 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-       5.32
+#> 2 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-       1.10
+#> 3 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-       1.61
 ```
 
 Note that here we use
@@ -193,11 +193,11 @@ struc_db <- glydb_structures(
   glycan_type = "O-GalNAc"
 )
 comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db)
-#> # A tibble: 2 × 2
-#>   composition        structure             
-#>   <comp>             <struct>              
-#> 1 Gal(1)GalNAc(1)    Gal(??-?)GalNAc(??-   
-#> 2 GlcNAc(1)GalNAc(1) GlcNAc(??-?)GalNAc(??-
+#> # A tibble: 2 × 3
+#>   composition        structure              confidence
+#>   <comp>             <struct>                    <dbl>
+#> 1 Gal(1)GalNAc(1)    Gal(??-?)GalNAc(??-          5.32
+#> 2 GlcNAc(1)GalNAc(1) GlcNAc(??-?)GalNAc(??-       2.77
 ```
 
 ## Enhancing Compositions and Structures
@@ -217,30 +217,30 @@ input) and `enhanced` (the potential high-resolution candidates).
 ``` r
 
 enhance_comp("Hex(1)HexNAc(1)")
-#> # A tibble: 4 × 2
-#>   raw             enhanced       
-#>   <comp>          <comp>         
-#> 1 Hex(1)HexNAc(1) Gal(1)GalNAc(1)
-#> 2 Hex(1)HexNAc(1) Gal(1)GlcNAc(1)
-#> 3 Hex(1)HexNAc(1) Glc(1)GlcNAc(1)
-#> 4 Hex(1)HexNAc(1) Man(1)GlcNAc(1)
+#> # A tibble: 4 × 3
+#>   raw             enhanced        confidence
+#>   <comp>          <comp>               <dbl>
+#> 1 Hex(1)HexNAc(1) Gal(1)GalNAc(1)      5.32 
+#> 2 Hex(1)HexNAc(1) Gal(1)GlcNAc(1)      2.71 
+#> 3 Hex(1)HexNAc(1) Glc(1)GlcNAc(1)      0.693
+#> 4 Hex(1)HexNAc(1) Man(1)GlcNAc(1)      2.08
 ```
 
 ``` r
 
 enhance_struc("Gal(??-?)GalNAc(??-")
-#> # A tibble: 9 × 2
-#>   raw                 enhanced           
-#>   <struct>            <struct>           
-#> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-
-#> 2 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(b1-
-#> 3 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(b1-
-#> 4 Gal(??-?)GalNAc(??- Gal(b1-4)GalNAc(b1-
-#> 5 Gal(??-?)GalNAc(??- Gal(a1-6)GalNAc(a1-
-#> 6 Gal(??-?)GalNAc(??- Gal(b1-6)GalNAc(a1-
-#> 7 Gal(??-?)GalNAc(??- Gal(b1-6)GalNAc(b1-
-#> 8 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-
-#> 9 Gal(??-?)GalNAc(??- Gal(b1-4)GalNAc(a1-
+#> # A tibble: 9 × 3
+#>   raw                 enhanced            confidence
+#>   <struct>            <struct>                 <dbl>
+#> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-       5.32
+#> 2 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(b1-       1.10
+#> 3 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(b1-      -1   
+#> 4 Gal(??-?)GalNAc(??- Gal(b1-4)GalNAc(b1-      -1   
+#> 5 Gal(??-?)GalNAc(??- Gal(a1-6)GalNAc(a1-      -1   
+#> 6 Gal(??-?)GalNAc(??- Gal(b1-6)GalNAc(a1-      -1   
+#> 7 Gal(??-?)GalNAc(??- Gal(b1-6)GalNAc(b1-      -1   
+#> 8 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-       1.61
+#> 9 Gal(??-?)GalNAc(??- Gal(b1-4)GalNAc(a1-      -1
 ```
 
 Similarly, providing a custom database will narrow down the results to
@@ -249,21 +249,21 @@ biologically relevant candidates.
 ``` r
 
 enhance_comp("Hex(1)HexNAc(1)", db = glydb_compositions(species = "Homo sapiens", glycan_type = "O-GalNAc"))
-#> # A tibble: 1 × 2
-#>   raw             enhanced       
-#>   <comp>          <comp>         
-#> 1 Hex(1)HexNAc(1) Gal(1)GalNAc(1)
+#> # A tibble: 1 × 3
+#>   raw             enhanced        confidence
+#>   <comp>          <comp>               <dbl>
+#> 1 Hex(1)HexNAc(1) Gal(1)GalNAc(1)       5.32
 ```
 
 ``` r
 
 enhance_struc("Gal(??-?)GalNAc(??-", db = glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc"))
-#> # A tibble: 3 × 2
-#>   raw                 enhanced           
-#>   <struct>            <struct>           
-#> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-
-#> 2 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(b1-
-#> 3 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-
+#> # A tibble: 3 × 3
+#>   raw                 enhanced            confidence
+#>   <struct>            <struct>                 <dbl>
+#> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-       5.32
+#> 2 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(b1-       1.10
+#> 3 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-       1.61
 ```
 
 You can set `return_best` to `TRUE` as well.

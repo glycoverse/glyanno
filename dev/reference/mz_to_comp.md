@@ -82,8 +82,12 @@ as `NA`. If `return_best=FALSE`: A tibble with the following columns:
 
 - `composition`: The possible glycan compositions, as
   [`glyrepr::glycan_composition()`](https://glycoverse.github.io/glyrepr/reference/glycan_composition.html)
-  vector. Note that one m/z value can have multiple rows in the result,
-  corresponding to different possible glycan compositions.
+  vector.
+
+- `confidence`: The database confidence score for each composition, or
+  `NA` when no score is available. Note that one m/z value can have
+  multiple rows in the result, corresponding to different possible
+  glycan compositions.
 
 ## How to set `db`
 
@@ -120,16 +124,16 @@ example,
 
 ``` r
 mz_to_comp(933.3175, charge = 1, adduct = "Na+")
-#> # A tibble: 9 × 2
-#>      mz composition                   
-#>   <dbl> <comp>                        
-#> 1  933. Glc(1)Gal(2)GlcNAc(1)GalNAc(1)
-#> 2  933. Gal(3)GlcNAc(2)               
-#> 3  933. Glc(1)Gal(2)GlcNAc(2)         
-#> 4  933. Man(1)Gal(2)GlcNAc(2)         
-#> 5  933. Man(3)GlcNAc(2)               
-#> 6  933. Gal(3)GlcNAc(1)GalNAc(1)      
-#> 7  933. Glc(1)Gal(2)GalNAc(2)         
-#> 8  933. Man(2)Gal(1)GlcNAc(2)         
-#> 9  933. Gal(3)GalNAc(2)               
+#> # A tibble: 9 × 3
+#>      mz composition                    confidence
+#>   <dbl> <comp>                              <dbl>
+#> 1  933. Glc(1)Gal(2)GlcNAc(1)GalNAc(1)       1.79
+#> 2  933. Gal(3)GlcNAc(2)                      1.61
+#> 3  933. Glc(1)Gal(2)GlcNAc(2)                1.39
+#> 4  933. Man(1)Gal(2)GlcNAc(2)                0   
+#> 5  933. Man(3)GlcNAc(2)                      5.61
+#> 6  933. Gal(3)GlcNAc(1)GalNAc(1)             1.10
+#> 7  933. Glc(1)Gal(2)GalNAc(2)                2.40
+#> 8  933. Man(2)Gal(1)GlcNAc(2)               -1   
+#> 9  933. Gal(3)GalNAc(2)                     -1   
 ```

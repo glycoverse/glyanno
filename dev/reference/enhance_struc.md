@@ -47,9 +47,12 @@ columns:
 
 - `raw`: The original glycan structures.
 
-- `enhanced`: The enhanced glycan structures. Note that one `raw` glycan
-  structure can have different `enhanced` glycan structures as multiple
-  rows in the result.
+- `enhanced`: The enhanced glycan structures.
+
+- `confidence`: The database confidence score for each enhanced
+  structure, or `NA` when no score is available. Note that one `raw`
+  glycan structure can have different `enhanced` glycan structures as
+  multiple rows in the result.
 
 ## Details
 
@@ -63,25 +66,25 @@ at "intact" level.
 # From topological level to intact level
 db_intact <- c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
 enhance_struc("Gal(??-?)GalNAc(??-", db = db_intact)
-#> # A tibble: 2 × 2
-#>   raw                 enhanced           
-#>   <struct>            <struct>           
-#> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-
-#> 2 Gal(??-?)GalNAc(??- Gal(b1-4)GalNAc(a1-
+#> # A tibble: 2 × 3
+#>   raw                 enhanced            confidence
+#>   <struct>            <struct>                 <dbl>
+#> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-         NA
+#> 2 Gal(??-?)GalNAc(??- Gal(b1-4)GalNAc(a1-         NA
 
 # From basic level to topological level
 db_topo <- "Gal(??-?)GalNAc(??-"
 enhance_struc("Hex(??-?)HexNAc(??-", db = db_topo)
-#> # A tibble: 1 × 2
-#>   raw                 enhanced           
-#>   <struct>            <struct>           
-#> 1 Hex(??-?)HexNAc(??- Gal(??-?)GalNAc(??-
+#> # A tibble: 1 × 3
+#>   raw                 enhanced            confidence
+#>   <struct>            <struct>                 <dbl>
+#> 1 Hex(??-?)HexNAc(??- Gal(??-?)GalNAc(??-         NA
 
 # From partial level to intact level
 enhance_struc("Gal(b1-?)GalNAc(a1-", db = db_intact)
-#> # A tibble: 2 × 2
-#>   raw                 enhanced           
-#>   <struct>            <struct>           
-#> 1 Gal(b1-?)GalNAc(a1- Gal(b1-3)GalNAc(a1-
-#> 2 Gal(b1-?)GalNAc(a1- Gal(b1-4)GalNAc(a1-
+#> # A tibble: 2 × 3
+#>   raw                 enhanced            confidence
+#>   <struct>            <struct>                 <dbl>
+#> 1 Gal(b1-?)GalNAc(a1- Gal(b1-3)GalNAc(a1-         NA
+#> 2 Gal(b1-?)GalNAc(a1- Gal(b1-4)GalNAc(a1-         NA
 ```

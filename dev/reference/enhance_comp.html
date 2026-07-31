@@ -78,7 +78,9 @@ A <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_compositi
 Unmatched compositions are returned as <code>NA</code>.
 If <code>return_best=FALSE</code>:
 A tibble with the following columns:</p><ul><li><p><code>raw</code>: The original compositions.</p></li>
-<li><p><code>enhanced</code>: The enhanced compositions.
+<li><p><code>enhanced</code>: The enhanced compositions.</p></li>
+<li><p><code>confidence</code>: The database confidence score for each enhanced
+composition, or <code>NA</code> when no score is available.
 Note that one <code>raw</code> composition can have different <code>enhanced</code> compositions
 as multiple rows in the result.</p></li>
 </ul></div>
@@ -103,14 +105,14 @@ For example,</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">enhance_comp</span><span class="op">(</span><span class="st">"Hex(5)HexNAc(2)"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 5 × 2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   raw             enhanced             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #0087D7;">Glc</span>(1)<span style="color: #FFD700;">Gal</span>(4)<span style="color: #0087D7;">GlcNAc</span>(2)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(5)<span style="color: #0087D7;">GlcNAc</span>(2)      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #0087D7;">Glc</span>(1)<span style="color: #00AF5F;">Man</span>(4)<span style="color: #0087D7;">GlcNAc</span>(2)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(3)<span style="color: #FFD700;">Gal</span>(2)<span style="color: #0087D7;">GlcNAc</span>(2)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(4)<span style="color: #FFD700;">Gal</span>(1)<span style="color: #0087D7;">GlcNAc</span>(2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 5 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   raw             enhanced              confidence</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #0087D7;">Glc</span>(1)<span style="color: #FFD700;">Gal</span>(4)<span style="color: #0087D7;">GlcNAc</span>(2)      1.10 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(5)<span style="color: #0087D7;">GlcNAc</span>(2)            5.10 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #0087D7;">Glc</span>(1)<span style="color: #00AF5F;">Man</span>(4)<span style="color: #0087D7;">GlcNAc</span>(2)      0.693</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(3)<span style="color: #FFD700;">Gal</span>(2)<span style="color: #0087D7;">GlcNAc</span>(2)     -<span style="color: #BB0000;">1</span>    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(4)<span style="color: #FFD700;">Gal</span>(1)<span style="color: #0087D7;">GlcNAc</span>(2)     -<span style="color: #BB0000;">1</span>    </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -102,7 +102,9 @@ An unnamed <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_
 Unmatched m/z values are returned as <code>NA</code>.
 If <code>return_best=FALSE</code>:
 A tibble with the following columns:</p><ul><li><p><code>mz</code>: The molecule m/z values, same as the input <code>mz</code>.</p></li>
-<li><p><code>composition</code>: The possible glycan compositions, as <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_composition.html" class="external-link">glyrepr::glycan_composition()</a></code> vector.
+<li><p><code>composition</code>: The possible glycan compositions, as <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_composition.html" class="external-link">glyrepr::glycan_composition()</a></code> vector.</p></li>
+<li><p><code>confidence</code>: The database confidence score for each composition, or
+<code>NA</code> when no score is available.
 Note that one m/z value can have multiple rows in the result,
 corresponding to different possible glycan compositions.</p></li>
 </ul></div>
@@ -131,18 +133,18 @@ For example,</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">mz_to_comp</span><span class="op">(</span><span class="fl">933.3175</span>, charge <span class="op">=</span> <span class="fl">1</span>, adduct <span class="op">=</span> <span class="st">"Na+"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 9 × 2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      mz composition                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>  933. <span style="color: #0087D7;">Glc</span>(1)<span style="color: #FFD700;">Gal</span>(2)<span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>  933. <span style="color: #FFD700;">Gal</span>(3)<span style="color: #0087D7;">GlcNAc</span>(2)               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>  933. <span style="color: #0087D7;">Glc</span>(1)<span style="color: #FFD700;">Gal</span>(2)<span style="color: #0087D7;">GlcNAc</span>(2)         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>  933. <span style="color: #00AF5F;">Man</span>(1)<span style="color: #FFD700;">Gal</span>(2)<span style="color: #0087D7;">GlcNAc</span>(2)         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>  933. <span style="color: #00AF5F;">Man</span>(3)<span style="color: #0087D7;">GlcNAc</span>(2)               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>  933. <span style="color: #FFD700;">Gal</span>(3)<span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span>  933. <span style="color: #0087D7;">Glc</span>(1)<span style="color: #FFD700;">Gal</span>(2)<span style="color: #FFD700;">GalNAc</span>(2)         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span>  933. <span style="color: #00AF5F;">Man</span>(2)<span style="color: #FFD700;">Gal</span>(1)<span style="color: #0087D7;">GlcNAc</span>(2)         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">9</span>  933. <span style="color: #FFD700;">Gal</span>(3)<span style="color: #FFD700;">GalNAc</span>(2)               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 9 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      mz composition                    confidence</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>                              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>  933. <span style="color: #0087D7;">Glc</span>(1)<span style="color: #FFD700;">Gal</span>(2)<span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)       1.79</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>  933. <span style="color: #FFD700;">Gal</span>(3)<span style="color: #0087D7;">GlcNAc</span>(2)                      1.61</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>  933. <span style="color: #0087D7;">Glc</span>(1)<span style="color: #FFD700;">Gal</span>(2)<span style="color: #0087D7;">GlcNAc</span>(2)                1.39</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>  933. <span style="color: #00AF5F;">Man</span>(1)<span style="color: #FFD700;">Gal</span>(2)<span style="color: #0087D7;">GlcNAc</span>(2)                0   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>  933. <span style="color: #00AF5F;">Man</span>(3)<span style="color: #0087D7;">GlcNAc</span>(2)                      5.61</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>  933. <span style="color: #FFD700;">Gal</span>(3)<span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)             1.10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span>  933. <span style="color: #0087D7;">Glc</span>(1)<span style="color: #FFD700;">Gal</span>(2)<span style="color: #FFD700;">GalNAc</span>(2)                2.40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span>  933. <span style="color: #00AF5F;">Man</span>(2)<span style="color: #FFD700;">Gal</span>(1)<span style="color: #0087D7;">GlcNAc</span>(2)               -<span style="color: #BB0000;">1</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">9</span>  933. <span style="color: #FFD700;">Gal</span>(3)<span style="color: #FFD700;">GalNAc</span>(2)                     -<span style="color: #BB0000;">1</span>   </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
