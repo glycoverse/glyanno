@@ -33,6 +33,8 @@ A tibble with the following columns:
 \itemize{
 \item \code{composition}: The glycan compositions, as \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector.
 \item \code{structure}: The possible glycan structures, as \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector.
+\item \code{confidence}: The database confidence score for each structure, or \code{NA}
+when no score is available.
 Note that one glycan composition can have multiple rows in the result,
 corresponding to different possible glycan structures.
 }

@@ -54,6 +54,8 @@ A tibble with the following columns:
 \itemize{
 \item \code{mz}: The molecule m/z values, same as the input \code{mz}.
 \item \code{composition}: The possible glycan compositions, as \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector.
+\item \code{confidence}: The database confidence score for each composition, or
+\code{NA} when no score is available.
 Note that one m/z value can have multiple rows in the result,
 corresponding to different possible glycan compositions.
 }

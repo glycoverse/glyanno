@@ -29,6 +29,8 @@ A tibble with the following columns:
 \itemize{
 \item \code{raw}: The original glycan structures.
 \item \code{enhanced}: The enhanced glycan structures.
+\item \code{confidence}: The database confidence score for each enhanced
+structure, or \code{NA} when no score is available.
 Note that one \code{raw} glycan structure can have different \code{enhanced} glycan structures
 as multiple rows in the result.
 }

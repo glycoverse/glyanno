@@ -33,6 +33,8 @@ A tibble with the following columns:
 \itemize{
 \item \code{raw}: The original compositions.
 \item \code{enhanced}: The enhanced compositions.
+\item \code{confidence}: The database confidence score for each enhanced
+composition, or \code{NA} when no score is available.
 Note that one \code{raw} composition can have different \code{enhanced} compositions
 as multiple rows in the result.
 }

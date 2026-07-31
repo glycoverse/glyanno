@@ -27,6 +27,8 @@
 #'   A tibble with the following columns:
 #'   - `raw`: The original compositions.
 #'   - `enhanced`: The enhanced compositions.
+#'   - `confidence`: The database confidence score for each enhanced
+#'     composition, or `NA` when no score is available.
 #'     Note that one `raw` composition can have different `enhanced` compositions
 #'     as multiple rows in the result.
 #'
@@ -49,7 +51,8 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
     }
     return(tibble::tibble(
       raw = glyrepr::glycan_composition(),
-      enhanced = glyrepr::glycan_composition()
+      enhanced = glyrepr::glycan_composition(),
+      confidence = numeric()
     ))
   }
 
@@ -106,7 +109,8 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
     }
     res <- tibble::tibble(
       raw = comps,
-      enhanced = comps
+      enhanced = comps,
+      confidence = NA_real_
     )
   }
   res

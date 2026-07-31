@@ -45,6 +45,8 @@
 #'   A tibble with the following columns:
 #'   - `mz`: The molecule m/z values, same as the input `mz`.
 #'   - `composition`: The possible glycan compositions, as [glyrepr::glycan_composition()] vector.
+#'   - `confidence`: The database confidence score for each composition, or
+#'     `NA` when no score is available.
 #'     Note that one m/z value can have multiple rows in the result,
 #'     corresponding to different possible glycan compositions.
 #'
@@ -73,7 +75,8 @@ mz_to_comp <- function(
     }
     return(tibble::tibble(
       mz = numeric(0),
-      composition = glyrepr::glycan_composition()
+      composition = glyrepr::glycan_composition(),
+      confidence = numeric()
     ))
   }
   checkmate::assert(
@@ -148,9 +151,11 @@ mz_to_comp <- function(
     unname(db[full_ids])
   } else {
     match_counts <- lengths(match_ids)
+    matched_ids <- unlist(match_ids, use.names = FALSE)
     tibble::tibble(
       mz = rep(mz_to_process, match_counts),
-      composition = db[unlist(match_ids, use.names = FALSE)]
+      composition = db[matched_ids],
+      confidence = (confidences %||% rep(NA_real_, length(db)))[matched_ids]
     )
   }
 }

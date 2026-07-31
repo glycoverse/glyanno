@@ -25,6 +25,8 @@
 #'   A tibble with the following columns:
 #'   - `composition`: The glycan compositions, as [glyrepr::glycan_composition()] vector.
 #'   - `structure`: The possible glycan structures, as [glyrepr::glycan_structure()] vector.
+#'   - `confidence`: The database confidence score for each structure, or `NA`
+#'     when no score is available.
 #'     Note that one glycan composition can have multiple rows in the result,
 #'     corresponding to different possible glycan structures.
 #'
@@ -45,7 +47,8 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
     }
     return(tibble::tibble(
       composition = glyrepr::glycan_composition(),
-      structure = glyrepr::glycan_structure()
+      structure = glyrepr::glycan_structure(),
+      confidence = numeric()
     ))
   }
 
@@ -77,7 +80,7 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
   db_df <- tibble::tibble(
     composition = db_index$composition,
     structure = db,
-    confidence = attr(db, "confidence")
+    confidence = attr(db, "confidence") %||% NA_real_
   )
   comps_df <- tibble::tibble(
     composition = comp_keys,

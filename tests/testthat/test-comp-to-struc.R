@@ -9,7 +9,8 @@ test_that("comp_to_struc works for generic db and generic comps", {
     dplyr::mutate(structure = as.character(structure))
   expected <- tibble::tibble(
     composition = comps,
-    structure = "Hex(??-?)HexNAc(??-"
+    structure = "Hex(??-?)HexNAc(??-",
+    confidence = NA_real_
   )
   expect_equal(result, expected)
 })
@@ -25,7 +26,8 @@ test_that("comp_to_struc works for concrete db and generic comps", {
     dplyr::mutate(structure = as.character(structure))
   expected <- tibble::tibble(
     composition = comps,
-    structure = c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
+    structure = c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-"),
+    confidence = c(NA_real_, NA_real_)
   )
   expect_equal(result, expected)
 })
@@ -50,7 +52,8 @@ test_that("comp_to_struc works for concrete db and concrete comps", {
     dplyr::mutate(structure = as.character(structure))
   expected <- tibble::tibble(
     composition = comps,
-    structure = c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
+    structure = c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-"),
+    confidence = c(NA_real_, NA_real_)
   )
   expect_equal(result, expected)
 })
@@ -66,7 +69,8 @@ test_that("comp_to_struc works with multiple compositions", {
     dplyr::mutate(structure = as.character(structure))
   expected <- tibble::tibble(
     composition = comps,
-    structure = c("Hex(??-?)HexNAc(??-", "HexNAc(??-")
+    structure = c("Hex(??-?)HexNAc(??-", "HexNAc(??-"),
+    confidence = c(NA_real_, NA_real_)
   )
   expect_equal(result, expected)
 })
@@ -82,7 +86,8 @@ test_that("comp_to_struc works with different composition types", {
     dplyr::mutate(structure = as.character(structure))
   expected <- tibble::tibble(
     composition = glyrepr::as_glycan_composition(comps),
-    structure = c("Hex(??-?)HexNAc(??-", "HexNAc(??-")
+    structure = c("Hex(??-?)HexNAc(??-", "HexNAc(??-"),
+    confidence = c(NA_real_, NA_real_)
   )
   expect_equal(result, expected)
 })
@@ -103,7 +108,8 @@ test_that("comp_to_struc handles duplicate compositions", {
   best <- comp_to_struc(comps, db, return_best = TRUE)
   expected <- tibble::tibble(
     composition = comps,
-    structure = c("Hex(??-?)HexNAc(??-", "HexNAc(??-", "Hex(??-?)HexNAc(??-")
+    structure = c("Hex(??-?)HexNAc(??-", "HexNAc(??-", "Hex(??-?)HexNAc(??-"),
+    confidence = c(1, 2, 1)
   )
   expect_equal(result, expected)
   expect_equal(as.character(best), expected$structure)
@@ -115,7 +121,8 @@ test_that("comp_to_struc accepts empty compositions", {
   result <- comp_to_struc(comps, db)
   expected <- tibble::tibble(
     composition = glyrepr::glycan_composition(),
-    structure = glyrepr::glycan_structure()
+    structure = glyrepr::glycan_structure(),
+    confidence = numeric()
   )
   expect_equal(result, expected)
 })
@@ -196,8 +203,8 @@ test_that("comp_to_struc works with db=NULL (regression: confidences undefined)"
   expect_no_error(
     result <- comp_to_struc(comps, db = NULL, return_best = FALSE)
   )
-  # Result should be a tibble with composition and structure columns
-  expect_named(result, c("composition", "structure"))
+  expect_named(result, c("composition", "structure", "confidence"))
+  expect_false(all(is.na(result$confidence)))
   # Should have at least one match from default glydb
   expect_gt(nrow(result), 0)
 })
