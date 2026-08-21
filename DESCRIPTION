@@ -41,4 +41,5 @@ VignetteBuilder: knitr
 Depends:
     R (>= 4.1)
 Remotes:
+    glycoverse/glymotif,
     glycoverse/glyrepr
