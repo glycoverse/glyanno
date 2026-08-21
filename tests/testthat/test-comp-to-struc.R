@@ -180,6 +180,77 @@ test_that("comp_to_struc handles duplicate compositions", {
   expect_equal(as.character(best), expected$structure)
 })
 
+test_that("comp_to_struc matches each unique composition once", {
+  matched <- character()
+  local_mocked_bindings(
+    .composition_match_ids = function(pattern, index) {
+      matched <<- c(matched, as.character(pattern))
+      integer()
+    },
+    .package = "glyanno"
+  )
+  db <- glyrepr::as_glycan_structure("GalNAc(??-")
+  comps <- glyrepr::as_glycan_composition(c(
+    "HexNAc(1)",
+    "Hex(1)",
+    "HexNAc(1)"
+  ))
+
+  comp_to_struc(comps, db)
+
+  expect_equal(matched, c("HexNAc(1)", "Hex(1)"))
+})
+
+test_that("comp_to_struc reuses bundled metadata for the default database", {
+  old_db_cache <- as.list(.default_struc_db_cache, all.names = TRUE)
+  old_comp_cache <- as.list(.comp_to_struc_cache, all.names = TRUE)
+  on.exit(
+    {
+      rm(list = ls(.default_struc_db_cache), envir = .default_struc_db_cache)
+      rm(list = ls(.comp_to_struc_cache), envir = .comp_to_struc_cache)
+      list2env(old_db_cache, envir = .default_struc_db_cache)
+      list2env(old_comp_cache, envir = .comp_to_struc_cache)
+    },
+    add = TRUE
+  )
+  rm(list = ls(.default_struc_db_cache), envir = .default_struc_db_cache)
+  rm(list = ls(.comp_to_struc_cache), envir = .comp_to_struc_cache)
+
+  metadata <- default_comp_to_struc_metadata
+  eligible <- which(!metadata$floating)
+  distinct <- !duplicated(metadata$generic_keys[eligible])
+  ids <- eligible[distinct][1:2]
+  db <- glyrepr::as_glycan_structure(metadata$structure_keys[ids])
+  attr(db, "confidence") <- c(1, 2)
+  inputs <- c(
+    glyrepr::convert_to_generic(metadata$composition[ids[1]]),
+    metadata$composition[ids[2]]
+  )
+  local_mocked_bindings(
+    glydb_structures = function(...) db,
+    .package = "glydb"
+  )
+  local_mocked_bindings(
+    as_glycan_composition = function(...) {
+      stop("default structures were converted again")
+    },
+    .package = "glyrepr"
+  )
+
+  result <- comp_to_struc(inputs, return_best = TRUE)
+
+  expect_equal(as.character(result), as.character(db))
+})
+
+test_that("default database metadata falls back for unknown structures", {
+  db <- glyrepr::as_glycan_structure("Hex(??-?)HexNAc(??-")
+
+  result <- .prepare_default_struc_db(db, "db")
+
+  expect_equal(as.character(result$composition), "Hex(1)HexNAc(1)")
+  expect_equal(result$generic_keys, "Hex(1)HexNAc(1)")
+})
+
 test_that("comp_to_struc accepts empty compositions", {
   db <- glyrepr::as_glycan_structure(c("Hex(??-?)HexNAc(??-", "HexNAc(??-"))
   comps <- glyrepr::glycan_composition()

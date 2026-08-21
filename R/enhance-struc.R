@@ -94,24 +94,19 @@ enhance_struc <- function(
   to_enhance <- strucs[!is_missing & !is_passthrough]
   unique_to_enhance <- unique(to_enhance)
 
-  db_comp_index <- .new_composition_match_index(
-    glyrepr::as_glycan_composition(db)
-  )
-  matches <- purrr::map(unique_to_enhance, function(pattern) {
-    candidate_ids <- .composition_match_ids(
-      glyrepr::as_glycan_composition(pattern),
-      db_comp_index
+  if (length(db) == 0 || length(unique_to_enhance) == 0) {
+    matches <- rep(list(integer()), length(unique_to_enhance))
+  } else {
+    match_matrix <- glymotif::have_motifs(
+      db,
+      unique_to_enhance,
+      alignments = "whole"
     )
-    if (length(candidate_ids) == 0) {
-      return(integer())
-    }
-    matched <- glymotif::have_motif(
-      db[candidate_ids],
-      pattern,
-      alignment = "whole"
+    matches <- lapply(
+      seq_along(unique_to_enhance),
+      function(i) which(match_matrix[, i])
     )
-    candidate_ids[which(matched)]
-  })
+  }
   unique_ids <- match(
     as.character(strucs),
     as.character(unique_to_enhance)

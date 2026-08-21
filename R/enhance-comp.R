@@ -59,21 +59,28 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
 
   comps_type <- glyrepr::get_mono_type(comps)
   is_passthrough <- !is.na(comps_type) & comps_type == "concrete"
+  is_matchable <- !is_passthrough & !is.na(comps)
+  matches <- rep(list(integer()), length(comps))
+  if (any(is_matchable)) {
+    matchable_comps <- comps[is_matchable]
+    matchable_keys <- as.character(matchable_comps)
+    unique_ids <- match(matchable_keys, unique(matchable_keys))
+    unique_comps <- matchable_comps[!duplicated(matchable_keys)]
+    unique_matches <- lapply(
+      seq_along(unique_comps),
+      function(i) {
+        .composition_match_ids(unique_comps[i], db_index$match_index)
+      }
+    )
+    matches[is_matchable] <- unique_matches[unique_ids]
+  }
 
   if (return_best) {
     match_ids <- vapply(
-      seq_along(comps),
-      function(i) {
-        if (is_passthrough[[i]]) {
-          return(NA_integer_)
-        }
-        candidate_ids <- .composition_match_ids(
-          comps[i],
-          db_index$match_index
-        )
-        .best_match_id(candidate_ids, db_index$best_rank)
-      },
-      integer(1)
+      matches,
+      .best_match_id,
+      integer(1),
+      best_rank = db_index$best_rank
     )
     result <- db[match_ids]
     result[is_passthrough] <- comps[is_passthrough]
@@ -81,23 +88,24 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
   }
 
   confidence <- attr(db, "confidence") %||% rep(NA_real_, length(db))
-  res <- purrr::map_dfr(seq_along(comps), function(i) {
-    if (is_passthrough[[i]]) {
-      return(tibble::tibble(
-        raw = comps[i],
-        enhanced = comps[i],
-        confidence = NA_real_,
-        row_id = i
-      ))
-    }
-    candidate_ids <- .composition_match_ids(comps[i], db_index$match_index)
-    tibble::tibble(
-      raw = rep(comps[i], length(candidate_ids)),
-      enhanced = db[candidate_ids],
-      confidence = confidence[candidate_ids],
-      row_id = rep(i, length(candidate_ids))
-    )
-  })
+  match_lengths <- lengths(matches)
+  matched_row_ids <- rep(seq_along(comps), match_lengths)
+  candidate_ids <- unlist(matches, use.names = FALSE)
+  matched <- tibble::tibble(
+    raw = comps[matched_row_ids],
+    enhanced = db[candidate_ids],
+    confidence = confidence[candidate_ids],
+    row_id = matched_row_ids
+  )
+  passthrough_ids <- which(is_passthrough)
+  passthrough <- tibble::tibble(
+    raw = comps[passthrough_ids],
+    enhanced = comps[passthrough_ids],
+    confidence = rep(NA_real_, length(passthrough_ids)),
+    row_id = passthrough_ids
+  )
+  res <- dplyr::bind_rows(matched, passthrough) |>
+    dplyr::arrange(.data$row_id)
   .prepare_result(
     res,
     return_best,

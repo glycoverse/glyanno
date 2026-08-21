@@ -55,35 +55,47 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
     ))
   }
 
-  db_index <- .prepare_comp_to_struc_index(db)
+  mono_types <- glyrepr::get_mono_type(comps)
+  match_mode <- if (all(is.na(mono_types) | mono_types == "concrete")) {
+    "exact"
+  } else {
+    "compatible"
+  }
+  db_index <- .prepare_comp_to_struc_index(db, match_mode)
   db <- db_index$db
   .check_return_best_arg(db, return_best)
 
+  comp_keys <- as.character(comps)
+  unique_ids <- match(comp_keys, unique(comp_keys))
+  unique_comps <- comps[!duplicated(comp_keys)]
+  unique_matches <- lapply(
+    seq_along(unique_comps),
+    function(i) {
+      .composition_match_ids(unique_comps[i], db_index$match_index)
+    }
+  )
+  matches <- unique_matches[unique_ids]
+
   if (return_best) {
     match_ids <- vapply(
-      seq_along(comps),
-      function(i) {
-        candidate_ids <- .composition_match_ids(
-          comps[i],
-          db_index$match_index
-        )
-        .best_match_id(candidate_ids, db_index$best_rank)
-      },
-      integer(1)
+      matches,
+      .best_match_id,
+      integer(1),
+      best_rank = db_index$best_rank
     )
     return(unname(db[match_ids]))
   }
 
   confidence <- attr(db, "confidence") %||% rep(NA_real_, length(db))
-  res <- purrr::map_dfr(seq_along(comps), function(i) {
-    candidate_ids <- .composition_match_ids(comps[i], db_index$match_index)
-    tibble::tibble(
-      composition = rep(comps[i], length(candidate_ids)),
-      structure = db[candidate_ids],
-      confidence = confidence[candidate_ids],
-      row_id = rep(i, length(candidate_ids))
-    )
-  })
+  match_lengths <- lengths(matches)
+  row_ids <- rep(seq_along(comps), match_lengths)
+  candidate_ids <- unlist(matches, use.names = FALSE)
+  res <- tibble::tibble(
+    composition = comps[row_ids],
+    structure = db[candidate_ids],
+    confidence = confidence[candidate_ids],
+    row_id = row_ids
+  )
 
   .prepare_result(
     res,
@@ -95,23 +107,58 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
 
 .comp_to_struc_cache <- new.env(parent = emptyenv())
 
-.prepare_comp_to_struc_index <- function(db) {
+.prepare_comp_to_struc_index <- function(db, match_mode) {
   if (!is.null(db)) {
-    return(.new_comp_to_struc_index(.prepare_struc_db(db)))
+    return(.new_comp_to_struc_index(
+      .prepare_struc_db(db),
+      match_mode
+    ))
   }
 
-  cache_key <- "default"
+  db <- .prepare_struc_db(NULL)
+  composition_key <- "default_composition"
+  if (
+    !exists(
+      composition_key,
+      envir = .comp_to_struc_cache,
+      inherits = FALSE
+    )
+  ) {
+    composition <- get(
+      "intact_composition",
+      envir = .default_struc_db_cache,
+      inherits = FALSE
+    )
+    assign(composition_key, composition, envir = .comp_to_struc_cache)
+  }
+
+  cache_key <- paste0("default_", match_mode)
   if (!exists(cache_key, envir = .comp_to_struc_cache, inherits = FALSE)) {
     index <- .new_comp_to_struc_index(
-      .prepare_struc_db(NULL)
+      db,
+      match_mode,
+      get(
+        composition_key,
+        envir = .comp_to_struc_cache,
+        inherits = FALSE
+      ),
+      get(
+        "intact_generic_keys",
+        envir = .default_struc_db_cache,
+        inherits = FALSE
+      )
     )
     assign(cache_key, index, envir = .comp_to_struc_cache)
   }
   get(cache_key, envir = .comp_to_struc_cache, inherits = FALSE)
 }
 
-.new_comp_to_struc_index <- function(db) {
-  composition <- glyrepr::as_glycan_composition(db)
+.new_comp_to_struc_index <- function(
+  db,
+  match_mode,
+  composition = glyrepr::as_glycan_composition(db),
+  generic_keys = NULL
+) {
   confidence <- attr(db, "confidence")
   best_order <- order(
     replace(confidence, is.na(confidence), -Inf),
@@ -119,9 +166,14 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
     method = "radix"
   )
   best_rank <- match(seq_along(db), best_order)
+  match_index <- if (match_mode == "exact") {
+    .new_exact_composition_match_index(composition)
+  } else {
+    .new_composition_match_index(composition, generic_keys)
+  }
   list(
     db = db,
-    match_index = .new_composition_match_index(composition),
+    match_index = match_index,
     best_rank = best_rank
   )
 }

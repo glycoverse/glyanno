@@ -97,9 +97,27 @@
   }
 }
 
+.default_struc_db_cache <- new.env(parent = emptyenv())
+
 .prepare_struc_db <- function(db, arg = "db") {
   if (is.null(db)) {
-    db <- glydb::glydb_structures(structure_level = "intact")
+    cache_key <- "intact"
+    if (!exists(cache_key, envir = .default_struc_db_cache, inherits = FALSE)) {
+      db <- glydb::glydb_structures(structure_level = "intact")
+      prepared <- .prepare_default_struc_db(db, arg)
+      assign(cache_key, prepared$db, envir = .default_struc_db_cache)
+      assign(
+        "intact_composition",
+        prepared$composition,
+        envir = .default_struc_db_cache
+      )
+      assign(
+        "intact_generic_keys",
+        prepared$generic_keys,
+        envir = .default_struc_db_cache
+      )
+    }
+    return(get(cache_key, envir = .default_struc_db_cache, inherits = FALSE))
   } else {
     if (!.is_glydb_vector(db)) {
       if (length(db) == 0) {
@@ -110,6 +128,56 @@
     }
   }
   .drop_floating_structures(db, arg)
+}
+
+.prepare_default_struc_db <- function(db, arg) {
+  metadata_ids <- match(
+    as.character(db),
+    default_comp_to_struc_metadata$structure_keys
+  )
+  is_unknown <- is.na(metadata_ids)
+  floating <- logical(length(db))
+  floating[!is_unknown] <- default_comp_to_struc_metadata$floating[
+    metadata_ids[!is_unknown]
+  ]
+  if (any(is_unknown)) {
+    floating[is_unknown] <- .has_unresolved_floating(db[is_unknown])
+  }
+  .warn_floating_mask(
+    floating,
+    arg,
+    "Those database structures were excluded from matching."
+  )
+
+  keep <- !floating
+  kept_metadata_ids <- metadata_ids[keep]
+  composition <- default_comp_to_struc_metadata$composition[
+    kept_metadata_ids
+  ]
+  generic_keys <- default_comp_to_struc_metadata$generic_keys[
+    kept_metadata_ids
+  ]
+  unknown_kept <- is.na(kept_metadata_ids)
+  if (any(unknown_kept)) {
+    unknown_composition <- glyrepr::as_glycan_composition(
+      db[keep][unknown_kept]
+    )
+    composition[unknown_kept] <- unknown_composition
+    generic_keys[unknown_kept] <- as.character(
+      glyrepr::convert_to_generic(unknown_composition)
+    )
+  }
+
+  confidence <- attr(db, "confidence")
+  db <- db[keep]
+  if (!is.null(confidence)) {
+    attr(db, "confidence") <- confidence[keep]
+  }
+  list(
+    db = db,
+    composition = composition,
+    generic_keys = generic_keys
+  )
 }
 
 .prepare_denovo_struc_db <- function(fallback_db) {
@@ -213,13 +281,18 @@
 
 .warn_floating_structures <- function(strucs, arg, action) {
   floating <- .has_unresolved_floating(strucs)
+  .warn_floating_mask(floating, arg, action)
+  floating
+}
+
+.warn_floating_mask <- function(floating, arg, action) {
   if (any(floating)) {
     cli::cli_warn(c(
       "{.arg {arg}} contains {sum(floating)} structure{?s} with unresolved floating parts or substituents.",
       "i" = action
     ))
   }
-  floating
+  invisible(floating)
 }
 
 .drop_floating_structures <- function(strucs, arg) {
@@ -256,10 +329,29 @@
   )
 }
 
-.new_composition_match_index <- function(candidates) {
+.new_composition_match_index <- function(candidates, generic_keys = NULL) {
+  if (is.null(generic_keys)) {
+    generic_keys <- as.character(glyrepr::convert_to_generic(candidates))
+  }
+  candidate_ids <- split(
+    seq_along(generic_keys),
+    factor(generic_keys, levels = unique(generic_keys))
+  )
   list(
-    generic_keys = as.character(glyrepr::convert_to_generic(candidates)),
+    exact = FALSE,
+    candidate_ids = candidate_ids,
     counts = as.list(candidates)
+  )
+}
+
+.new_exact_composition_match_index <- function(candidates) {
+  keys <- as.character(candidates)
+  list(
+    exact = TRUE,
+    candidate_ids = split(
+      seq_along(keys),
+      factor(keys, levels = unique(keys))
+    )
   )
 }
 
@@ -268,15 +360,26 @@
     return(integer())
   }
 
+  if (isTRUE(index$exact)) {
+    candidate_ids <- index$candidate_ids[[as.character(pattern)]]
+    if (is.null(candidate_ids)) {
+      return(integer())
+    }
+    return(candidate_ids)
+  }
+
   generic_key <- as.character(glyrepr::convert_to_generic(pattern))
-  candidate_ids <- which(index$generic_keys == generic_key)
-  if (length(candidate_ids) == 0) {
+  candidate_ids <- index$candidate_ids[[generic_key]]
+  if (is.null(candidate_ids)) {
     return(integer())
   }
 
   pattern_counts <- as.list(pattern)[[1]]
-  mono_types <- glyrepr::get_mono_type(names(pattern_counts))
-  concrete_counts <- pattern_counts[mono_types == "concrete"]
+  monos <- names(pattern_counts)
+  is_mono <- glyrepr::is_known_monosaccharide(monos)
+  mono_types <- rep(NA_character_, length(monos))
+  mono_types[is_mono] <- glyrepr::get_mono_type(monos[is_mono])
+  concrete_counts <- pattern_counts[is_mono & mono_types == "concrete"]
   if (length(concrete_counts) == 0) {
     return(candidate_ids)
   }

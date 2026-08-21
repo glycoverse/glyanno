@@ -125,6 +125,38 @@ test_that("enhance_comp handles mixed types element-wise", {
   expect_identical(is.na(best), c(FALSE, FALSE, FALSE, TRUE))
 })
 
+test_that("enhance_comp matches repeated generic inputs once", {
+  matched <- character()
+  local_mocked_bindings(
+    .composition_match_ids = function(pattern, index) {
+      matched <<- c(matched, as.character(pattern))
+      integer()
+    },
+    .package = "glyanno"
+  )
+  db <- glyrepr::as_glycan_composition("GalNAc(1)")
+  comps <- glyrepr::as_glycan_composition(c(
+    "HexNAc(1)",
+    "Hex(1)",
+    "HexNAc(1)"
+  ))
+
+  enhance_comp(comps, db)
+
+  expect_equal(matched, c("HexNAc(1)", "Hex(1)"))
+})
+
+test_that("enhance_comp matches compositions with substituents", {
+  db <- glyrepr::as_glycan_composition(c(
+    "Gal(1)GalNAc(1)S(1)",
+    "Glc(1)GlcNAc(1)S(2)"
+  ))
+
+  result <- enhance_comp("Hex(1)HexNAc(1)S(1)", db)
+
+  expect_equal(as.character(result$enhanced), "Gal(1)GalNAc(1)S(1)")
+})
+
 test_that("enhance_comp errors when db has generic compositions", {
   comps <- "Hex(1)HexNAc(1)"
   db <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)") # generic composition

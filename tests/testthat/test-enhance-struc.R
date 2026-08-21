@@ -188,9 +188,9 @@ test_that("enhance_struc restores repeated and missing inputs", {
 test_that("enhance_struc matches each unique non-missing input once", {
   matched_patterns <- NULL
   local_mocked_bindings(
-    have_motif = function(glycans, motif, ...) {
-      matched_patterns <<- c(matched_patterns, motif)
-      rep(TRUE, length(glycans))
+    have_motifs = function(glycans, motifs, ...) {
+      matched_patterns <<- motifs
+      matrix(TRUE, nrow = length(glycans), ncol = length(motifs))
     },
     .package = "glymotif"
   )
