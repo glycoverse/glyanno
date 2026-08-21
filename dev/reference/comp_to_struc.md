@@ -1,7 +1,8 @@
 # Convert glycan composition to glycan structure
 
-Given glycan compositions, this function matches them to all possible
-glycan structures in the `glydb` database.
+Given glycan compositions, this function matches them to all compatible
+glycan structures in the `glydb` database. Generic, concrete, and mixed
+residue identities are matched residue by residue.
 
 ## Usage
 
@@ -29,8 +30,9 @@ comp_to_struc(comps, db = NULL, return_best = FALSE)
   [`glyrepr::glycan_structure()`](https://glycoverse.github.io/glyrepr/reference/glycan_structure.html)
   vector or any structure strings supported by
   [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
-  If not provided, `glydb::glydb_structures(structure_level = "intact")`
-  will be used.
+  Structures with unresolved floating parts or substituents are excluded
+  with a warning. If not provided,
+  `glydb::glydb_structures(structure_level = "intact")` will be used.
 
 - return_best:
 

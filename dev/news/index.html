@@ -33,8 +33,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="glyanno-development-version">glyanno (development version)<a class="anchor" aria-label="anchor" href="#glyanno-development-version"></a></h2>
-<ul><li>
-<code><a href="../reference/mz_to_comp.html">mz_to_comp()</a></code>, <code><a href="../reference/enhance_comp.html">enhance_comp()</a></code>, <code><a href="../reference/comp_to_struc.html">comp_to_struc()</a></code>, and <code><a href="../reference/enhance_struc.html">enhance_struc()</a></code> now include a <code>confidence</code> column in expanded results for customized prioritization. (#23)</li>
+<ul><li><p><code><a href="../reference/comp_to_struc.html">comp_to_struc()</a></code> now reuses bundled composition metadata for the default structure database, while <code><a href="../reference/enhance_comp.html">enhance_comp()</a></code>, <code><a href="../reference/enhance_struc.html">enhance_struc()</a></code>, and database fallback in <code><a href="../reference/enhance_struc_denovo.html">enhance_struc_denovo()</a></code> retain fast batch matching with mixed residues and element-wise structure levels. (#24)</p></li>
+<li><p><code><a href="../reference/comp_to_struc.html">comp_to_struc()</a></code>, <code><a href="../reference/enhance_comp.html">enhance_comp()</a></code>, and <code><a href="../reference/enhance_struc.html">enhance_struc()</a></code> now support mixed generic and concrete residues with element-wise structure levels; structure matching excludes unresolved floating inputs and database candidates with a warning, and <code><a href="../reference/enhance_struc_denovo.html">enhance_struc_denovo()</a></code> now requires generic topological inputs. (#24)</p></li>
+<li><p><code><a href="../reference/mz_to_comp.html">mz_to_comp()</a></code>, <code><a href="../reference/enhance_comp.html">enhance_comp()</a></code>, <code><a href="../reference/comp_to_struc.html">comp_to_struc()</a></code>, and <code><a href="../reference/enhance_struc.html">enhance_struc()</a></code> now include a <code>confidence</code> column in expanded results for customized prioritization. (#23)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="glyanno-060">glyanno 0.6.0<a class="anchor" aria-label="anchor" href="#glyanno-060"></a></h2>

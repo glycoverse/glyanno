@@ -286,10 +286,11 @@ N-glycans have many possible branching patterns, but databases of human-
 detected glycans cover only a fraction of this potential structure
 space.
 [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc_denovo.md)
-reconstructs basic N-glycans from their conserved core and branches,
-returning one topological candidate per input. It preserves optional
-core fucose and bisecting GlcNAc residues. Inputs that cannot be
-reconstructed are matched against a topological fallback database.
+reconstructs generic topological N-glycans from their conserved core and
+branches, returning one concrete topological candidate per input. It
+preserves optional core fucose and bisecting GlcNAc residues. Inputs
+that cannot be reconstructed are matched against a topological fallback
+database.
 
 ![](enhance_struc_denovo.png)
 
@@ -302,9 +303,10 @@ enhance_struc_denovo(glycan)
 #> # Unique structures: 1
 ```
 
-For now,
+All non-missing inputs to
 [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc_denovo.md)
-can only be used to enhance “basic” glycans to “topological” ones.
+must contain only generic residues and must be topological. Missing
+values are allowed and preserved.
 
 ## Bidirectional Conversion
 
@@ -320,4 +322,4 @@ A summary of these relationships:
 | [`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md) | [`calculate_mz()`](https://glycoverse.github.io/glyanno/dev/reference/calculate_mz.md) |
 | [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md) | [`glyrepr::as_glycan_composition()`](https://glycoverse.github.io/glyrepr/reference/as_glycan_composition.html) |
 | [`enhance_comp()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_comp.md) | [`glyrepr::convert_to_generic()`](https://glycoverse.github.io/glyrepr/reference/convert_to_generic.html) |
-| [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md) | [`glyrepr::reduce_structure_level()`](https://glycoverse.github.io/glyrepr/reference/reduce_structure_level.html) |
+| [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md) | [`glyrepr::remove_linkages()`](https://glycoverse.github.io/glyrepr/reference/remove_linkages.html) and [`glyrepr::convert_to_generic()`](https://glycoverse.github.io/glyrepr/reference/convert_to_generic.html) |

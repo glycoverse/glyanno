@@ -22,7 +22,8 @@ struc_to_glytoucan(strucs)
   by
   [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
   The glycan structure must have "concrete" monosaccharides (e.g., Gal,
-  GalNAc).
+  GalNAc). Inputs with unresolved floating parts or substituents produce
+  a warning and return `NA`.
 
 ## Value
 
