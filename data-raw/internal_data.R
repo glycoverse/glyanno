@@ -55,14 +55,17 @@ topological_glycans <- glydb_structures(
   structure_level = "topological",
   glycan_type = "N"
 )
+topological_glycans <- topological_glycans[
+  !has_floating_parts(topological_glycans) &
+    !has_floating_substituents(topological_glycans) &
+    !get_alditol(topological_glycans)
+]
 
 topological_branches <- extract_branches(topological_glycans)
-basic_branches <- as.character(
-  reduce_structure_level(topological_branches, "basic")
-)
+generic_branches <- as.character(convert_to_generic(topological_branches))
 branch_confidence <- attr(topological_branches, "confidence")
 best_branch_ids <- vapply(
-  split(seq_along(topological_branches), basic_branches),
+  split(seq_along(topological_branches), generic_branches),
   function(ids) {
     scores <- branch_confidence[ids]
     scores[is.na(scores)] <- -Inf
@@ -76,7 +79,7 @@ attr(topological_branches, "confidence") <- NULL
 topological_branches <- expand_sialic_acid_variants(topological_branches)
 topological_branch_index <- split(
   seq_along(topological_branches),
-  as.character(reduce_structure_level(topological_branches, "basic"))
+  as.character(convert_to_generic(topological_branches))
 )
 topological_branch_templates <- map(
   seq_along(topological_branches),
@@ -108,7 +111,18 @@ high_mannose_reference <- glyparse::auto_parse(paste0(
   "Man(b1-4)GlcNAc(b1-4)GlcNAc(b1-"
 ))
 
+default_strucs <- glydb_structures(structure_level = "intact")
+default_compositions <- as_glycan_composition(default_strucs)
+default_comp_to_struc_metadata <- list(
+  structure_keys = as.character(default_strucs),
+  floating = has_floating_parts(default_strucs) |
+    has_floating_substituents(default_strucs),
+  composition = default_compositions,
+  generic_keys = as.character(convert_to_generic(default_compositions))
+)
+
 usethis::use_data(
+  default_comp_to_struc_metadata,
   high_mannose_reference,
   n_glycan_generic_core,
   n_glycan_topological_core,

@@ -1,8 +1,7 @@
-test_that("enhance_struc enhances basic to topological level", {
-  # Hex(??-?)HexNAc should match Gal(??-?)GalNAc
+test_that("enhance_struc refines generic topological structures", {
   db_topo <- "Gal(??-?)GalNAc(??-"
-  input_basic <- "Hex(??-?)HexNAc(??-"
-  res <- enhance_struc(input_basic, db = db_topo)
+  input_generic <- "Hex(??-?)HexNAc(??-"
+  res <- enhance_struc(input_generic, db = db_topo)
   expect_equal(as.character(res$enhanced), "Gal(??-?)GalNAc(??-")
 })
 
@@ -195,8 +194,11 @@ test_that("enhance_struc matches each unique non-missing input once", {
     },
     .package = "glymotif"
   )
-  db <- glyrepr::as_glycan_structure("Gal(b1-3)GalNAc(a1-")
-  attr(db, "confidence") <- 1
+  db <- glyrepr::as_glycan_structure(c(
+    "Gal(b1-3)GalNAc(a1-",
+    "GalNAc(a1-"
+  ))
+  attr(db, "confidence") <- c(1, 2)
   strucs <- glyrepr::as_glycan_structure(c(
     rep("Hex(??-?)HexNAc(??-", 100),
     "HexNAc(??-",
@@ -209,6 +211,31 @@ test_that("enhance_struc matches each unique non-missing input once", {
     as.character(matched_patterns),
     c("Hex(??-?)HexNAc(??-", "HexNAc(??-")
   )
+})
+
+test_that("enhance_struc rejects floating inputs and database candidates", {
+  floating <- paste0(
+    "{Hex(??-?)|2,3}Hex(??-?)[Hex(??-?)]",
+    "HexNAc(??-"
+  )
+  input <- glyrepr::as_glycan_structure(c(
+    "Hex(??-?)HexNAc(??-",
+    floating
+  ))
+  db <- glyrepr::as_glycan_structure(c(
+    "Gal(??-?)GalNAc(??-",
+    "{Gal(??-?)|2,3}Man(??-?)[Man(??-?)]GlcNAc(??-"
+  ))
+  attr(db, "confidence") <- c(1, 2)
+
+  expect_snapshot(
+    best <- enhance_struc(input, db = db, return_best = TRUE)
+  )
+  expanded <- suppressWarnings(enhance_struc(floating, db = db))
+
+  expect_equal(as.character(best[1]), "Gal(??-?)GalNAc(??-")
+  expect_identical(is.na(best), c(FALSE, TRUE))
+  expect_equal(nrow(expanded), 0)
 })
 
 test_that("enhance_struc with return_best=TRUE filters enhanced structures by confidence", {
@@ -281,10 +308,12 @@ test_that("enhance_struc works with db=NULL (regression: confidences undefined)"
   struc <- glyrepr::as_glycan_structure("Hex(??-?)HexNAc(??-")
   # Should not error even without return_best
   expect_no_error(
-    result <- enhance_struc(
-      struc,
-      db = NULL,
-      return_best = FALSE
+    result <- suppressWarnings(
+      enhance_struc(
+        struc,
+        db = NULL,
+        return_best = FALSE
+      )
     )
   )
   expect_named(result, c("raw", "enhanced", "confidence"))
@@ -293,14 +322,14 @@ test_that("enhance_struc works with db=NULL (regression: confidences undefined)"
   expect_gt(nrow(result), 0)
 })
 
-test_that("enhance_struc uses scalar db structure level", {
-  db_partial <- c(
+test_that("enhance_struc evaluates database levels per candidate", {
+  db_mixed <- c(
     "Gal(??-?)GalNAc(??-",
     "Gal(b1-3)GalNAc(a1-"
   )
-  input_basic <- "Hex(??-?)HexNAc(??-"
+  input_generic <- "Hex(??-?)HexNAc(??-"
 
-  res <- enhance_struc(input_basic, db = db_partial)
+  res <- enhance_struc(input_generic, db = db_mixed)
 
   expect_equal(
     as.character(res$enhanced),
@@ -308,7 +337,7 @@ test_that("enhance_struc uses scalar db structure level", {
   )
 })
 
-test_that("enhance_struc uses scalar input structure level", {
+test_that("enhance_struc evaluates input levels element-wise", {
   db_intact <- glyrepr::as_glycan_structure("Gal(b1-3)GalNAc(a1-")
   attr(db_intact, "confidence") <- 1
   input_partial <- c(
@@ -320,7 +349,32 @@ test_that("enhance_struc uses scalar input structure level", {
 
   expect_equal(length(res), 2)
   expect_equal(as.character(res[1]), "Gal(b1-3)GalNAc(a1-")
-  expect_true(is.na(res[2]))
+  expect_equal(as.character(res[2]), "Gal(b1-4)GalNAc(a1-")
+})
+
+test_that("enhance_struc matches mixed residues and levels together", {
+  db <- glyrepr::as_glycan_structure(c(
+    "Gal(??-?)GalNAc(??-",
+    "Gal(b1-3)GalNAc(a1-",
+    "Gal(b1-4)GalNAc(a1-"
+  ))
+  attr(db, "confidence") <- 1:3
+  strucs <- glyrepr::as_glycan_structure(c(
+    "Hex(??-?)GalNAc(??-",
+    "Gal(b1-?)GalNAc(a1-",
+    "Gal(b1-3)GalNAc(a1-"
+  ))
+
+  best <- enhance_struc(strucs, db = db, return_best = TRUE)
+
+  expect_equal(
+    as.character(best),
+    c(
+      "Gal(b1-4)GalNAc(a1-",
+      "Gal(b1-4)GalNAc(a1-",
+      "Gal(b1-3)GalNAc(a1-"
+    )
+  )
 })
 
 test_that("enhance_struc with return_best=TRUE returns NA for no match", {
@@ -362,7 +416,7 @@ test_that("enhance_struc_denovo enhances an N-glycan core", {
   expect_equal(as.character(result), as.character(expected))
 })
 
-test_that("enhance_struc_denovo keeps one branch per basic pattern", {
+test_that("enhance_struc_denovo keeps one branch per generic pattern", {
   input <- paste0(
     "HexNAc(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
     "HexNAc(??-?)HexNAc(??-"
@@ -380,19 +434,16 @@ test_that("enhance_struc_denovo keeps one branch per basic pattern", {
 })
 
 test_that("de-novo branch data contain all sialic acid variants", {
-  basic_branches <- glyrepr::reduce_structure_level(
-    topological_branches,
-    "basic"
-  )
+  generic_branches <- glyrepr::convert_to_generic(topological_branches)
   direct_keys <- vapply(
-    as.list(basic_branches),
+    as.list(generic_branches),
     glyrepr::graph_to_iupac,
     character(1)
   )
 
   branch_keys <- as.character(topological_branches)
   expect_identical(anyDuplicated(branch_keys), 0L)
-  expect_identical(unname(direct_keys), unname(as.character(basic_branches)))
+  expect_identical(unname(direct_keys), unname(as.character(generic_branches)))
   expect_length(topological_branch_index, length(unique(direct_keys)))
   expect_setequal(
     unname(unlist(topological_branch_index)),
@@ -495,8 +546,8 @@ test_that("enhance_struc_denovo constrains high-mannose N-glycans", {
     "Man(b1-4)GlcNAc(b1-4)GlcNAc(b1-"
   ) |>
     glyparse::auto_parse()
-  input <- glyrepr::reduce_structure_level(reference, "basic")
-  expected <- glyrepr::reduce_structure_level(reference, "topological")
+  input <- glyrepr::remove_linkages(glyrepr::convert_to_generic(reference))
+  expected <- glyrepr::remove_linkages(reference)
 
   result <- enhance_struc_denovo(
     input
@@ -556,8 +607,10 @@ test_that("enhance_struc_denovo falls back to database matching", {
 })
 
 test_that("enhance_struc_denovo defaults to a topological fallback", {
-  result <- enhance_struc_denovo(
-    "Hex(??-?)HexNAc(??-"
+  result <- suppressWarnings(
+    enhance_struc_denovo(
+      "Hex(??-?)HexNAc(??-"
+    )
   )
 
   expect_length(result, 1)
@@ -567,7 +620,7 @@ test_that("enhance_struc_denovo defaults to a topological fallback", {
   )
 })
 
-test_that("enhance_struc_denovo rejects a basic fallback database", {
+test_that("enhance_struc_denovo rejects a non-concrete fallback database", {
   input <- glyrepr::n_glycan_core(
     linkage = FALSE,
     mono_type = "generic"
@@ -580,6 +633,18 @@ test_that("enhance_struc_denovo rejects a basic fallback database", {
       fallback_db = input
     )
   )
+})
+
+test_that("enhance_struc_denovo requires generic topological inputs", {
+  concrete <- glyrepr::as_glycan_structure("Gal(??-?)GalNAc(??-")
+  mixed <- glyrepr::as_glycan_structure("Hex(??-?)GalNAc(??-")
+  partial <- glyrepr::as_glycan_structure("Hex(b1-?)HexNAc(?1-")
+  intact <- glyrepr::as_glycan_structure("Hex(b1-4)HexNAc(b1-")
+
+  expect_snapshot(error = TRUE, enhance_struc_denovo(concrete))
+  expect_snapshot(error = TRUE, enhance_struc_denovo(mixed))
+  expect_snapshot(error = TRUE, enhance_struc_denovo(partial))
+  expect_snapshot(error = TRUE, enhance_struc_denovo(intact))
 })
 
 test_that("enhance_struc_denovo reduces fallback databases", {
@@ -701,6 +766,24 @@ test_that("enhance_struc_denovo assembles repeated and missing results", {
     as.character(result),
     c(as.character(expected), NA_character_, as.character(expected))
   )
+})
+
+test_that("enhance_struc_denovo rejects floating inputs", {
+  floating <- paste0(
+    "{Hex(??-?)|2,3}Hex(??-?)[Hex(??-?)]",
+    "HexNAc(??-"
+  )
+  fallback_db <- glyrepr::as_glycan_structure("Gal(??-?)GlcNAc(??-")
+  attr(fallback_db, "confidence") <- 1
+
+  expect_snapshot(
+    result <- enhance_struc_denovo(
+      c("Hex(??-?)HexNAc(??-", floating),
+      fallback_db = fallback_db
+    )
+  )
+
+  expect_identical(is.na(result), c(FALSE, TRUE))
 })
 
 test_that("enhance_struc_denovo batches repeated database fallbacks", {

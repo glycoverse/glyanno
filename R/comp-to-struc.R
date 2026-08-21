@@ -1,7 +1,8 @@
 #' Convert glycan composition to glycan structure
 #'
-#' Given glycan compositions, this function matches them to
-#' all possible glycan structures in the `glydb` database.
+#' Given glycan compositions, this function matches them to all compatible
+#' glycan structures in the `glydb` database. Generic, concrete, and mixed
+#' residue identities are matched residue by residue.
 #'
 #' @inheritSection mz_to_comp How to set `db`
 #'
@@ -12,6 +13,8 @@
 #' @param db Glycan structures to match against.
 #'   Can be a [glyrepr::glycan_structure()] vector or any structure strings
 #'   supported by [glyparse::auto_parse()].
+#'   Structures with unresolved floating parts or substituents are excluded
+#'   with a warning.
 #'   If not provided, `glydb::glydb_structures(structure_level = "intact")` will be used.
 #' @param return_best If `TRUE`, only return the highest confidence match for each
 #'   composition. Requires `db` to have a `confidence` attribute.
@@ -52,42 +55,47 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
     ))
   }
 
-  mono_type <- glyrepr::get_mono_type(comps)
-  db_index <- .prepare_comp_to_struc_index(db, mono_type)
+  mono_types <- glyrepr::get_mono_type(comps)
+  match_mode <- if (all(is.na(mono_types) | mono_types == "concrete")) {
+    "exact"
+  } else {
+    "compatible"
+  }
+  db_index <- .prepare_comp_to_struc_index(db, match_mode)
   db <- db_index$db
   .check_return_best_arg(db, return_best)
 
-  if (mono_type == "generic") {
-    comp_keys <- glyrepr::convert_to_generic(comps)
-  } else {
-    if (glyrepr::get_mono_type(db) == "generic") {
-      cli::cli_abort(c(
-        "Concrete compositions cannot be matched against a generic structure database.",
-        "i" = "Use generic compositions (e.g. {.val Hex(1)HexNAc(1)}) or provide a concrete structure database."
-      ))
+  comp_keys <- as.character(comps)
+  unique_ids <- match(comp_keys, unique(comp_keys))
+  unique_comps <- comps[!duplicated(comp_keys)]
+  unique_matches <- lapply(
+    seq_along(unique_comps),
+    function(i) {
+      .composition_match_ids(unique_comps[i], db_index$match_index)
     }
-    comp_keys <- comps
-  }
+  )
+  matches <- unique_matches[unique_ids]
 
   if (return_best) {
-    match_ids <- match(
-      comp_keys,
-      db_index$composition[db_index$best_order]
+    match_ids <- vapply(
+      matches,
+      .best_match_id,
+      integer(1),
+      best_rank = db_index$best_rank
     )
-    return(unname(db[db_index$best_order][match_ids]))
+    return(unname(db[match_ids]))
   }
 
-  db_df <- tibble::tibble(
-    composition = db_index$composition,
-    structure = db,
-    confidence = attr(db, "confidence") %||% NA_real_
+  confidence <- attr(db, "confidence") %||% rep(NA_real_, length(db))
+  match_lengths <- lengths(matches)
+  row_ids <- rep(seq_along(comps), match_lengths)
+  candidate_ids <- unlist(matches, use.names = FALSE)
+  res <- tibble::tibble(
+    composition = comps[row_ids],
+    structure = db[candidate_ids],
+    confidence = confidence[candidate_ids],
+    row_id = row_ids
   )
-  comps_df <- tibble::tibble(
-    composition = comp_keys,
-    row_id = seq_along(comps)
-  )
-  res <- comps_df |>
-    dplyr::left_join(db_df, by = "composition", relationship = "many-to-many")
 
   .prepare_result(
     res,
@@ -99,33 +107,73 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
 
 .comp_to_struc_cache <- new.env(parent = emptyenv())
 
-.prepare_comp_to_struc_index <- function(db, mono_type) {
+.prepare_comp_to_struc_index <- function(db, match_mode) {
   if (!is.null(db)) {
-    return(.new_comp_to_struc_index(.prepare_struc_db(db), mono_type))
+    return(.new_comp_to_struc_index(
+      .prepare_struc_db(db),
+      match_mode
+    ))
   }
 
-  cache_key <- paste0("default_", mono_type)
+  db <- .prepare_struc_db(NULL)
+  composition_key <- "default_composition"
+  if (
+    !exists(
+      composition_key,
+      envir = .comp_to_struc_cache,
+      inherits = FALSE
+    )
+  ) {
+    composition <- get(
+      "intact_composition",
+      envir = .default_struc_db_cache,
+      inherits = FALSE
+    )
+    assign(composition_key, composition, envir = .comp_to_struc_cache)
+  }
+
+  cache_key <- paste0("default_", match_mode)
   if (!exists(cache_key, envir = .comp_to_struc_cache, inherits = FALSE)) {
     index <- .new_comp_to_struc_index(
-      glydb::glydb_structures(structure_level = "intact"),
-      mono_type
+      db,
+      match_mode,
+      get(
+        composition_key,
+        envir = .comp_to_struc_cache,
+        inherits = FALSE
+      ),
+      get(
+        "intact_generic_keys",
+        envir = .default_struc_db_cache,
+        inherits = FALSE
+      )
     )
     assign(cache_key, index, envir = .comp_to_struc_cache)
   }
   get(cache_key, envir = .comp_to_struc_cache, inherits = FALSE)
 }
 
-.new_comp_to_struc_index <- function(db, mono_type) {
-  composition <- glyrepr::as_glycan_composition(db)
-  if (mono_type == "generic") {
-    composition <- glyrepr::convert_to_generic(composition)
-  }
-
+.new_comp_to_struc_index <- function(
+  db,
+  match_mode,
+  composition = glyrepr::as_glycan_composition(db),
+  generic_keys = NULL
+) {
   confidence <- attr(db, "confidence")
   best_order <- order(
     replace(confidence, is.na(confidence), -Inf),
     decreasing = TRUE,
     method = "radix"
   )
-  list(db = db, composition = composition, best_order = best_order)
+  best_rank <- match(seq_along(db), best_order)
+  match_index <- if (match_mode == "exact") {
+    .new_exact_composition_match_index(composition)
+  } else {
+    .new_composition_match_index(composition, generic_keys)
+  }
+  list(
+    db = db,
+    match_index = match_index,
+    best_rank = best_rank
+  )
 }

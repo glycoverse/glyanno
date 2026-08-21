@@ -97,9 +97,27 @@
   }
 }
 
-.prepare_struc_db <- function(db) {
+.default_struc_db_cache <- new.env(parent = emptyenv())
+
+.prepare_struc_db <- function(db, arg = "db") {
   if (is.null(db)) {
-    db <- glydb::glydb_structures(structure_level = "intact")
+    cache_key <- "intact"
+    if (!exists(cache_key, envir = .default_struc_db_cache, inherits = FALSE)) {
+      db <- glydb::glydb_structures(structure_level = "intact")
+      prepared <- .prepare_default_struc_db(db, arg)
+      assign(cache_key, prepared$db, envir = .default_struc_db_cache)
+      assign(
+        "intact_composition",
+        prepared$composition,
+        envir = .default_struc_db_cache
+      )
+      assign(
+        "intact_generic_keys",
+        prepared$generic_keys,
+        envir = .default_struc_db_cache
+      )
+    }
+    return(get(cache_key, envir = .default_struc_db_cache, inherits = FALSE))
   } else {
     if (!.is_glydb_vector(db)) {
       if (length(db) == 0) {
@@ -109,26 +127,74 @@
       db <- unique(db)
     }
   }
-  db
+  .drop_floating_structures(db, arg)
 }
 
-.prepare_denovo_struc_db <- function(fallback_db) {
-  if (is.null(fallback_db)) {
-    return(glydb::glydb_structures(structure_level = "topological"))
+.prepare_default_struc_db <- function(db, arg) {
+  metadata_ids <- match(
+    as.character(db),
+    default_comp_to_struc_metadata$structure_keys
+  )
+  is_unknown <- is.na(metadata_ids)
+  floating <- logical(length(db))
+  floating[!is_unknown] <- default_comp_to_struc_metadata$floating[
+    metadata_ids[!is_unknown]
+  ]
+  if (any(is_unknown)) {
+    floating[is_unknown] <- .has_unresolved_floating(db[is_unknown])
   }
+  .warn_floating_mask(
+    floating,
+    arg,
+    "Those database structures were excluded from matching."
+  )
 
-  db <- .prepare_struc_db(fallback_db)
-  db_level <- glyrepr::get_structure_level(db)
-  if (identical(db_level, "basic")) {
-    cli::cli_abort(
-      "{.arg fallback_db} cannot contain basic structures."
+  keep <- !floating
+  kept_metadata_ids <- metadata_ids[keep]
+  composition <- default_comp_to_struc_metadata$composition[
+    kept_metadata_ids
+  ]
+  generic_keys <- default_comp_to_struc_metadata$generic_keys[
+    kept_metadata_ids
+  ]
+  unknown_kept <- is.na(kept_metadata_ids)
+  if (any(unknown_kept)) {
+    unknown_composition <- glyrepr::as_glycan_composition(
+      db[keep][unknown_kept]
+    )
+    composition[unknown_kept] <- unknown_composition
+    generic_keys[unknown_kept] <- as.character(
+      glyrepr::convert_to_generic(unknown_composition)
     )
   }
 
   confidence <- attr(db, "confidence")
-  if (db_level %in% c("partial", "intact")) {
-    db <- glyrepr::reduce_structure_level(db, "topological")
+  db <- db[keep]
+  if (!is.null(confidence)) {
+    attr(db, "confidence") <- confidence[keep]
   }
+  list(
+    db = db,
+    composition = composition,
+    generic_keys = generic_keys
+  )
+}
+
+.prepare_denovo_struc_db <- function(fallback_db) {
+  if (is.null(fallback_db)) {
+    fallback_db <- glydb::glydb_structures(structure_level = "topological")
+  }
+
+  db <- .prepare_struc_db(fallback_db, arg = "fallback_db")
+  mono_types <- glyrepr::get_mono_type(db)
+  if (any(!is.na(mono_types) & mono_types != "concrete")) {
+    cli::cli_abort(
+      "{.arg fallback_db} must contain only concrete structures."
+    )
+  }
+
+  confidence <- attr(db, "confidence")
+  db <- glyrepr::remove_linkages(db)
 
   keys <- as.character(db)
   keep <- !duplicated(keys)
@@ -154,6 +220,21 @@
     attr(db, "confidence") <- unname(confidence)
   }
   db
+}
+
+.assert_denovo_strucs <- function(strucs) {
+  present <- !is.na(strucs)
+  mono_types <- glyrepr::get_mono_type(strucs)
+  structure_levels <- glyrepr::get_structure_level(strucs)
+  invalid <- present &
+    (mono_types != "generic" | structure_levels != "topological")
+  if (any(invalid)) {
+    cli::cli_abort(c(
+      "{.arg strucs} must contain only generic topological structures.",
+      "i" = "Missing values are allowed, but every other element must have generic monosaccharides and no linkage information."
+    ))
+  }
+  invisible(strucs)
 }
 
 .prepare_comp_db <- function(db) {
@@ -192,11 +273,150 @@
   }
 }
 
+.has_unresolved_floating <- function(strucs) {
+  floating <- glyrepr::has_floating_parts(strucs) |
+    glyrepr::has_floating_substituents(strucs)
+  replace(floating, is.na(floating), FALSE)
+}
+
+.warn_floating_structures <- function(strucs, arg, action) {
+  floating <- .has_unresolved_floating(strucs)
+  .warn_floating_mask(floating, arg, action)
+  floating
+}
+
+.warn_floating_mask <- function(floating, arg, action) {
+  if (any(floating)) {
+    cli::cli_warn(c(
+      "{.arg {arg}} contains {sum(floating)} structure{?s} with unresolved floating parts or substituents.",
+      "i" = action
+    ))
+  }
+  invisible(floating)
+}
+
+.drop_floating_structures <- function(strucs, arg) {
+  confidence <- attr(strucs, "confidence")
+  floating <- .warn_floating_structures(
+    strucs,
+    arg,
+    "Those database structures were excluded from matching."
+  )
+  strucs <- strucs[!floating]
+  if (!is.null(confidence)) {
+    attr(strucs, "confidence") <- confidence[!floating]
+  }
+  strucs
+}
+
+.replace_floating_structures <- function(strucs, arg = "strucs") {
+  floating <- .warn_floating_structures(
+    strucs,
+    arg,
+    paste0(
+      "Those input structures were excluded from matching and are returned ",
+      "as missing values in aligned outputs."
+    )
+  )
+  if (!any(floating)) {
+    return(list(strucs = strucs, rejected = floating))
+  }
+  iupacs <- as.character(strucs)
+  iupacs[floating] <- NA_character_
+  list(
+    strucs = glyrepr::as_glycan_structure(iupacs),
+    rejected = floating
+  )
+}
+
+.new_composition_match_index <- function(candidates, generic_keys = NULL) {
+  if (is.null(generic_keys)) {
+    generic_keys <- as.character(glyrepr::convert_to_generic(candidates))
+  }
+  candidate_ids <- split(
+    seq_along(generic_keys),
+    factor(generic_keys, levels = unique(generic_keys))
+  )
+  list(
+    exact = FALSE,
+    candidate_ids = candidate_ids,
+    counts = as.list(candidates)
+  )
+}
+
+.new_exact_composition_match_index <- function(candidates) {
+  keys <- as.character(candidates)
+  list(
+    exact = TRUE,
+    candidate_ids = split(
+      seq_along(keys),
+      factor(keys, levels = unique(keys))
+    )
+  )
+}
+
+.composition_match_ids <- function(pattern, index) {
+  if (length(pattern) == 0 || is.na(pattern)) {
+    return(integer())
+  }
+
+  if (isTRUE(index$exact)) {
+    candidate_ids <- index$candidate_ids[[as.character(pattern)]]
+    if (is.null(candidate_ids)) {
+      return(integer())
+    }
+    return(candidate_ids)
+  }
+
+  generic_key <- as.character(glyrepr::convert_to_generic(pattern))
+  candidate_ids <- index$candidate_ids[[generic_key]]
+  if (is.null(candidate_ids)) {
+    return(integer())
+  }
+
+  pattern_counts <- as.list(pattern)[[1]]
+  monos <- names(pattern_counts)
+  is_mono <- glyrepr::is_known_monosaccharide(monos)
+  mono_types <- rep(NA_character_, length(monos))
+  mono_types[is_mono] <- glyrepr::get_mono_type(monos[is_mono])
+  concrete_counts <- pattern_counts[is_mono & mono_types == "concrete"]
+  if (length(concrete_counts) == 0) {
+    return(candidate_ids)
+  }
+
+  compatible <- vapply(
+    index$counts[candidate_ids],
+    function(candidate_counts) {
+      all(vapply(
+        names(concrete_counts),
+        function(mono) {
+          candidate_count <- unname(candidate_counts[mono])
+          if (is.na(candidate_count)) {
+            candidate_count <- 0L
+          }
+          candidate_count >= concrete_counts[[mono]]
+        },
+        logical(1)
+      ))
+    },
+    logical(1)
+  )
+  candidate_ids[compatible]
+}
+
+.best_match_id <- function(candidate_ids, best_rank) {
+  if (length(candidate_ids) == 0) {
+    return(NA_integer_)
+  }
+  candidate_ids[[which.min(best_rank[candidate_ids])]]
+}
+
 .assert_concrete <- function(strucs) {
   if (length(strucs) == 0) {
     return(NULL)
   }
-  if (glyrepr::get_mono_type(strucs) != "concrete") {
+  mono_types <- glyrepr::get_mono_type(strucs)
+  if (any(!is.na(mono_types) & mono_types != "concrete")) {
     cli::cli_abort(
       "{.arg strucs} must have concrete monosaccharides (e.g. Gal, GalNAc)."
     )

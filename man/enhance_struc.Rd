@@ -8,13 +8,15 @@ enhance_struc(strucs, db = NULL, return_best = FALSE)
 }
 \arguments{
 \item{strucs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector,
-or a character vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.}
+or a character vector of glycan structure strings supported by
+\code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}. Inputs with unresolved floating parts or
+substituents are excluded with a warning.}
 
 \item{db}{A \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} vector,
 or a character vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
-The default is \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "intact" level. If \code{db} has
-a lower or equal resolution level than \code{strucs}, the result will be the
-same as \code{strucs} (no enhancement).}
+Structures with unresolved floating parts or substituents are excluded
+with a warning. The default is \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "intact"
+level.}
 
 \item{return_best}{Logical. If \code{TRUE}, only return the best matching
 structure (highest confidence) for each input structure. \code{db} must have a
@@ -31,25 +33,26 @@ A tibble with the following columns:
 \item \code{enhanced}: The enhanced glycan structures.
 \item \code{confidence}: The database confidence score for each enhanced
 structure, or \code{NA} when no score is available.
-Note that one \code{raw} glycan structure can have different \code{enhanced} glycan structures
-as multiple rows in the result.
+Note that one \code{raw} glycan structure can have different \code{enhanced}
+structures as multiple rows in the result.
 }
 }
 \description{
 Given a glycan structure vector of any resolution level (see
-\code{\link[glyrepr:get_structure_level]{glyrepr::get_structure_level()}} for details), this function gives all
-possible glycan structures of higher resolution level.
+\code{\link[glyrepr:get_structure_level]{glyrepr::get_structure_level()}} for details), this function gives compatible
+structures with more specific residue identities or linkage information.
 }
 \details{
-The target resolution level is determined from \code{db}, defaulting to
-\code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "intact" level.
+Input and database vectors may mix generic, concrete, and mixed residues, as
+well as topological, partial, and intact structures. Each database candidate
+is matched against each input independently.
 }
 \examples{
 # From topological level to intact level
 db_intact <- c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
 enhance_struc("Gal(??-?)GalNAc(??-", db = db_intact)
 
-# From basic level to topological level
+# Refine generic residues without changing the structure level
 db_topo <- "Gal(??-?)GalNAc(??-"
 enhance_struc("Hex(??-?)HexNAc(??-", db = db_topo)
 

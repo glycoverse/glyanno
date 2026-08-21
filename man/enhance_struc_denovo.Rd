@@ -8,14 +8,18 @@ enhance_struc_denovo(strucs, fallback_db = NULL)
 }
 \arguments{
 \item{strucs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector, or a character vector
-of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.}
+of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}. Every
+non-missing element must be generic and topological. Missing values are
+allowed and preserved. Inputs with unresolved floating parts or
+substituents are replaced with missing values and produce a warning.}
 
 \item{fallback_db}{A \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} vector, or a character
 vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
-The default is \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "topological" level. A
-provided database cannot be at "basic" level. "partial" or "intact"
-structures are reduced to "topological" before fallback matching.
-Fallback candidates require a \code{confidence} attribute.}
+The default is \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "topological" level. Every
+non-missing candidate must have concrete residues. Linkage information is
+removed before fallback matching. Candidates with unresolved floating
+parts or substituents are excluded with a warning. Fallback candidates
+require a \code{confidence} attribute.}
 }
 \value{
 An unnamed \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector with the same length
@@ -24,9 +28,10 @@ as \code{strucs}. Unmatched structures are returned as \code{NA}.
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-Reconstructs basic-resolution N-glycans from their core and branches. Inputs
-that cannot be reconstructed de novo are matched against a fallback database
-at "topological" level.
+Reconstructs generic topological N-glycans from their core and branches.
+Every non-missing input must have only generic residues and no linkage
+information. Inputs that cannot be reconstructed de novo are matched against
+a fallback database at "topological" level.
 
 Topological de-novo enhancement preserves optional core fucose and
 bisecting GlcNAc residues. Complex N-glycan branches are matched against the
@@ -36,7 +41,7 @@ candidates are constrained to core-aligned subtrees of the Glc3Man9
 precursor.
 }
 \examples{
-n_basic <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "generic")
-enhance_struc_denovo(n_basic)
+n_generic <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "generic")
+enhance_struc_denovo(n_generic)
 
 }
