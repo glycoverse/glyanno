@@ -161,3 +161,27 @@ test_that("struc_to_glytoucan accepts empty structure input", {
 
   expect_equal(accessions, character())
 })
+
+test_that("struc_to_glytoucan rejects generic or mixed elements", {
+  generic <- glyrepr::as_glycan_structure("Hex(??-?)HexNAc(??-")
+  mixed <- glyrepr::as_glycan_structure(c(
+    "Gal(b1-3)GalNAc(a1-",
+    "Hex(b1-3)GalNAc(a1-"
+  ))
+
+  expect_snapshot(error = TRUE, struc_to_glytoucan(generic))
+  expect_snapshot(error = TRUE, struc_to_glytoucan(mixed))
+})
+
+test_that("struc_to_glytoucan returns NA for floating inputs", {
+  floating <- paste0(
+    "{Gal(??-?)|2,3}Man(??-?)[Man(??-?)]",
+    "GlcNAc(??-"
+  )
+
+  expect_snapshot(
+    result <- struc_to_glytoucan(floating)
+  )
+
+  expect_identical(result, NA_character_)
+})

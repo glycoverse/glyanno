@@ -97,6 +97,34 @@ test_that("enhance_comp works with concrete compositions", {
   expect_equal(result, expected)
 })
 
+test_that("enhance_comp handles mixed types element-wise", {
+  db <- glyrepr::as_glycan_composition(c(
+    "Man(2)",
+    "Man(1)Gal(1)",
+    "Glc(2)"
+  ))
+  attr(db, "confidence") <- 1:3
+  comps <- glyrepr::as_glycan_composition(c(
+    "Man(1)Hex(1)",
+    "Man(2)",
+    "Hex(2)",
+    NA
+  ))
+
+  expanded <- enhance_comp(comps, db)
+  best <- enhance_comp(comps, db, return_best = TRUE)
+
+  expect_equal(
+    as.character(expanded$enhanced),
+    c("Man(2)", "Man(1)Gal(1)", "Man(2)", "Man(2)", "Man(1)Gal(1)", "Glc(2)")
+  )
+  expect_equal(
+    as.character(best[1:3]),
+    c("Man(1)Gal(1)", "Man(2)", "Glc(2)")
+  )
+  expect_identical(is.na(best), c(FALSE, FALSE, FALSE, TRUE))
+})
+
 test_that("enhance_comp errors when db has generic compositions", {
   comps <- "Hex(1)HexNAc(1)"
   db <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)") # generic composition

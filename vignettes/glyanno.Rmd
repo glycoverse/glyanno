@@ -173,8 +173,9 @@ enhance_struc(
 
 N-glycans have many possible branching patterns, but databases of human-
 detected glycans cover only a fraction of this potential structure space.
-`enhance_struc_denovo()` reconstructs basic N-glycans from their conserved core
-and branches, returning one topological candidate per input.
+`enhance_struc_denovo()` reconstructs generic topological N-glycans from their
+conserved core and branches, returning one concrete topological candidate per
+input.
 It preserves optional core fucose and bisecting GlcNAc residues.
 Inputs that cannot be reconstructed are matched against a topological fallback database.
 
@@ -185,7 +186,8 @@ glycan <- "NeuAc(??-?)Hex(??-?)HexNAc(??-?)Hex(??-?)HexNAc(??-?)Hex(??-?)[HexNAc
 enhance_struc_denovo(glycan)
 ```
 
-For now, `enhance_struc_denovo()` can only be used to enhance "basic" glycans to "topological" ones.
+All non-missing inputs to `enhance_struc_denovo()` must contain only generic
+residues and must be topological. Missing values are allowed and preserved.
 
 ## Bidirectional Conversion
 
@@ -199,4 +201,4 @@ A summary of these relationships:
 | `mz_to_comp()` | `calculate_mz()` |
 | `comp_to_struc()` | `glyrepr::as_glycan_composition()` |
 | `enhance_comp()` | `glyrepr::convert_to_generic()` |
-| `enhance_struc()` | `glyrepr::reduce_structure_level()` |
+| `enhance_struc()` | `glyrepr::remove_linkages()` and `glyrepr::convert_to_generic()` |

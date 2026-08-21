@@ -1,8 +1,8 @@
 # glyanno (development version)
 
-* `mz_to_comp()`, `enhance_comp()`, `comp_to_struc()`, and `enhance_struc()`
-  now include a `confidence` column in expanded results for customized
-  prioritization. (#23)
+* `comp_to_struc()`, `enhance_comp()`, and `enhance_struc()` now support mixed generic and concrete residues with element-wise structure levels; structure matching excludes unresolved floating inputs and database candidates with a warning, and `enhance_struc_denovo()` now requires generic topological inputs.
+
+* `mz_to_comp()`, `enhance_comp()`, `comp_to_struc()`, and `enhance_struc()` now include a `confidence` column in expanded results for customized prioritization. (#23)
 
 # glyanno 0.6.0
 

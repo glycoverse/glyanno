@@ -1,7 +1,8 @@
 #' Convert glycan composition to glycan structure
 #'
-#' Given glycan compositions, this function matches them to
-#' all possible glycan structures in the `glydb` database.
+#' Given glycan compositions, this function matches them to all compatible
+#' glycan structures in the `glydb` database. Generic, concrete, and mixed
+#' residue identities are matched residue by residue.
 #'
 #' @inheritSection mz_to_comp How to set `db`
 #'
@@ -12,6 +13,8 @@
 #' @param db Glycan structures to match against.
 #'   Can be a [glyrepr::glycan_structure()] vector or any structure strings
 #'   supported by [glyparse::auto_parse()].
+#'   Structures with unresolved floating parts or substituents are excluded
+#'   with a warning.
 #'   If not provided, `glydb::glydb_structures(structure_level = "intact")` will be used.
 #' @param return_best If `TRUE`, only return the highest confidence match for each
 #'   composition. Requires `db` to have a `confidence` attribute.
@@ -52,42 +55,35 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
     ))
   }
 
-  mono_type <- glyrepr::get_mono_type(comps)
-  db_index <- .prepare_comp_to_struc_index(db, mono_type)
+  db_index <- .prepare_comp_to_struc_index(db)
   db <- db_index$db
   .check_return_best_arg(db, return_best)
 
-  if (mono_type == "generic") {
-    comp_keys <- glyrepr::convert_to_generic(comps)
-  } else {
-    if (glyrepr::get_mono_type(db) == "generic") {
-      cli::cli_abort(c(
-        "Concrete compositions cannot be matched against a generic structure database.",
-        "i" = "Use generic compositions (e.g. {.val Hex(1)HexNAc(1)}) or provide a concrete structure database."
-      ))
-    }
-    comp_keys <- comps
-  }
-
   if (return_best) {
-    match_ids <- match(
-      comp_keys,
-      db_index$composition[db_index$best_order]
+    match_ids <- vapply(
+      seq_along(comps),
+      function(i) {
+        candidate_ids <- .composition_match_ids(
+          comps[i],
+          db_index$match_index
+        )
+        .best_match_id(candidate_ids, db_index$best_rank)
+      },
+      integer(1)
     )
-    return(unname(db[db_index$best_order][match_ids]))
+    return(unname(db[match_ids]))
   }
 
-  db_df <- tibble::tibble(
-    composition = db_index$composition,
-    structure = db,
-    confidence = attr(db, "confidence") %||% NA_real_
-  )
-  comps_df <- tibble::tibble(
-    composition = comp_keys,
-    row_id = seq_along(comps)
-  )
-  res <- comps_df |>
-    dplyr::left_join(db_df, by = "composition", relationship = "many-to-many")
+  confidence <- attr(db, "confidence") %||% rep(NA_real_, length(db))
+  res <- purrr::map_dfr(seq_along(comps), function(i) {
+    candidate_ids <- .composition_match_ids(comps[i], db_index$match_index)
+    tibble::tibble(
+      composition = rep(comps[i], length(candidate_ids)),
+      structure = db[candidate_ids],
+      confidence = confidence[candidate_ids],
+      row_id = rep(i, length(candidate_ids))
+    )
+  })
 
   .prepare_result(
     res,
@@ -99,33 +95,33 @@ comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
 
 .comp_to_struc_cache <- new.env(parent = emptyenv())
 
-.prepare_comp_to_struc_index <- function(db, mono_type) {
+.prepare_comp_to_struc_index <- function(db) {
   if (!is.null(db)) {
-    return(.new_comp_to_struc_index(.prepare_struc_db(db), mono_type))
+    return(.new_comp_to_struc_index(.prepare_struc_db(db)))
   }
 
-  cache_key <- paste0("default_", mono_type)
+  cache_key <- "default"
   if (!exists(cache_key, envir = .comp_to_struc_cache, inherits = FALSE)) {
     index <- .new_comp_to_struc_index(
-      glydb::glydb_structures(structure_level = "intact"),
-      mono_type
+      .prepare_struc_db(NULL)
     )
     assign(cache_key, index, envir = .comp_to_struc_cache)
   }
   get(cache_key, envir = .comp_to_struc_cache, inherits = FALSE)
 }
 
-.new_comp_to_struc_index <- function(db, mono_type) {
+.new_comp_to_struc_index <- function(db) {
   composition <- glyrepr::as_glycan_composition(db)
-  if (mono_type == "generic") {
-    composition <- glyrepr::convert_to_generic(composition)
-  }
-
   confidence <- attr(db, "confidence")
   best_order <- order(
     replace(confidence, is.na(confidence), -Inf),
     decreasing = TRUE,
     method = "radix"
   )
-  list(db = db, composition = composition, best_order = best_order)
+  best_rank <- match(seq_along(db), best_order)
+  list(
+    db = db,
+    match_index = .new_composition_match_index(composition),
+    best_rank = best_rank
+  )
 }

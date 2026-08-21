@@ -17,6 +17,8 @@ comp_to_struc(comps, db = NULL, return_best = FALSE)
 \item{db}{Glycan structures to match against.
 Can be a \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector or any structure strings
 supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
+Structures with unresolved floating parts or substituents are excluded
+with a warning.
 If not provided, \code{glydb::glydb_structures(structure_level = "intact")} will be used.}
 
 \item{return_best}{If \code{TRUE}, only return the highest confidence match for each
@@ -40,8 +42,9 @@ corresponding to different possible glycan structures.
 }
 }
 \description{
-Given glycan compositions, this function matches them to
-all possible glycan structures in the \code{glydb} database.
+Given glycan compositions, this function matches them to all compatible
+glycan structures in the \code{glydb} database. Generic, concrete, and mixed
+residue identities are matched residue by residue.
 }
 \section{How to set \code{db}}{
 The \code{db} parameter is very important for all functions in this package.

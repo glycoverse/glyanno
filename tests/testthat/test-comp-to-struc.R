@@ -32,12 +32,77 @@ test_that("comp_to_struc works for concrete db and generic comps", {
   expect_equal(result, expected)
 })
 
-test_that("comp_to_struc errors for generic db and concrete comps", {
+test_that("comp_to_struc leaves incompatible compositions unmatched", {
   db <- glyrepr::as_glycan_structure("HexNAc(??-")
   comps <- glyrepr::as_glycan_composition("GalNAc(1)")
-  expect_error(
-    comp_to_struc(comps, db),
-    "Concrete compositions cannot be matched against a generic structure database"
+
+  expanded <- comp_to_struc(comps, db)
+  attr(db, "confidence") <- 1
+  best <- comp_to_struc(comps, db, return_best = TRUE)
+
+  expect_equal(
+    expanded,
+    tibble::tibble(
+      composition = glyrepr::glycan_composition(),
+      structure = glyrepr::glycan_structure(),
+      confidence = numeric()
+    )
+  )
+  expect_identical(is.na(best), TRUE)
+})
+
+test_that("comp_to_struc matches mixed compositions residue by residue", {
+  db <- glyrepr::as_glycan_structure(c(
+    "Man(??-?)Man(??-",
+    "Gal(??-?)Man(??-",
+    "Hex(??-?)Man(??-",
+    "Hex(??-?)Hex(??-"
+  ))
+  attr(db, "confidence") <- 1:4
+  comps <- glyrepr::as_glycan_composition(c(
+    "Man(1)Hex(1)",
+    "Man(2)",
+    "Hex(2)",
+    NA
+  ))
+
+  expanded <- comp_to_struc(comps, db)
+  best <- comp_to_struc(comps, db, return_best = TRUE)
+
+  expect_equal(
+    as.character(expanded$structure),
+    c(
+      "Man(??-?)Man(??-",
+      "Gal(??-?)Man(??-",
+      "Hex(??-?)Man(??-",
+      "Man(??-?)Man(??-",
+      "Man(??-?)Man(??-",
+      "Gal(??-?)Man(??-",
+      "Hex(??-?)Man(??-",
+      "Hex(??-?)Hex(??-"
+    )
+  )
+  expect_equal(
+    as.character(best),
+    c("Hex(??-?)Man(??-", "Man(??-?)Man(??-", "Hex(??-?)Hex(??-", NA)
+  )
+})
+
+test_that("comp_to_struc excludes floating database structures", {
+  db <- glyrepr::as_glycan_structure(c(
+    "Gal(??-?)Man(??-?)[Man(??-?)]GlcNAc(??-",
+    "{Gal(??-?)|2,3}Man(??-?)[Man(??-?)]GlcNAc(??-"
+  ))
+  attr(db, "confidence") <- c(1, 2)
+  comps <- glyrepr::as_glycan_composition("Hex(3)HexNAc(1)")
+
+  expect_snapshot(
+    result <- comp_to_struc(comps, db, return_best = TRUE)
+  )
+
+  expect_equal(
+    as.character(result),
+    "Gal(??-?)Man(??-?)[Man(??-?)]GlcNAc(??-"
   )
 })
 
@@ -201,7 +266,9 @@ test_that("comp_to_struc works with db=NULL (regression: confidences undefined)"
   comps <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)")
   # Should not error even without return_best
   expect_no_error(
-    result <- comp_to_struc(comps, db = NULL, return_best = FALSE)
+    result <- suppressWarnings(
+      comp_to_struc(comps, db = NULL, return_best = FALSE)
+    )
   )
   expect_named(result, c("composition", "structure", "confidence"))
   expect_false(all(is.na(result$confidence)))

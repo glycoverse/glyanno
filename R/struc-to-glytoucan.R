@@ -14,12 +14,15 @@
 #' @param strucs A [glyrepr::glycan_structure()] vector,
 #'   or a character vector of glycan text representations supported by [glyparse::auto_parse()].
 #'   The glycan structure must have "concrete" monosaccharides (e.g., Gal, GalNAc).
+#'   Inputs with unresolved floating parts or substituents produce a warning and
+#'   return `NA`.
 #'
 #' @returns A character vector of GlyTouCan accessions corresponding to the input glycan structures.
 #'   If a structure cannot be converted to a GlyTouCan accession, the corresponding entry will be `NA`.
 #' @export
 struc_to_glytoucan <- function(strucs) {
   strucs <- .ensure_glycan_structure(strucs)
+  strucs <- .replace_floating_structures(strucs)$strucs
   .assert_concrete(strucs)
   strucs <- glyrepr::fill_anomer_pos(strucs)
   missing_strucs <- is.na(strucs)

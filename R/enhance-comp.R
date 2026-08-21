@@ -1,15 +1,16 @@
 #' Enhance glycan composition
 #'
-#' Given a generic glycan composition (e.g. Hex(5)HexNAc(2)),
-#' this function gives all possible concrete glycan compositions (e.g. Man(5)GlcNAc(2)).
+#' Given a generic or mixed glycan composition (e.g. Hex(5)HexNAc(2)), this
+#' function gives all possible compatible concrete glycan compositions (e.g.
+#' Man(5)GlcNAc(2)).
 #'
 #' @inheritSection mz_to_comp How to set `db`
 #'
 #' @param comps A [glyrepr::glycan_composition()] vector,
 #'   or a character vector of glycan composition strings of Byonic or simple style
 #'   (e.g. "Hex(5)HexNAc(2)", "H5N4F1S1").
-#'   Generic compositions (e.g. Hex(5)HexNAc(2)) will be matched to all possible concrete compositions in `db`.
-#'   Concrete compositions (e.g. Man(5)GlcNAc(2)) will be returned as is.
+#'   Generic and mixed compositions are matched to compatible concrete
+#'   compositions in `db`. Concrete compositions are returned as is.
 #' @param db A [glydb::glydb_compositions()] vector,
 #'   or a character vector of glycan composition strings of Byonic or simple style
 #'   (e.g. "Man(5)GlcNAc(2)", "H5N4F1S1").
@@ -56,64 +57,53 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
     ))
   }
 
-  # Validate: all compositions in db must be concrete
-  if (glyrepr::get_mono_type(db) == "generic") {
-    cli::cli_abort("All compositions in `db` must be concrete.")
-  }
-
-  # Check if comps are generic or concrete (all same type)
   comps_type <- glyrepr::get_mono_type(comps)
+  is_passthrough <- !is.na(comps_type) & comps_type == "concrete"
 
-  if (comps_type == "generic") {
-    comp_keys <- glyrepr::convert_to_generic(comps)
-    if (return_best) {
-      match_ids <- match(
-        comp_keys,
-        db_index$generic[db_index$best_order]
-      )
-      return(unname(db[db_index$best_order][match_ids]))
-    }
-
-    db_df <- tibble::tibble(
-      generic = db_index$generic,
-      concrete = db,
-      confidence = attr(db, "confidence") %||% NA_real_
+  if (return_best) {
+    match_ids <- vapply(
+      seq_along(comps),
+      function(i) {
+        if (is_passthrough[[i]]) {
+          return(NA_integer_)
+        }
+        candidate_ids <- .composition_match_ids(
+          comps[i],
+          db_index$match_index
+        )
+        .best_match_id(candidate_ids, db_index$best_rank)
+      },
+      integer(1)
     )
-    comps_df <- tibble::tibble(
-      composition = comp_keys,
-      row_id = seq_along(comps)
-    )
-
-    res <- comps_df |>
-      dplyr::left_join(
-        db_df,
-        by = c("composition" = "generic"),
-        relationship = "many-to-many"
-      ) |>
-      dplyr::select(all_of(c(
-        "raw" = "composition",
-        "enhanced" = "concrete",
-        "row_id",
-        "confidence"
-      )))
-    res <- .prepare_result(
-      res,
-      return_best,
-      raw_col = "raw",
-      new_col = "enhanced"
-    )
-  } else {
-    # Concrete compositions: enhanced = raw
-    if (return_best) {
-      return(comps)
-    }
-    res <- tibble::tibble(
-      raw = comps,
-      enhanced = comps,
-      confidence = NA_real_
-    )
+    result <- db[match_ids]
+    result[is_passthrough] <- comps[is_passthrough]
+    return(unname(result))
   }
-  res
+
+  confidence <- attr(db, "confidence") %||% rep(NA_real_, length(db))
+  res <- purrr::map_dfr(seq_along(comps), function(i) {
+    if (is_passthrough[[i]]) {
+      return(tibble::tibble(
+        raw = comps[i],
+        enhanced = comps[i],
+        confidence = NA_real_,
+        row_id = i
+      ))
+    }
+    candidate_ids <- .composition_match_ids(comps[i], db_index$match_index)
+    tibble::tibble(
+      raw = rep(comps[i], length(candidate_ids)),
+      enhanced = db[candidate_ids],
+      confidence = confidence[candidate_ids],
+      row_id = rep(i, length(candidate_ids))
+    )
+  })
+  .prepare_result(
+    res,
+    return_best,
+    raw_col = "raw",
+    new_col = "enhanced"
+  )
 }
 
 .enhance_comp_cache <- new.env(parent = emptyenv())
@@ -132,15 +122,21 @@ enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
 }
 
 .new_enhance_comp_index <- function(db) {
+  mono_types <- glyrepr::get_mono_type(db)
+  if (any(is.na(mono_types) | mono_types != "concrete")) {
+    cli::cli_abort("All compositions in `db` must be concrete.")
+  }
+
   confidence <- attr(db, "confidence")
   best_order <- order(
     replace(confidence, is.na(confidence), -Inf),
     decreasing = TRUE,
     method = "radix"
   )
+  best_rank <- match(seq_along(db), best_order)
   list(
     db = db,
-    generic = glyrepr::convert_to_generic(db),
-    best_order = best_order
+    match_index = .new_composition_match_index(db),
+    best_rank = best_rank
   )
 }

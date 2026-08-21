@@ -1,19 +1,22 @@
 #' Enhance glycan structure
 #'
 #' Given a glycan structure vector of any resolution level (see
-#' [glyrepr::get_structure_level()] for details), this function gives all
-#' possible glycan structures of higher resolution level.
+#' [glyrepr::get_structure_level()] for details), this function gives compatible
+#' structures with more specific residue identities or linkage information.
 #'
-#' The target resolution level is determined from `db`, defaulting to
-#' [glydb::glydb_structures()] at "intact" level.
+#' Input and database vectors may mix generic, concrete, and mixed residues, as
+#' well as topological, partial, and intact structures. Each database candidate
+#' is matched against each input independently.
 #'
 #' @param strucs A [glyrepr::glycan_structure()] vector,
-#'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
+#'   or a character vector of glycan structure strings supported by
+#'   [glyparse::auto_parse()]. Inputs with unresolved floating parts or
+#'   substituents are excluded with a warning.
 #' @param db A [glydb::glydb_structures()] vector,
 #'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
-#'   The default is [glydb::glydb_structures()] at "intact" level. If `db` has
-#'   a lower or equal resolution level than `strucs`, the result will be the
-#'   same as `strucs` (no enhancement).
+#'   Structures with unresolved floating parts or substituents are excluded
+#'   with a warning. The default is [glydb::glydb_structures()] at "intact"
+#'   level.
 #' @param return_best Logical. If `TRUE`, only return the best matching
 #'   structure (highest confidence) for each input structure. `db` must have a
 #'   `confidence` attribute. Default is `FALSE`.
@@ -27,15 +30,15 @@
 #'   - `enhanced`: The enhanced glycan structures.
 #'   - `confidence`: The database confidence score for each enhanced
 #'     structure, or `NA` when no score is available.
-#'     Note that one `raw` glycan structure can have different `enhanced` glycan structures
-#'     as multiple rows in the result.
+#'     Note that one `raw` glycan structure can have different `enhanced`
+#'     structures as multiple rows in the result.
 #'
 #' @examples
 #' # From topological level to intact level
 #' db_intact <- c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
 #' enhance_struc("Gal(??-?)GalNAc(??-", db = db_intact)
 #'
-#' # From basic level to topological level
+#' # Refine generic residues without changing the structure level
 #' db_topo <- "Gal(??-?)GalNAc(??-"
 #' enhance_struc("Hex(??-?)HexNAc(??-", db = db_topo)
 #'
@@ -50,6 +53,9 @@ enhance_struc <- function(
 ) {
   # Input validation and preparation
   strucs <- .ensure_glycan_structure(strucs)
+  floating_input <- .replace_floating_structures(strucs)
+  strucs <- floating_input$strucs
+  rejected_floating <- floating_input$rejected
   checkmate::assert_flag(return_best)
 
   db <- .prepare_struc_db(db)
@@ -70,95 +76,93 @@ enhance_struc <- function(
     if (return_best) {
       return(strucs)
     }
+    keep <- !rejected_floating
     return(tibble::tibble(
-      raw = strucs,
-      enhanced = strucs,
-      confidence = NA_real_
+      raw = strucs[keep],
+      enhanced = strucs[keep],
+      confidence = rep(NA_real_, sum(keep))
     ))
   }
 
-  # Define level ranks (higher number means higher resolution)
-  level_ranks <- c("basic" = 1, "topological" = 2, "partial" = 3, "intact" = 4)
+  mono_types <- glyrepr::get_mono_type(strucs)
+  structure_levels <- glyrepr::get_structure_level(strucs)
+  is_passthrough <- !is.na(strucs) &
+    mono_types == "concrete" &
+    structure_levels == "intact"
 
-  # glyrepr::get_structure_level() returns a scalar for the whole vector.
-  db_level <- glyrepr::get_structure_level(db)
-  target_rank <- level_ranks[[db_level]]
-  struc_level <- glyrepr::get_structure_level(strucs)
-  struc_rank <- level_ranks[[struc_level]]
+  is_missing <- is.na(strucs)
+  to_enhance <- strucs[!is_missing & !is_passthrough]
+  unique_to_enhance <- unique(to_enhance)
 
-  # Create a dataframe to track original IDs
-  strucs_df <- tibble::tibble(
-    raw = strucs,
-    row_id = seq_along(strucs)
+  db_comp_index <- .new_composition_match_index(
+    glyrepr::as_glycan_composition(db)
   )
-
-  if (struc_rank >= target_rank) {
-    res <- strucs_df |>
-      dplyr::mutate(
-        enhanced = .data$raw,
-        confidence = NA_real_
-      )
-  } else {
-    to_enhance <- strucs_df$raw
-    is_missing <- is.na(to_enhance)
-    unique_to_enhance <- unique(to_enhance[!is_missing])
-    unique_ids <- match(
-      as.character(to_enhance),
-      as.character(unique_to_enhance)
+  matches <- purrr::map(unique_to_enhance, function(pattern) {
+    candidate_ids <- .composition_match_ids(
+      glyrepr::as_glycan_composition(pattern),
+      db_comp_index
     )
-    # Check matches
-    # db are targets (glycans), unique_to_enhance are patterns (motifs)
-    matches <- glymotif::have_motifs(
-      db,
-      unique_to_enhance,
-      alignments = "whole"
-    )
-
-    # For return_best=TRUE: one row per to_enhance, best match or NA
-    # For return_best=FALSE: one row per match
-    if (return_best) {
-      # Find one best match or NA for each unique pattern, then restore inputs.
-      best_matches <- purrr::map(seq_along(unique_to_enhance), function(i) {
-        col_matches <- which(matches[, i])
-        if (length(col_matches) > 0) {
-          # Find best match by confidence
-          confs <- attr(db, "confidence")[col_matches]
-          best_col <- col_matches[which.max(confs)]
-          db[best_col]
-        } else {
-          glyrepr::glycan_structure(NA)
-        }
-      })
-      best_matches <- do.call(c, best_matches)
-      res <- tibble::tibble(
-        raw = to_enhance,
-        enhanced = best_matches[unique_ids],
-        row_id = strucs_df$row_id,
-        confidence = NA_real_
-      )
-    } else {
-      # Restore the matches for each original occurrence of a unique pattern.
-      res <- purrr::map_dfr(seq_along(to_enhance), function(i) {
-        if (is_missing[[i]]) {
-          return(tibble::tibble(
-            raw = to_enhance[integer(0)],
-            enhanced = db[integer(0)],
-            row_id = integer(0),
-            confidence = numeric(0)
-          ))
-        }
-        db_ids <- which(matches[, unique_ids[[i]]])
-        tibble::tibble(
-          raw = rep(to_enhance[i], length(db_ids)),
-          enhanced = db[db_ids],
-          row_id = rep(strucs_df$row_id[[i]], length(db_ids)),
-          confidence = (attr(db, "confidence") %||% rep(NA_real_, length(db)))[
-            db_ids
-          ]
-        )
-      })
+    if (length(candidate_ids) == 0) {
+      return(integer())
     }
+    matched <- glymotif::have_motif(
+      db[candidate_ids],
+      pattern,
+      alignment = "whole"
+    )
+    candidate_ids[which(matched)]
+  })
+  unique_ids <- match(
+    as.character(strucs),
+    as.character(unique_to_enhance)
+  )
+  confidence <- attr(db, "confidence") %||% rep(NA_real_, length(db))
+  best_order <- order(
+    replace(confidence, is.na(confidence), -Inf),
+    decreasing = TRUE,
+    method = "radix"
+  )
+  best_rank <- match(seq_along(db), best_order)
+
+  if (return_best) {
+    result <- purrr::map(seq_along(strucs), function(i) {
+      if (is_missing[[i]]) {
+        return(glyrepr::glycan_structure(NA))
+      }
+      if (is_passthrough[[i]]) {
+        return(strucs[i])
+      }
+      best_id <- .best_match_id(matches[[unique_ids[[i]]]], best_rank)
+      db[best_id]
+    })
+    return(unname(.combine_glycan_structures(result)))
   }
+
+  res <- purrr::map_dfr(seq_along(strucs), function(i) {
+    if (is_missing[[i]]) {
+      return(tibble::tibble(
+        raw = strucs[integer()],
+        enhanced = db[integer()],
+        confidence = numeric(),
+        row_id = integer()
+      ))
+    }
+    if (is_passthrough[[i]]) {
+      return(tibble::tibble(
+        raw = strucs[i],
+        enhanced = strucs[i],
+        confidence = NA_real_,
+        row_id = i
+      ))
+    }
+    db_ids <- matches[[unique_ids[[i]]]]
+    tibble::tibble(
+      raw = rep(strucs[i], length(db_ids)),
+      enhanced = db[db_ids],
+      confidence = confidence[db_ids],
+      row_id = rep(i, length(db_ids))
+    )
+  })
 
   res <- res |>
     dplyr::arrange(.data$row_id) |>
@@ -174,11 +178,6 @@ enhance_struc <- function(
     )
   }
 
-  if (return_best) {
-    # Return vector with same length as input, NA for unmatched
-    return(dplyr::pull(res, .data$enhanced))
-  }
-
   res |> dplyr::select(-all_of("row_id"))
 }
 
@@ -187,9 +186,10 @@ enhance_struc <- function(
 #' @description
 #' `r lifecycle::badge("experimental")`
 #'
-#' Reconstructs basic-resolution N-glycans from their core and branches. Inputs
-#' that cannot be reconstructed de novo are matched against a fallback database
-#' at "topological" level.
+#' Reconstructs generic topological N-glycans from their core and branches.
+#' Every non-missing input must have only generic residues and no linkage
+#' information. Inputs that cannot be reconstructed de novo are matched against
+#' a fallback database at "topological" level.
 #'
 #' Topological de-novo enhancement preserves optional core fucose and
 #' bisecting GlcNAc residues. Complex N-glycan branches are matched against the
@@ -199,33 +199,34 @@ enhance_struc <- function(
 #' precursor.
 #'
 #' @param strucs A [glyrepr::glycan_structure()] vector, or a character vector
-#'   of glycan structure strings supported by [glyparse::auto_parse()].
+#'   of glycan structure strings supported by [glyparse::auto_parse()]. Every
+#'   non-missing element must be generic and topological. Missing values are
+#'   allowed and preserved. Inputs with unresolved floating parts or
+#'   substituents are replaced with missing values and produce a warning.
 #' @param fallback_db A [glydb::glydb_structures()] vector, or a character
 #'   vector of glycan structure strings supported by [glyparse::auto_parse()].
-#'   The default is [glydb::glydb_structures()] at "topological" level. A
-#'   provided database cannot be at "basic" level. "partial" or "intact"
-#'   structures are reduced to "topological" before fallback matching.
-#'   Fallback candidates require a `confidence` attribute.
+#'   The default is [glydb::glydb_structures()] at "topological" level. Every
+#'   non-missing candidate must have concrete residues. Linkage information is
+#'   removed before fallback matching. Candidates with unresolved floating
+#'   parts or substituents are excluded with a warning. Fallback candidates
+#'   require a `confidence` attribute.
 #'
 #' @returns An unnamed [glyrepr::glycan_structure()] vector with the same length
 #'   as `strucs`. Unmatched structures are returned as `NA`.
 #'
 #' @examples
-#' n_basic <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "generic")
-#' enhance_struc_denovo(n_basic)
+#' n_generic <- glyrepr::n_glycan_core(linkage = FALSE, mono_type = "generic")
+#' enhance_struc_denovo(n_generic)
 #'
 #' @export
 enhance_struc_denovo <- function(strucs, fallback_db = NULL) {
   lifecycle::signal_stage("experimental", "enhance_struc_denovo()")
   strucs <- .ensure_glycan_structure(strucs)
+  strucs <- .replace_floating_structures(strucs)$strucs
   .enhance_struc_denovo_topological(strucs, fallback_db)
 }
 
 .enhance_struc_denovo_topological <- function(strucs, fallback_db) {
-  if (!is.null(fallback_db)) {
-    fallback_db <- .prepare_denovo_struc_db(fallback_db)
-  }
-
   if (length(strucs) == 0) {
     return(glyrepr::glycan_structure())
   }
@@ -234,8 +235,10 @@ enhance_struc_denovo <- function(strucs, fallback_db = NULL) {
     return(strucs)
   }
 
-  if (glyrepr::get_structure_level(strucs) != "basic") {
-    return(unname(strucs))
+  .assert_denovo_strucs(strucs)
+
+  if (!is.null(fallback_db)) {
+    fallback_db <- .prepare_denovo_struc_db(fallback_db)
   }
 
   is_missing <- is.na(strucs)
@@ -457,7 +460,7 @@ enhance_struc_denovo <- function(strucs, fallback_db = NULL) {
   reference_graph <- as.list(reference)[[1]]
   candidate <- igraph::induced_subgraph(reference_graph, matches[[1]]) |>
     glyrepr::glycan_structure() |>
-    glyrepr::reduce_structure_level(to_level = "topological")
+    glyrepr::remove_linkages()
   if (nrow(core_additions) > 0) {
     candidate <- .add_n_glycan_core_additions(candidate, core_additions)
   }
