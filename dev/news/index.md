@@ -2,16 +2,6 @@
 
 ## glyanno (development version)
 
-- [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md)
-  now reuses bundled composition metadata for the default structure
-  database, while
-  [`enhance_comp()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_comp.md),
-  [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md),
-  and database fallback in
-  [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc_denovo.md)
-  retain fast batch matching with mixed residues and element-wise
-  structure levels. (#24)
-
 - [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md),
   [`enhance_comp()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_comp.md),
   and
