@@ -2,6 +2,8 @@
 
 ## glyanno (development version)
 
+## glyanno 0.6.1
+
 - [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md),
   [`enhance_comp()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_comp.md),
   and
