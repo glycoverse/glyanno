@@ -1,7 +1,8 @@
 # Enhance glycan composition
 
-Given a generic glycan composition (e.g. Hex(5)HexNAc(2)), this function
-gives all possible concrete glycan compositions (e.g. Man(5)GlcNAc(2)).
+Given a generic or mixed glycan composition (e.g. Hex(5)HexNAc(2)), this
+function gives all possible compatible concrete glycan compositions
+(e.g. Man(5)GlcNAc(2)).
 
 ## Usage
 
@@ -16,10 +17,9 @@ enhance_comp(comps, db = NULL, return_best = FALSE)
   A
   [`glyrepr::glycan_composition()`](https://glycoverse.github.io/glyrepr/reference/glycan_composition.html)
   vector, or a character vector of glycan composition strings of Byonic
-  or simple style (e.g. "Hex(5)HexNAc(2)", "H5N4F1S1"). Generic
-  compositions (e.g. Hex(5)HexNAc(2)) will be matched to all possible
-  concrete compositions in `db`. Concrete compositions (e.g.
-  Man(5)GlcNAc(2)) will be returned as is.
+  or simple style (e.g. "Hex(5)HexNAc(2)", "H5N4F1S1"). Generic and
+  mixed compositions are matched to compatible concrete compositions in
+  `db`. Concrete compositions are returned as is.
 
 - db:
 
@@ -47,9 +47,12 @@ columns:
 
 - `raw`: The original compositions.
 
-- `enhanced`: The enhanced compositions. Note that one `raw` composition
-  can have different `enhanced` compositions as multiple rows in the
-  result.
+- `enhanced`: The enhanced compositions.
+
+- `confidence`: The database confidence score for each enhanced
+  composition, or `NA` when no score is available. Note that one `raw`
+  composition can have different `enhanced` compositions as multiple
+  rows in the result.
 
 ## How to set `db`
 
@@ -81,12 +84,12 @@ example,
 
 ``` r
 enhance_comp("Hex(5)HexNAc(2)")
-#> # A tibble: 5 × 2
-#>   raw             enhanced             
-#>   <comp>          <comp>               
-#> 1 Hex(5)HexNAc(2) Glc(1)Gal(4)GlcNAc(2)
-#> 2 Hex(5)HexNAc(2) Man(5)GlcNAc(2)      
-#> 3 Hex(5)HexNAc(2) Glc(1)Man(4)GlcNAc(2)
-#> 4 Hex(5)HexNAc(2) Man(3)Gal(2)GlcNAc(2)
-#> 5 Hex(5)HexNAc(2) Man(4)Gal(1)GlcNAc(2)
+#> # A tibble: 5 × 3
+#>   raw             enhanced              confidence
+#>   <comp>          <comp>                     <dbl>
+#> 1 Hex(5)HexNAc(2) Glc(1)Gal(4)GlcNAc(2)      1.10 
+#> 2 Hex(5)HexNAc(2) Man(5)GlcNAc(2)            5.10 
+#> 3 Hex(5)HexNAc(2) Glc(1)Man(4)GlcNAc(2)      0.693
+#> 4 Hex(5)HexNAc(2) Man(3)Gal(2)GlcNAc(2)     -1    
+#> 5 Hex(5)HexNAc(2) Man(4)Gal(1)GlcNAc(2)     -1    
 ```

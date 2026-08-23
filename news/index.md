@@ -1,5 +1,25 @@
 # Changelog
 
+## glyanno 0.6.1
+
+- [`comp_to_struc()`](https://glycoverse.github.io/glyanno/reference/comp_to_struc.md),
+  [`enhance_comp()`](https://glycoverse.github.io/glyanno/reference/enhance_comp.md),
+  and
+  [`enhance_struc()`](https://glycoverse.github.io/glyanno/reference/enhance_struc.md)
+  now support mixed generic and concrete residues with element-wise
+  structure levels; structure matching excludes unresolved floating
+  inputs and database candidates with a warning, and
+  [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/reference/enhance_struc_denovo.md)
+  now requires generic topological inputs. (#24)
+
+- [`mz_to_comp()`](https://glycoverse.github.io/glyanno/reference/mz_to_comp.md),
+  [`enhance_comp()`](https://glycoverse.github.io/glyanno/reference/enhance_comp.md),
+  [`comp_to_struc()`](https://glycoverse.github.io/glyanno/reference/comp_to_struc.md),
+  and
+  [`enhance_struc()`](https://glycoverse.github.io/glyanno/reference/enhance_struc.md)
+  now include a `confidence` column in expanded results for customized
+  prioritization. (#23)
+
 ## glyanno 0.6.0
 
 ### New features

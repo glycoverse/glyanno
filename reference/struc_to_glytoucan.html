@@ -13,7 +13,7 @@ the Glycosmos project for structures not found locally."><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">glyanno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,9 @@ the Glycosmos project for structures not found locally.</p>
 <dl><dt id="arg-strucs">strucs<a class="anchor" aria-label="anchor" href="#arg-strucs"></a></dt>
 <dd><p>A <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_structure.html" class="external-link">glyrepr::glycan_structure()</a></code> vector,
 or a character vector of glycan text representations supported by <code><a href="https://glycoverse.github.io/glyparse/reference/auto_parse.html" class="external-link">glyparse::auto_parse()</a></code>.
-The glycan structure must have "concrete" monosaccharides (e.g., Gal, GalNAc).</p></dd>
+The glycan structure must have "concrete" monosaccharides (e.g., Gal, GalNAc).
+Inputs with unresolved floating parts or substituents produce a warning and
+return <code>NA</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

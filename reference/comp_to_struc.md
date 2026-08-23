@@ -1,7 +1,8 @@
 # Convert glycan composition to glycan structure
 
-Given glycan compositions, this function matches them to all possible
-glycan structures in the `glydb` database.
+Given glycan compositions, this function matches them to all compatible
+glycan structures in the `glydb` database. Generic, concrete, and mixed
+residue identities are matched residue by residue.
 
 ## Usage
 
@@ -29,8 +30,9 @@ comp_to_struc(comps, db = NULL, return_best = FALSE)
   [`glyrepr::glycan_structure()`](https://glycoverse.github.io/glyrepr/reference/glycan_structure.html)
   vector or any structure strings supported by
   [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
-  If not provided, `glydb::glydb_structures(structure_level = "intact")`
-  will be used.
+  Structures with unresolved floating parts or substituents are excluded
+  with a warning. If not provided,
+  `glydb::glydb_structures(structure_level = "intact")` will be used.
 
 - return_best:
 
@@ -53,8 +55,12 @@ columns:
 
 - `structure`: The possible glycan structures, as
   [`glyrepr::glycan_structure()`](https://glycoverse.github.io/glyrepr/reference/glycan_structure.html)
-  vector. Note that one glycan composition can have multiple rows in the
-  result, corresponding to different possible glycan structures.
+  vector.
+
+- `confidence`: The database confidence score for each structure, or
+  `NA` when no score is available. Note that one glycan composition can
+  have multiple rows in the result, corresponding to different possible
+  glycan structures.
 
 ## How to set `db`
 
@@ -90,18 +96,18 @@ example,
 
 ``` r
 comp_to_struc("H5N2")
-#> # A tibble: 79 × 2
-#>    composition     structure                                                    
-#>    <comp>          <struct>                                                     
-#>  1 Hex(5)HexNAc(2) Man(b1-2)Man(b1-3)[Man(b1-3)Man(b1-6)]Man(b1-4)GlcNAc(b1-4)G…
-#>  2 Hex(5)HexNAc(2) GlcNAc(b1-2)Man(a1-3)[Man(a1-3)[Man(a1-6)]Man(a1-6)]Man(b1-4…
-#>  3 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)[Man(a1-3)Man(a1-6)]Man(b1-4)GlcNAc(b1-4)G…
-#>  4 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)[Man(a1-3)]Man(a1-4)GlcNAc(b1-4…
-#>  5 Hex(5)HexNAc(2) Man(a1-2)Man(a1-2)Man(a1-3)[Glc(a1-6)]Man(b1-4)GlcNAc(b1-4)G…
-#>  6 Hex(5)HexNAc(2) Man(a1-3)Man(a1-3)[Man(a1-3)Man(a1-6)]Man(b1-4)GlcNAc(b1-4)G…
-#>  7 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)Man(a1-3)Man(b1-4)GlcNAc(b1-4)G…
-#>  8 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)[Man(a1-6)Man(a1-6)]Man(a1-4)GlcNAc(b1-4)G…
-#>  9 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)Man(a1-6)[Man(a1-3)]Man(b1-4)GlcNAc(b1-4)G…
-#> 10 Hex(5)HexNAc(2) Gal(a1-6)Man(b1-3)[Man(b1-6)Man(a1-6)]Man(b1-4)GlcNAc(b1-4)G…
+#> # A tibble: 79 × 3
+#>    composition     structure                                          confidence
+#>    <comp>          <struct>                                                <dbl>
+#>  1 Hex(5)HexNAc(2) Man(b1-2)Man(b1-3)[Man(b1-3)Man(b1-6)]Man(b1-4)Gl…      -1   
+#>  2 Hex(5)HexNAc(2) GlcNAc(b1-2)Man(a1-3)[Man(a1-3)[Man(a1-6)]Man(a1-…      -1   
+#>  3 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)[Man(a1-3)Man(a1-6)]Man(b1-4)Gl…       3.22
+#>  4 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)[Man(a1-3)]Man(a1-4)…       1.39
+#>  5 Hex(5)HexNAc(2) Man(a1-2)Man(a1-2)Man(a1-3)[Glc(a1-6)]Man(b1-4)Gl…      -1   
+#>  6 Hex(5)HexNAc(2) Man(a1-3)Man(a1-3)[Man(a1-3)Man(a1-6)]Man(b1-4)Gl…      -1   
+#>  7 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)Man(a1-3)Man(b1-4)Gl…      -1   
+#>  8 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)[Man(a1-6)Man(a1-6)]Man(a1-4)Gl…      -1   
+#>  9 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)Man(a1-6)[Man(a1-3)]Man(b1-4)Gl…       1.61
+#> 10 Hex(5)HexNAc(2) Gal(a1-6)Man(b1-3)[Man(b1-6)Man(a1-6)]Man(b1-4)Gl…      -1   
 #> # ℹ 69 more rows
 ```

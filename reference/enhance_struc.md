@@ -2,8 +2,8 @@
 
 Given a glycan structure vector of any resolution level (see
 [`glyrepr::get_structure_level()`](https://glycoverse.github.io/glyrepr/reference/get_structure_level.html)
-for details), this function gives all possible glycan structures of
-higher resolution level.
+for details), this function gives compatible structures with more
+specific residue identities or linkage information.
 
 ## Usage
 
@@ -19,6 +19,8 @@ enhance_struc(strucs, db = NULL, return_best = FALSE)
   [`glyrepr::glycan_structure()`](https://glycoverse.github.io/glyrepr/reference/glycan_structure.html)
   vector, or a character vector of glycan structure strings supported by
   [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
+  Inputs with unresolved floating parts or substituents are excluded
+  with a warning.
 
 - db:
 
@@ -26,10 +28,10 @@ enhance_struc(strucs, db = NULL, return_best = FALSE)
   [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
   vector, or a character vector of glycan structure strings supported by
   [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
-  The default is
+  Structures with unresolved floating parts or substituents are excluded
+  with a warning. The default is
   [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
-  at "intact" level. If `db` has a lower or equal resolution level than
-  `strucs`, the result will be the same as `strucs` (no enhancement).
+  at "intact" level.
 
 - return_best:
 
@@ -47,15 +49,18 @@ columns:
 
 - `raw`: The original glycan structures.
 
-- `enhanced`: The enhanced glycan structures. Note that one `raw` glycan
-  structure can have different `enhanced` glycan structures as multiple
+- `enhanced`: The enhanced glycan structures.
+
+- `confidence`: The database confidence score for each enhanced
+  structure, or `NA` when no score is available. Note that one `raw`
+  glycan structure can have different `enhanced` structures as multiple
   rows in the result.
 
 ## Details
 
-The target resolution level is determined from `db`, defaulting to
-[`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
-at "intact" level.
+Input and database vectors may mix generic, concrete, and mixed
+residues, as well as topological, partial, and intact structures. Each
+database candidate is matched against each input independently.
 
 ## Examples
 
@@ -63,25 +68,25 @@ at "intact" level.
 # From topological level to intact level
 db_intact <- c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
 enhance_struc("Gal(??-?)GalNAc(??-", db = db_intact)
-#> # A tibble: 2 × 2
-#>   raw                 enhanced           
-#>   <struct>            <struct>           
-#> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-
-#> 2 Gal(??-?)GalNAc(??- Gal(b1-4)GalNAc(a1-
+#> # A tibble: 2 × 3
+#>   raw                 enhanced            confidence
+#>   <struct>            <struct>                 <dbl>
+#> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-         NA
+#> 2 Gal(??-?)GalNAc(??- Gal(b1-4)GalNAc(a1-         NA
 
-# From basic level to topological level
+# Refine generic residues without changing the structure level
 db_topo <- "Gal(??-?)GalNAc(??-"
 enhance_struc("Hex(??-?)HexNAc(??-", db = db_topo)
-#> # A tibble: 1 × 2
-#>   raw                 enhanced           
-#>   <struct>            <struct>           
-#> 1 Hex(??-?)HexNAc(??- Gal(??-?)GalNAc(??-
+#> # A tibble: 1 × 3
+#>   raw                 enhanced            confidence
+#>   <struct>            <struct>                 <dbl>
+#> 1 Hex(??-?)HexNAc(??- Gal(??-?)GalNAc(??-         NA
 
 # From partial level to intact level
 enhance_struc("Gal(b1-?)GalNAc(a1-", db = db_intact)
-#> # A tibble: 2 × 2
-#>   raw                 enhanced           
-#>   <struct>            <struct>           
-#> 1 Gal(b1-?)GalNAc(a1- Gal(b1-3)GalNAc(a1-
-#> 2 Gal(b1-?)GalNAc(a1- Gal(b1-4)GalNAc(a1-
+#> # A tibble: 2 × 3
+#>   raw                 enhanced            confidence
+#>   <struct>            <struct>                 <dbl>
+#> 1 Gal(b1-?)GalNAc(a1- Gal(b1-3)GalNAc(a1-         NA
+#> 2 Gal(b1-?)GalNAc(a1- Gal(b1-4)GalNAc(a1-         NA
 ```
