@@ -131,52 +131,12 @@
 }
 
 .prepare_default_struc_db <- function(db, arg) {
-  metadata_ids <- match(
-    as.character(db),
-    default_comp_to_struc_metadata$structure_keys
-  )
-  is_unknown <- is.na(metadata_ids)
-  floating <- logical(length(db))
-  floating[!is_unknown] <- default_comp_to_struc_metadata$floating[
-    metadata_ids[!is_unknown]
-  ]
-  if (any(is_unknown)) {
-    floating[is_unknown] <- .has_unresolved_floating(db[is_unknown])
-  }
-  .warn_floating_mask(
-    floating,
-    arg,
-    "Those database structures were excluded from matching."
-  )
-
-  keep <- !floating
-  kept_metadata_ids <- metadata_ids[keep]
-  composition <- default_comp_to_struc_metadata$composition[
-    kept_metadata_ids
-  ]
-  generic_keys <- default_comp_to_struc_metadata$generic_keys[
-    kept_metadata_ids
-  ]
-  unknown_kept <- is.na(kept_metadata_ids)
-  if (any(unknown_kept)) {
-    unknown_composition <- glyrepr::as_glycan_composition(
-      db[keep][unknown_kept]
-    )
-    composition[unknown_kept] <- unknown_composition
-    generic_keys[unknown_kept] <- as.character(
-      glyrepr::convert_to_generic(unknown_composition)
-    )
-  }
-
-  confidence <- attr(db, "confidence")
-  db <- db[keep]
-  if (!is.null(confidence)) {
-    attr(db, "confidence") <- confidence[keep]
-  }
+  db <- .drop_floating_structures(db, arg)
+  composition <- glyrepr::as_glycan_composition(db)
   list(
     db = db,
     composition = composition,
-    generic_keys = generic_keys
+    generic_keys = as.character(glyrepr::convert_to_generic(composition))
   )
 }
 

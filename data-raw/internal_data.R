@@ -111,18 +111,7 @@ high_mannose_reference <- glyparse::auto_parse(paste0(
   "Man(b1-4)GlcNAc(b1-4)GlcNAc(b1-"
 ))
 
-default_strucs <- glydb_structures(structure_level = "intact")
-default_compositions <- as_glycan_composition(default_strucs)
-default_comp_to_struc_metadata <- list(
-  structure_keys = as.character(default_strucs),
-  floating = has_floating_parts(default_strucs) |
-    has_floating_substituents(default_strucs),
-  composition = default_compositions,
-  generic_keys = as.character(convert_to_generic(default_compositions))
-)
-
 usethis::use_data(
-  default_comp_to_struc_metadata,
   high_mannose_reference,
   n_glycan_generic_core,
   n_glycan_topological_core,
