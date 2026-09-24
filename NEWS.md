@@ -1,5 +1,7 @@
 # glyanno (development version)
 
+* `mz_to_comp()`, `enhance_comp()`, `comp_to_struc()`, and `enhance_struc()` now accept `glycan_type`, `species`, `mono_type`, and `mono_range` filters directly; the structure functions also accept `structure_level`. The `db` argument is deprecated but remains available for custom databases.
+
 # glyanno 0.6.1
 
 * `comp_to_struc()`, `enhance_comp()`, and `enhance_struc()` now support mixed generic and concrete residues with element-wise structure levels; structure matching excludes unresolved floating inputs and database candidates with a warning, and `enhance_struc_denovo()` now requires generic topological inputs. (#24)

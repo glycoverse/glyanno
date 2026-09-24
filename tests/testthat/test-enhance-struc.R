@@ -1,4 +1,5 @@
 test_that("enhance_struc refines generic topological structures", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db_topo <- "Gal(??-?)GalNAc(??-"
   input_generic <- "Hex(??-?)HexNAc(??-"
   res <- enhance_struc(input_generic, db = db_topo)
@@ -6,9 +7,19 @@ test_that("enhance_struc refines generic topological structures", {
 })
 
 test_that("structure enhancement functions expose separate contracts", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   expect_identical(
     names(formals(enhance_struc)),
-    c("strucs", "db", "return_best")
+    c(
+      "strucs",
+      "db",
+      "return_best",
+      "glycan_type",
+      "species",
+      "structure_level",
+      "mono_type",
+      "mono_range"
+    )
   )
   expect_identical(
     names(formals(enhance_struc_denovo)),
@@ -17,6 +28,7 @@ test_that("structure enhancement functions expose separate contracts", {
 })
 
 test_that("enhance_struc enhances topological to intact level", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db_intact <- c(
     "Gal(b1-3)GalNAc(a1-",
     "Gal(b1-4)GalNAc(a1-"
@@ -31,6 +43,7 @@ test_that("enhance_struc enhances topological to intact level", {
 })
 
 test_that("enhance_struc enhances partial to intact level with wildcard", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db_intact <- c(
     "Gal(b1-3)GalNAc(a1-",
     "Gal(b1-4)GalNAc(a1-"
@@ -44,6 +57,7 @@ test_that("enhance_struc enhances partial to intact level with wildcard", {
 })
 
 test_that("enhance_struc enhances specific partial to intact level", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db_intact <- c(
     "Gal(b1-3)GalNAc(a1-",
     "Gal(b1-4)GalNAc(a1-"
@@ -57,6 +71,7 @@ test_that("enhance_struc enhances specific partial to intact level", {
 })
 
 test_that("enhance_struc returns unchanged when no enhancement needed", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db_intact <- c(
     "Gal(b1-3)GalNAc(a1-",
     "Gal(b1-4)GalNAc(a1-"
@@ -68,6 +83,7 @@ test_that("enhance_struc returns unchanged when no enhancement needed", {
 })
 
 test_that("enhance_struc returns empty result when no match found", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db_intact <- c(
     "Gal(b1-3)GalNAc(a1-",
     "Gal(b1-4)GalNAc(a1-"
@@ -80,6 +96,7 @@ test_that("enhance_struc returns empty result when no match found", {
 })
 
 test_that("enhance_struc accepts empty structures", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db_intact <- "Gal(b1-3)GalNAc(a1-"
   input_empty <- glyrepr::glycan_structure()
 
@@ -96,6 +113,7 @@ test_that("enhance_struc accepts empty structures", {
 })
 
 test_that("enhance_struc accepts all-NA structures", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db_intact <- glyrepr::as_glycan_structure("Gal(b1-3)GalNAc(a1-")
   attr(db_intact, "confidence") <- 1
   input_na <- c(glyrepr::glycan_structure(NA), glyrepr::glycan_structure(NA))
@@ -115,6 +133,7 @@ test_that("enhance_struc accepts all-NA structures", {
 })
 
 test_that("enhance_struc works with multiple glycans", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db_intact <- c(
     "GalNAc(a1-",
     "Gal(b1-3)GalNAc(a1-",
@@ -142,6 +161,7 @@ test_that("enhance_struc works with multiple glycans", {
 })
 
 test_that("enhance_struc restores repeated and missing inputs", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Gal(b1-3)GalNAc(a1-",
     "Gal(b1-4)GalNAc(a1-",
@@ -186,6 +206,7 @@ test_that("enhance_struc restores repeated and missing inputs", {
 })
 
 test_that("enhance_struc matches each unique non-missing input once", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   matched_patterns <- NULL
   local_mocked_bindings(
     have_motifs = function(glycans, motifs, ...) {
@@ -214,6 +235,7 @@ test_that("enhance_struc matches each unique non-missing input once", {
 })
 
 test_that("enhance_struc rejects floating inputs and database candidates", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   floating <- paste0(
     "{Hex(??-?)|2,3}Hex(??-?)[Hex(??-?)]",
     "HexNAc(??-"
@@ -239,6 +261,7 @@ test_that("enhance_struc rejects floating inputs and database candidates", {
 })
 
 test_that("enhance_struc with return_best=TRUE filters enhanced structures by confidence", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Gal(b1-3)GalNAc(a1-",
     "Gal(b1-4)GalNAc(a1-"
@@ -257,6 +280,7 @@ test_that("enhance_struc with return_best=TRUE filters enhanced structures by co
 })
 
 test_that("enhance_struc with return_best=TRUE keeps all already-at-level structures", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Gal(b1-3)GalNAc(a1-",
     "Gal(b1-4)GalNAc(a1-"
@@ -277,6 +301,7 @@ test_that("enhance_struc with return_best=TRUE keeps all already-at-level struct
 })
 
 test_that("enhance_struc with return_best=TRUE errors without confidence attr", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure("HexNAc(??-")
   struc <- glyrepr::as_glycan_structure("HexNAc(??-")
 
@@ -287,6 +312,7 @@ test_that("enhance_struc with return_best=TRUE errors without confidence attr", 
 })
 
 test_that("enhance_struc treats NA confidence as lowest for enhancement", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Gal(b1-3)GalNAc(a1-",
     "Gal(b1-4)GalNAc(a1-"
@@ -304,6 +330,7 @@ test_that("enhance_struc treats NA confidence as lowest for enhancement", {
 })
 
 test_that("enhance_struc works with db=NULL (regression: confidences undefined)", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   # This test ensures confidences variable is defined when db=NULL
   struc <- glyrepr::as_glycan_structure("Hex(??-?)HexNAc(??-")
   # Should not error even without return_best
@@ -323,6 +350,7 @@ test_that("enhance_struc works with db=NULL (regression: confidences undefined)"
 })
 
 test_that("enhance_struc evaluates database levels per candidate", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db_mixed <- c(
     "Gal(??-?)GalNAc(??-",
     "Gal(b1-3)GalNAc(a1-"
@@ -338,6 +366,7 @@ test_that("enhance_struc evaluates database levels per candidate", {
 })
 
 test_that("enhance_struc evaluates input levels element-wise", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db_intact <- glyrepr::as_glycan_structure("Gal(b1-3)GalNAc(a1-")
   attr(db_intact, "confidence") <- 1
   input_partial <- c(
@@ -353,6 +382,7 @@ test_that("enhance_struc evaluates input levels element-wise", {
 })
 
 test_that("enhance_struc matches mixed residues and levels together", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Gal(??-?)GalNAc(??-",
     "Gal(b1-3)GalNAc(a1-",
@@ -378,6 +408,7 @@ test_that("enhance_struc matches mixed residues and levels together", {
 })
 
 test_that("enhance_struc with return_best=TRUE returns NA for no match", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   # db at intact level with two entries
   db <- glyrepr::as_glycan_structure(c(
     "Gal(b1-3)GalNAc(a1-",
@@ -400,6 +431,7 @@ test_that("enhance_struc with return_best=TRUE returns NA for no match", {
 })
 
 test_that("enhance_struc_denovo enhances an N-glycan core", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   input <- glyrepr::n_glycan_core(
     linkage = FALSE,
     mono_type = "generic"
@@ -417,6 +449,7 @@ test_that("enhance_struc_denovo enhances an N-glycan core", {
 })
 
 test_that("enhance_struc_denovo keeps one branch per generic pattern", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   input <- paste0(
     "HexNAc(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
     "HexNAc(??-?)HexNAc(??-"
@@ -434,6 +467,7 @@ test_that("enhance_struc_denovo keeps one branch per generic pattern", {
 })
 
 test_that("de-novo branch data contain all sialic acid variants", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   generic_branches <- glyrepr::convert_to_generic(topological_branches)
   direct_keys <- vapply(
     as.list(generic_branches),
@@ -489,6 +523,7 @@ test_that("de-novo branch data contain all sialic acid variants", {
 })
 
 test_that("enhance_struc_denovo ranks branches and enhances core additions", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   input <- paste0(
     "HexNAc(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]",
     "[HexNAc(??-?)]Hex(??-?)HexNAc(??-?)[dHex(??-?)]HexNAc(??-"
@@ -506,6 +541,7 @@ test_that("enhance_struc_denovo ranks branches and enhances core additions", {
 })
 
 test_that("de-novo table materialization follows the validated graph pipeline", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   expected <- glyrepr::as_glycan_structure(paste0(
     "GlcNAc(??-?)Man(??-?)[GlcNAc(??-?)Man(??-?)]",
     "Man(??-?)GlcNAc(??-?)GlcNAc(??-"
@@ -523,6 +559,7 @@ test_that("de-novo table materialization follows the validated graph pipeline", 
 })
 
 test_that("enhance_struc_denovo handles hybrid N-glycans", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   input <- paste0(
     "Hex(??-?)Hex(??-?)[Hex(??-?)HexNAc(??-?)Hex(??-?)]",
     "Hex(??-?)HexNAc(??-?)HexNAc(??-"
@@ -540,6 +577,7 @@ test_that("enhance_struc_denovo handles hybrid N-glycans", {
 })
 
 test_that("enhance_struc_denovo constrains high-mannose N-glycans", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   reference <- paste0(
     "Glc(a1-2)Glc(a1-3)Glc(a1-3)Man(a1-2)Man(a1-2)Man(a1-3)",
     "[Man(a1-2)Man(a1-3)[Man(a1-2)Man(a1-6)]Man(a1-6)]",
@@ -557,6 +595,7 @@ test_that("enhance_struc_denovo constrains high-mannose N-glycans", {
 })
 
 test_that("enhance_struc_denovo returns high-mannose reference subtrees", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   input <- paste0(
     "Hex(??-?)Hex(??-?)[Hex(??-?)]Hex(??-?)",
     "HexNAc(??-?)HexNAc(??-"
@@ -574,6 +613,7 @@ test_that("enhance_struc_denovo returns high-mannose reference subtrees", {
 })
 
 test_that("enhance_struc_denovo preserves high-mannose core additions", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   input <- paste0(
     "Hex(??-?)Hex(??-?)[Hex(??-?)][HexNAc(??-?)]Hex(??-?)",
     "HexNAc(??-?)[dHex(??-?)]HexNAc(??-"
@@ -591,6 +631,7 @@ test_that("enhance_struc_denovo preserves high-mannose core additions", {
 })
 
 test_that("enhance_struc_denovo falls back to database matching", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure("Gal(??-?)GlcNAc(??-")
   attr(db, "confidence") <- 1
   input <- c(
@@ -607,6 +648,7 @@ test_that("enhance_struc_denovo falls back to database matching", {
 })
 
 test_that("enhance_struc_denovo defaults to a topological fallback", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   result <- suppressWarnings(
     enhance_struc_denovo(
       "Hex(??-?)HexNAc(??-"
@@ -621,6 +663,7 @@ test_that("enhance_struc_denovo defaults to a topological fallback", {
 })
 
 test_that("enhance_struc_denovo rejects a non-concrete fallback database", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   input <- glyrepr::n_glycan_core(
     linkage = FALSE,
     mono_type = "generic"
@@ -636,6 +679,7 @@ test_that("enhance_struc_denovo rejects a non-concrete fallback database", {
 })
 
 test_that("enhance_struc_denovo requires generic topological inputs", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   concrete <- glyrepr::as_glycan_structure("Gal(??-?)GalNAc(??-")
   mixed <- glyrepr::as_glycan_structure("Hex(??-?)GalNAc(??-")
   partial <- glyrepr::as_glycan_structure("Hex(b1-?)HexNAc(?1-")
@@ -648,6 +692,7 @@ test_that("enhance_struc_denovo requires generic topological inputs", {
 })
 
 test_that("enhance_struc_denovo reduces fallback databases", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Gal(b1-?)GlcNAc(b1-",
     "Gal(b1-4)GlcNAc(b1-",
@@ -666,6 +711,7 @@ test_that("enhance_struc_denovo reduces fallback databases", {
 })
 
 test_that("de-novo fallback preparation preserves all-missing confidence", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Gal(b1-?)GlcNAc(b1-",
     "Gal(b1-4)GlcNAc(b1-"
@@ -679,6 +725,7 @@ test_that("de-novo fallback preparation preserves all-missing confidence", {
 })
 
 test_that("enhance_struc_denovo falls back after deduction errors", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   input <- paste0(
     "dHex(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
     "HexNAc(??-?)HexNAc(??-"
@@ -698,6 +745,7 @@ test_that("enhance_struc_denovo falls back after deduction errors", {
 })
 
 test_that("enhance_struc_denovo preserves repeated inputs", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   input <- paste0(
     "HexNAc(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
     "HexNAc(??-?)HexNAc(??-"
@@ -714,6 +762,7 @@ test_that("enhance_struc_denovo preserves repeated inputs", {
 })
 
 test_that("enhance_struc_denovo batches distinct core matches", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   inputs <- c(
     paste0(
       "HexNAc(??-?)Hex(??-?)[HexNAc(??-?)Hex(??-?)]Hex(??-?)",
@@ -747,6 +796,7 @@ test_that("enhance_struc_denovo batches distinct core matches", {
 })
 
 test_that("enhance_struc_denovo assembles repeated and missing results", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   input <- glyrepr::n_glycan_core(
     linkage = FALSE,
     mono_type = "generic"
@@ -769,6 +819,7 @@ test_that("enhance_struc_denovo assembles repeated and missing results", {
 })
 
 test_that("enhance_struc_denovo rejects floating inputs", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   floating <- paste0(
     "{Hex(??-?)|2,3}Hex(??-?)[Hex(??-?)]",
     "HexNAc(??-"
@@ -787,6 +838,7 @@ test_that("enhance_struc_denovo rejects floating inputs", {
 })
 
 test_that("enhance_struc_denovo batches repeated database fallbacks", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   input <- rep("Hex(??-?)HexNAc(??-", 2)
   db <- glyrepr::as_glycan_structure("Gal(??-?)GlcNAc(??-")
   attr(db, "confidence") <- 1

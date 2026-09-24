@@ -4,21 +4,28 @@
 #' function gives all possible compatible concrete glycan compositions (e.g.
 #' Man(5)GlcNAc(2)).
 #'
-#' @inheritSection mz_to_comp How to set `db`
+#' Filter the built-in database with `glycan_type`, `species`,
+#' `mono_type`, and `mono_range`.
 #'
 #' @param comps A [glyrepr::glycan_composition()] vector,
 #'   or a character vector of glycan composition strings of Byonic or simple style
 #'   (e.g. "Hex(5)HexNAc(2)", "H5N4F1S1").
 #'   Generic and mixed compositions are matched to compatible concrete
 #'   compositions in `db`. Concrete compositions are returned as is.
-#' @param db A [glydb::glydb_compositions()] vector,
+#' @param db `r lifecycle::badge("deprecated")` A [glydb::glydb_compositions()] vector,
 #'   or a character vector of glycan composition strings of Byonic or simple style
 #'   (e.g. "Man(5)GlcNAc(2)", "H5N4F1S1").
 #'   All compositions in `db` must be concrete (e.g. Man(5)GlcNAc(2)).
-#'   If not provided, `glydb::glydb_compositions(mono_type = "concrete")` will be used.
+#'   Use the filtering arguments instead. This argument cannot be combined
+#'   with them.
+#' @param glycan_type Glycan type to select from [glydb::glydb_compositions()].
+#' @param species Species to select, matched without regard to letter case.
+#' @param mono_type Monosaccharide resolution; only `"concrete"` is supported
+#'   for enhancement.
+#' @param mono_range Named list of monosaccharide count ranges; see
+#'   [glydb::glydb_compositions()].
 #' @param return_best Logical. If `TRUE`, only return the highest confidence match
-#'   for each input composition. Requires `db` to have a `confidence` attribute.
-#'   Use [glydb::glydb_compositions()] for `db` to enable this feature.
+#'   for each input composition. A custom `db` must have a `confidence` attribute.
 #'   Defaults to `FALSE`.
 #'
 #' @returns If `return_best=TRUE`:
@@ -37,8 +44,31 @@
 #' enhance_comp("Hex(5)HexNAc(2)")
 #'
 #' @export
-enhance_comp <- function(comps, db = NULL, return_best = FALSE) {
+enhance_comp <- function(
+  comps,
+  db = lifecycle::deprecated(),
+  return_best = FALSE,
+  glycan_type = NULL,
+  species = NULL,
+  mono_type = "concrete",
+  mono_range = NULL
+) {
   checkmate::assert_flag(return_best)
+  db <- .resolve_annotation_db(
+    db,
+    !missing(glycan_type) ||
+      !missing(species) ||
+      !missing(mono_type) ||
+      !missing(mono_range),
+    "enhance_comp",
+    "composition",
+    list(
+      glycan_type = glycan_type,
+      species = species,
+      mono_type = mono_type,
+      mono_range = mono_range
+    )
+  )
   # Input validation and preparation
   comps <- .ensure_glycan_composition(comps, allow_structure = FALSE)
   db_index <- .prepare_enhance_comp_index(db)

@@ -3,38 +3,32 @@
 #' Given m/z values, this function matches them to all possible glycan compositions in the `glydb` database.
 #'
 #' @details
-#' # How to set `db`
+#' # Filter the built-in database
 #'
-#' The `db` parameter is very important for all functions in this package.
-#' By default, it uses all available glycans in the `glydb` package,
-#' which is usually larger than what you need.
-#' You can use helper functions in `glydb` to narrow down the database,
-#' e.g. [glydb::glydb_compositions()] or [glydb::glydb_structures()].
-#'
-#' You can use the `species` and `glycan_type` parameters to focus on specific species and glycan type.
-#' For example, if you are only interested in N-glycan compositions in human,
-#' you can use `glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")`.
-#' Also, you can decide the level of information in the database by setting `mono_type`
-#' of [glydb::glydb_compositions()] and `structure_level` of [glydb::glydb_structures()].
-#'
-#' You can then pass the result to the `db` parameter of this function.
-#' For example,
+#' Use `glycan_type`, `species`, `mono_type`, and `mono_range` to select
+#' compositions from [glydb::glydb_compositions()]. For example,
 #'
 #' ```
-#' my_db <- glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")
-#' mz_to_comp(mz, db = my_db)
+#' mz_to_comp(mz, species = "Homo sapiens", glycan_type = "N")
 #' ```
 #'
 #' @param mz A numeric vector of m/z values.
 #' @param tol A numeric scalar of the tolerance for the m/z value in Da or a [ppm()] object for dynamic tolerance.
 #'   Default is `ppm(10)`.
-#' @param db Glycan compositions to match against.
+#' @param db `r lifecycle::badge("deprecated")` Glycan compositions to match against.
 #'   Can be a [glyrepr::glycan_composition()] vector or glycan composition strings
 #'   in Byonic style (e.g. Hex(5)HexNAc(2)) or simple style (e.g. H5N4F1S1).
-#'   If not provided, `glydb::glydb_compositions(mono_type = "concrete")` will be used.
+#'   Use the filtering arguments instead. This argument cannot be combined
+#'   with them.
+#' @param glycan_type Glycan type to select from [glydb::glydb_compositions()].
+#' @param species Species to select, matched without regard to letter case.
+#' @param mono_type Monosaccharide resolution, `"concrete"` (default) or
+#'   `"generic"`.
+#' @param mono_range Named list of monosaccharide count ranges; see
+#'   [glydb::glydb_compositions()].
 #' @param return_best A logical scalar. If `TRUE`, only the match with the highest confidence
-#'   score is returned for each m/z value. The `db` must have a `confidence` attribute.
-#'   Use [glydb::glydb_compositions()] for `db` to enable this feature.
+#'   score is returned for each m/z value. A custom `db` must have a
+#'   `confidence` attribute.
 #'   Default is `FALSE`.
 #' @inheritParams calculate_mz
 #'
@@ -58,14 +52,33 @@
 mz_to_comp <- function(
   mz,
   tol = ppm(10),
-  db = NULL,
+  db = lifecycle::deprecated(),
   return_best = FALSE,
   charge = 1,
   adduct = "H+",
-  mass_dict = NULL
+  mass_dict = NULL,
+  glycan_type = NULL,
+  species = NULL,
+  mono_type = "concrete",
+  mono_range = NULL
 ) {
   checkmate::assert_numeric(mz)
   checkmate::assert_flag(return_best)
+  db <- .resolve_annotation_db(
+    db,
+    !missing(glycan_type) ||
+      !missing(species) ||
+      !missing(mono_type) ||
+      !missing(mono_range),
+    "mz_to_comp",
+    "composition",
+    list(
+      glycan_type = glycan_type,
+      species = species,
+      mono_type = mono_type,
+      mono_range = mono_range
+    )
+  )
   # Track NA positions so return_best=TRUE can return a same-length vector
   na_input_mask <- is.na(mz)
   mz_to_process <- mz[!na_input_mask]

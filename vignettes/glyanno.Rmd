@@ -63,19 +63,11 @@ This returns every composition in `glydb` matching the m/z of 406.1325.
 In practice, returning "all" possibilities can be overwhelming;
 you will often want to constrain the search space based on biological context.
 
-`glydb` provides helper functions to filter the database.
+The annotation functions accept filters for the built-in `glydb` database.
 For example, you might want to limit the search to only human O-GalNAc glycans.
 
 ```{r}
-my_db <- glydb_compositions(species = "Homo sapiens", glycan_type = "O-GalNAc")
-my_db
-```
-
-`my_db` is simply a `glyrepr::glycan_composition()` vector.
-You can pass it to the `db` argument of `mz_to_comp()` to filter results.
-
-```{r}
-mz_to_comp(406.1325, charge = 1, adduct = "Na+", db = my_db)
+mz_to_comp(406.1325, charge = 1, adduct = "Na+", species = "Homo sapiens", glycan_type = "O-GalNAc")
 ```
 
 The results are now significantly more relevant to our specific context.
@@ -85,18 +77,17 @@ The m/z value 406.1325 corresponds to the composition Gal(1)GalNAc(1).
 What are the possible structures for this composition?
 
 ```{r}
-struc_db <- glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
-comp_to_struc("Gal(1)GalNAc(1)", db = struc_db)
+comp_to_struc("Gal(1)GalNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNAc")
 ```
 
-Note that here we use `glydb_structures()` instead of `glydb_compositions()` to create a structure-specific database.
+`comp_to_struc()` selects structures from `glydb` using the same filters.
 
 Two structures are possible, one is Core 1, the other is Core 5.
 Sometimes we just want a "most possible" result.
 In this case, you can set `return_best` to `TRUE`:
 
 ```{r}
-comp_to_struc("Gal(1)GalNAc(1)", db = struc_db, return_best = TRUE)
+comp_to_struc("Gal(1)GalNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNAc", return_best = TRUE)
 ```
 
 Core 1 is more common than Core 5, so it was kept.
@@ -108,27 +99,27 @@ When a glycan has no matches, `<NA>` will be on the corresponding position.
 Note that all functions in `glyanno` works vectorizedly:
 
 ```{r}
-comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)
+comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), species = "Homo sapiens", glycan_type = "O-GalNAc", return_best = TRUE)
 ```
 
 If you set `return_best` to `TRUE`, the function directly returns a vector:
 
 ```{r}
-comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)
+comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), species = "Homo sapiens", glycan_type = "O-GalNAc", return_best = TRUE)
 ```
 
 This vector always has the same length as the input, with `NA` for glycans with no match.
 
-One last thing to mention before we move on is that you can set custom structure levels for `db`.
+You can also set the structure level used for matching.
 For example, it is possible to use a database with only topology-level structures without linkage information.
 
 ```{r}
-struc_db <- glydb_structures(
+comp_to_struc(
+  c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"),
   structure_level = "topological",
   species = "Homo sapiens",
   glycan_type = "O-GalNAc"
 )
-comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db)
 ```
 
 ## Enhancing Compositions and Structures
@@ -149,14 +140,14 @@ enhance_comp("Hex(1)HexNAc(1)")
 enhance_struc("Gal(??-?)GalNAc(??-")
 ```
 
-Similarly, providing a custom database will narrow down the results to biologically relevant candidates.
+Similarly, filters narrow down results to biologically relevant candidates.
 
 ```{r}
-enhance_comp("Hex(1)HexNAc(1)", db = glydb_compositions(species = "Homo sapiens", glycan_type = "O-GalNAc"))
+enhance_comp("Hex(1)HexNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNAc")
 ```
 
 ```{r}
-enhance_struc("Gal(??-?)GalNAc(??-", db = glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc"))
+enhance_struc("Gal(??-?)GalNAc(??-", species = "Homo sapiens", glycan_type = "O-GalNAc")
 ```
 
 You can set `return_best` to `TRUE` as well.
@@ -164,7 +155,8 @@ You can set `return_best` to `TRUE` as well.
 ```{r}
 enhance_struc(
   "Gal(??-?)GalNAc(??-",
-  db = glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc"),
+  species = "Homo sapiens",
+  glycan_type = "O-GalNAc",
   return_best = TRUE
 )
 ```

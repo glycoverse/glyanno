@@ -4,7 +4,15 @@
 \alias{enhance_comp}
 \title{Enhance glycan composition}
 \usage{
-enhance_comp(comps, db = NULL, return_best = FALSE)
+enhance_comp(
+  comps,
+  db = lifecycle::deprecated(),
+  return_best = FALSE,
+  glycan_type = NULL,
+  species = NULL,
+  mono_type = "concrete",
+  mono_range = NULL
+)
 }
 \arguments{
 \item{comps}{A \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector,
@@ -13,16 +21,26 @@ or a character vector of glycan composition strings of Byonic or simple style
 Generic and mixed compositions are matched to compatible concrete
 compositions in \code{db}. Concrete compositions are returned as is.}
 
-\item{db}{A \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} vector,
+\item{db}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} A \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} vector,
 or a character vector of glycan composition strings of Byonic or simple style
 (e.g. "Man(5)GlcNAc(2)", "H5N4F1S1").
 All compositions in \code{db} must be concrete (e.g. Man(5)GlcNAc(2)).
-If not provided, \code{glydb::glydb_compositions(mono_type = "concrete")} will be used.}
+Use the filtering arguments instead. This argument cannot be combined
+with them.}
 
 \item{return_best}{Logical. If \code{TRUE}, only return the highest confidence match
-for each input composition. Requires \code{db} to have a \code{confidence} attribute.
-Use \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} for \code{db} to enable this feature.
+for each input composition. A custom \code{db} must have a \code{confidence} attribute.
 Defaults to \code{FALSE}.}
+
+\item{glycan_type}{Glycan type to select from \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}}.}
+
+\item{species}{Species to select, matched without regard to letter case.}
+
+\item{mono_type}{Monosaccharide resolution; only \code{"concrete"} is supported
+for enhancement.}
+
+\item{mono_range}{Named list of monosaccharide count ranges; see
+\code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}}.}
 }
 \value{
 If \code{return_best=TRUE}:
@@ -44,27 +62,10 @@ Given a generic or mixed glycan composition (e.g. Hex(5)HexNAc(2)), this
 function gives all possible compatible concrete glycan compositions (e.g.
 Man(5)GlcNAc(2)).
 }
-\section{How to set \code{db}}{
-The \code{db} parameter is very important for all functions in this package.
-By default, it uses all available glycans in the \code{glydb} package,
-which is usually larger than what you need.
-You can use helper functions in \code{glydb} to narrow down the database,
-e.g. \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} or \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.
-
-You can use the \code{species} and \code{glycan_type} parameters to focus on specific species and glycan type.
-For example, if you are only interested in N-glycan compositions in human,
-you can use \code{glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")}.
-Also, you can decide the level of information in the database by setting \code{mono_type}
-of \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} and \code{structure_level} of \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.
-
-You can then pass the result to the \code{db} parameter of this function.
-For example,
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{my_db <- glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")
-mz_to_comp(mz, db = my_db)
-}\if{html}{\out{</div>}}
+\details{
+Filter the built-in database with \code{glycan_type}, \code{species},
+\code{mono_type}, and \code{mono_range}.
 }
-
 \examples{
 enhance_comp("Hex(5)HexNAc(2)")
 

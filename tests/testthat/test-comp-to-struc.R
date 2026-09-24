@@ -1,4 +1,5 @@
 test_that("comp_to_struc works for generic db and generic comps", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Hex(??-?)[HexNAc(??-?)]HexNAc(??-",
     "Hex(??-?)HexNAc(??-",
@@ -16,6 +17,7 @@ test_that("comp_to_struc works for generic db and generic comps", {
 })
 
 test_that("comp_to_struc works for concrete db and generic comps", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "GalNAc(a1-",
     "Gal(b1-3)GalNAc(a1-",
@@ -33,6 +35,7 @@ test_that("comp_to_struc works for concrete db and generic comps", {
 })
 
 test_that("comp_to_struc leaves incompatible compositions unmatched", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure("HexNAc(??-")
   comps <- glyrepr::as_glycan_composition("GalNAc(1)")
 
@@ -52,6 +55,7 @@ test_that("comp_to_struc leaves incompatible compositions unmatched", {
 })
 
 test_that("comp_to_struc matches mixed compositions residue by residue", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Man(??-?)Man(??-",
     "Gal(??-?)Man(??-",
@@ -89,6 +93,7 @@ test_that("comp_to_struc matches mixed compositions residue by residue", {
 })
 
 test_that("comp_to_struc excludes floating database structures", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Gal(??-?)Man(??-?)[Man(??-?)]GlcNAc(??-",
     "{Gal(??-?)|2,3}Man(??-?)[Man(??-?)]GlcNAc(??-"
@@ -107,6 +112,7 @@ test_that("comp_to_struc excludes floating database structures", {
 })
 
 test_that("comp_to_struc works for concrete db and concrete comps", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "GalNAc(a1-",
     "Gal(b1-3)GalNAc(a1-",
@@ -124,6 +130,7 @@ test_that("comp_to_struc works for concrete db and concrete comps", {
 })
 
 test_that("comp_to_struc works with multiple compositions", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Hex(??-?)[HexNAc(??-?)]HexNAc(??-",
     "Hex(??-?)HexNAc(??-",
@@ -141,6 +148,7 @@ test_that("comp_to_struc works with multiple compositions", {
 })
 
 test_that("comp_to_struc works with different composition types", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Hex(??-?)[HexNAc(??-?)]HexNAc(??-",
     "Hex(??-?)HexNAc(??-",
@@ -158,6 +166,7 @@ test_that("comp_to_struc works with different composition types", {
 })
 
 test_that("comp_to_struc handles duplicate compositions", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Hex(??-?)HexNAc(??-",
     "HexNAc(??-"
@@ -181,6 +190,7 @@ test_that("comp_to_struc handles duplicate compositions", {
 })
 
 test_that("comp_to_struc matches each unique composition once", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   matched <- character()
   local_mocked_bindings(
     .composition_match_ids = function(pattern, index) {
@@ -202,6 +212,7 @@ test_that("comp_to_struc matches each unique composition once", {
 })
 
 test_that("comp_to_struc prepares the live default database once", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   old_db_cache <- as.list(.default_struc_db_cache, all.names = TRUE)
   old_comp_cache <- as.list(.comp_to_struc_cache, all.names = TRUE)
   on.exit(
@@ -243,6 +254,7 @@ test_that("comp_to_struc prepares the live default database once", {
 })
 
 test_that("comp_to_struc accepts empty compositions", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c("Hex(??-?)HexNAc(??-", "HexNAc(??-"))
   comps <- glyrepr::glycan_composition()
   result <- comp_to_struc(comps, db)
@@ -255,12 +267,14 @@ test_that("comp_to_struc accepts empty compositions", {
 })
 
 test_that("comp_to_struc rejects empty db", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_structure()
   comps <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)")
   expect_error(comp_to_struc(comps, db))
 })
 
 test_that("comp_to_struc with return_best=TRUE keeps highest confidence match", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Gal(b1-3)GalNAc(a1-",
     "Gal(b1-4)GalNAc(a1-"
@@ -274,6 +288,7 @@ test_that("comp_to_struc with return_best=TRUE keeps highest confidence match", 
 })
 
 test_that("comp_to_struc with return_best=TRUE errors without confidence attr", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure("HexNAc(??-")
   comps <- glyrepr::as_glycan_composition("HexNAc(1)")
 
@@ -284,6 +299,7 @@ test_that("comp_to_struc with return_best=TRUE errors without confidence attr", 
 })
 
 test_that("comp_to_struc with return_best=FALSE keeps all matches (backward compat)", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Gal(b1-3)GalNAc(a1-",
     "Gal(b1-4)GalNAc(a1-"
@@ -298,6 +314,7 @@ test_that("comp_to_struc with return_best=FALSE keeps all matches (backward comp
 })
 
 test_that("comp_to_struc tie-breaking keeps first when confidence equal", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Gal(b1-3)GalNAc(a1-",
     "Gal(b1-4)GalNAc(a1-"
@@ -311,6 +328,7 @@ test_that("comp_to_struc tie-breaking keeps first when confidence equal", {
 })
 
 test_that("comp_to_struc treats NA confidence as lowest", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Gal(b1-3)GalNAc(a1-",
     "Gal(b1-4)GalNAc(a1-"
@@ -324,6 +342,7 @@ test_that("comp_to_struc treats NA confidence as lowest", {
 })
 
 test_that("comp_to_struc works with db=NULL (regression: confidences undefined)", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   # This test ensures confidences variable is defined when db=NULL
   comps <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)")
   # Should not error even without return_best
@@ -339,6 +358,7 @@ test_that("comp_to_struc works with db=NULL (regression: confidences undefined)"
 })
 
 test_that("comp_to_struc reuses the prepared default database", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   comps <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)")
 
   first <- comp_to_struc(comps, db = NULL, return_best = TRUE)
@@ -348,6 +368,7 @@ test_that("comp_to_struc reuses the prepared default database", {
 })
 
 test_that("comp_to_struc with return_best=TRUE returns NA for no match", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c("Gal(b1-3)GalNAc(a1-"))
   attr(db, "confidence") <- c(1.0)
 

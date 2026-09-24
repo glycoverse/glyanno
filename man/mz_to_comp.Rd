@@ -7,11 +7,15 @@
 mz_to_comp(
   mz,
   tol = ppm(10),
-  db = NULL,
+  db = lifecycle::deprecated(),
   return_best = FALSE,
   charge = 1,
   adduct = "H+",
-  mass_dict = NULL
+  mass_dict = NULL,
+  glycan_type = NULL,
+  species = NULL,
+  mono_type = "concrete",
+  mono_range = NULL
 )
 }
 \arguments{
@@ -20,14 +24,15 @@ mz_to_comp(
 \item{tol}{A numeric scalar of the tolerance for the m/z value in Da or a \code{\link[=ppm]{ppm()}} object for dynamic tolerance.
 Default is \code{ppm(10)}.}
 
-\item{db}{Glycan compositions to match against.
+\item{db}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Glycan compositions to match against.
 Can be a \code{\link[glyrepr:glycan_composition]{glyrepr::glycan_composition()}} vector or glycan composition strings
 in Byonic style (e.g. Hex(5)HexNAc(2)) or simple style (e.g. H5N4F1S1).
-If not provided, \code{glydb::glydb_compositions(mono_type = "concrete")} will be used.}
+Use the filtering arguments instead. This argument cannot be combined
+with them.}
 
 \item{return_best}{A logical scalar. If \code{TRUE}, only the match with the highest confidence
-score is returned for each m/z value. The \code{db} must have a \code{confidence} attribute.
-Use \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} for \code{db} to enable this feature.
+score is returned for each m/z value. A custom \code{db} must have a
+\code{confidence} attribute.
 Default is \code{FALSE}.}
 
 \item{charge}{Charge to use. Can be 0, 1, 2, 3, -1, -2, -3, etc. 0 means neutral. Default is 1.}
@@ -44,6 +49,16 @@ Default is "H+".
 Default is \code{glyanno_mass_dict(deriv = "none", mass_type = "mono")}.
 If a custom mass dictionary is provided,
 please make sure the names of the vector are the same as the names in \code{\link[=glyanno_mass_dict]{glyanno_mass_dict()}}.}
+
+\item{glycan_type}{Glycan type to select from \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}}.}
+
+\item{species}{Species to select, matched without regard to letter case.}
+
+\item{mono_type}{Monosaccharide resolution, \code{"concrete"} (default) or
+\code{"generic"}.}
+
+\item{mono_range}{Named list of monosaccharide count ranges; see
+\code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}}.}
 }
 \value{
 If \code{return_best=TRUE}:
@@ -63,24 +78,11 @@ corresponding to different possible glycan compositions.
 \description{
 Given m/z values, this function matches them to all possible glycan compositions in the \code{glydb} database.
 }
-\section{How to set \code{db}}{
-The \code{db} parameter is very important for all functions in this package.
-By default, it uses all available glycans in the \code{glydb} package,
-which is usually larger than what you need.
-You can use helper functions in \code{glydb} to narrow down the database,
-e.g. \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} or \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.
+\section{Filter the built-in database}{
+Use \code{glycan_type}, \code{species}, \code{mono_type}, and \code{mono_range} to select
+compositions from \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}}. For example,
 
-You can use the \code{species} and \code{glycan_type} parameters to focus on specific species and glycan type.
-For example, if you are only interested in N-glycan compositions in human,
-you can use \code{glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")}.
-Also, you can decide the level of information in the database by setting \code{mono_type}
-of \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} and \code{structure_level} of \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.
-
-You can then pass the result to the \code{db} parameter of this function.
-For example,
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{my_db <- glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")
-mz_to_comp(mz, db = my_db)
+\if{html}{\out{<div class="sourceCode">}}\preformatted{mz_to_comp(mz, species = "Homo sapiens", glycan_type = "N")
 }\if{html}{\out{</div>}}
 }
 

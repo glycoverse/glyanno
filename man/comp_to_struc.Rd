@@ -4,7 +4,16 @@
 \alias{comp_to_struc}
 \title{Convert glycan composition to glycan structure}
 \usage{
-comp_to_struc(comps, db = NULL, return_best = FALSE)
+comp_to_struc(
+  comps,
+  db = lifecycle::deprecated(),
+  return_best = FALSE,
+  glycan_type = NULL,
+  species = NULL,
+  structure_level = "intact",
+  mono_type = "concrete",
+  mono_range = NULL
+)
 }
 \arguments{
 \item{comps}{Glycan compositions to match against. Can be either:
@@ -14,17 +23,30 @@ comp_to_struc(comps, db = NULL, return_best = FALSE)
 \item Simple style composition strings (e.g. H5N4F1S1).
 }}
 
-\item{db}{Glycan structures to match against.
+\item{db}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Glycan structures to match against.
 Can be a \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector or any structure strings
 supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
 Structures with unresolved floating parts or substituents are excluded
 with a warning.
-If not provided, \code{glydb::glydb_structures(structure_level = "intact")} will be used.}
+Use the filtering arguments instead. This argument cannot be combined
+with them.}
 
 \item{return_best}{If \code{TRUE}, only return the highest confidence match for each
-composition. Requires \code{db} to have a \code{confidence} attribute.
-Use \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} for \code{db} to enable this feature.
+composition. A custom \code{db} must have a \code{confidence} attribute.
 Default is \code{FALSE}.}
+
+\item{glycan_type}{Glycan type to select from \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.}
+
+\item{species}{Species to select, matched without regard to letter case.}
+
+\item{structure_level}{Structure resolution, \code{"intact"} (default) or
+\code{"topological"}.}
+
+\item{mono_type}{Monosaccharide resolution, \code{"concrete"} (default) or
+\code{"generic"}.}
+
+\item{mono_range}{Named list of monosaccharide count ranges; see
+\code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.}
 }
 \value{
 If \code{return_best=TRUE}:
@@ -46,27 +68,10 @@ Given glycan compositions, this function matches them to all compatible
 glycan structures in the \code{glydb} database. Generic, concrete, and mixed
 residue identities are matched residue by residue.
 }
-\section{How to set \code{db}}{
-The \code{db} parameter is very important for all functions in this package.
-By default, it uses all available glycans in the \code{glydb} package,
-which is usually larger than what you need.
-You can use helper functions in \code{glydb} to narrow down the database,
-e.g. \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} or \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.
-
-You can use the \code{species} and \code{glycan_type} parameters to focus on specific species and glycan type.
-For example, if you are only interested in N-glycan compositions in human,
-you can use \code{glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")}.
-Also, you can decide the level of information in the database by setting \code{mono_type}
-of \code{\link[glydb:glydb_compositions]{glydb::glydb_compositions()}} and \code{structure_level} of \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.
-
-You can then pass the result to the \code{db} parameter of this function.
-For example,
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{my_db <- glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")
-mz_to_comp(mz, db = my_db)
-}\if{html}{\out{</div>}}
+\details{
+Filter the built-in database with \code{glycan_type}, \code{species},
+\code{structure_level}, \code{mono_type}, and \code{mono_range}.
 }
-
 \examples{
 comp_to_struc("H5N2")
 

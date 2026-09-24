@@ -12,14 +12,15 @@
 #'   or a character vector of glycan structure strings supported by
 #'   [glyparse::auto_parse()]. Inputs with unresolved floating parts or
 #'   substituents are excluded with a warning.
-#' @param db A [glydb::glydb_structures()] vector,
+#' @param db `r lifecycle::badge("deprecated")` A [glydb::glydb_structures()] vector,
 #'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
 #'   Structures with unresolved floating parts or substituents are excluded
-#'   with a warning. The default is [glydb::glydb_structures()] at "intact"
-#'   level.
+#'   with a warning. Use the filtering arguments instead. This argument
+#'   cannot be combined with them.
+#' @inheritParams comp_to_struc
 #' @param return_best Logical. If `TRUE`, only return the best matching
-#'   structure (highest confidence) for each input structure. `db` must have a
-#'   `confidence` attribute. Default is `FALSE`.
+#'   structure (highest confidence) for each input structure. A custom `db`
+#'   must have a `confidence` attribute. Default is `FALSE`.
 #'
 #' @returns If `return_best=TRUE`:
 #'   An unnamed [glyrepr::glycan_structure()] vector with the same length as `strucs`.
@@ -34,23 +35,37 @@
 #'     structures as multiple rows in the result.
 #'
 #' @examples
-#' # From topological level to intact level
-#' db_intact <- c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
-#' enhance_struc("Gal(??-?)GalNAc(??-", db = db_intact)
-#'
-#' # Refine generic residues without changing the structure level
-#' db_topo <- "Gal(??-?)GalNAc(??-"
-#' enhance_struc("Hex(??-?)HexNAc(??-", db = db_topo)
-#'
-#' # From partial level to intact level
-#' enhance_struc("Gal(b1-?)GalNAc(a1-", db = db_intact)
+#' enhance_struc("Gal(??-?)GalNAc(??-", glycan_type = "O-GalNAc",
+#'   species = "Homo sapiens")
 #'
 #' @export
 enhance_struc <- function(
   strucs,
-  db = NULL,
-  return_best = FALSE
+  db = lifecycle::deprecated(),
+  return_best = FALSE,
+  glycan_type = NULL,
+  species = NULL,
+  structure_level = "intact",
+  mono_type = "concrete",
+  mono_range = NULL
 ) {
+  db <- .resolve_annotation_db(
+    db,
+    !missing(glycan_type) ||
+      !missing(species) ||
+      !missing(structure_level) ||
+      !missing(mono_type) ||
+      !missing(mono_range),
+    "enhance_struc",
+    "structure",
+    list(
+      glycan_type = glycan_type,
+      species = species,
+      structure_level = structure_level,
+      mono_type = mono_type,
+      mono_range = mono_range
+    )
+  )
   # Input validation and preparation
   strucs <- .ensure_glycan_structure(strucs)
   floating_input <- .replace_floating_structures(strucs)

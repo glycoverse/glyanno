@@ -37,6 +37,7 @@ mass_dict_for_test <- function() {
 }
 
 test_that("mz_to_comp works for a simple one m/z case", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   simple_db <- glyrepr::glycan_composition(
     c(Hex = 1),
     c(Hex = 2),
@@ -57,6 +58,7 @@ test_that("mz_to_comp works for a simple one m/z case", {
 })
 
 test_that("mz_to_comp works for a simple two m/z case", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   simple_db <- glyrepr::glycan_composition(
     c(Glc = 1),
     c(Glc = 1, Gal = 1),
@@ -78,6 +80,7 @@ test_that("mz_to_comp works for a simple two m/z case", {
 })
 
 test_that("mz_to_comp preserves duplicated m/z values", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_composition(
     c(Glc = 2),
     c(Gal = 2),
@@ -111,6 +114,7 @@ test_that("mz_to_comp preserves duplicated m/z values", {
 })
 
 test_that("mz_to_comp works for custom numeric tol", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   simple_db <- glyrepr::glycan_composition(c(Hex = 2))
   mz <- c(365.5, 366.5, 366)
   expect_equal(
@@ -130,6 +134,7 @@ test_that("mz_to_comp works for custom numeric tol", {
 })
 
 test_that("mz_to_comp works for custom ppm tol", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   simple_db <- glyrepr::glycan_composition(c(Hex = 2))
   mz1 <- 365 + 365 / 1e6 * 51 # outsite tol
   mz2 <- 365 + 365 / 1e6 * 49 # within tol
@@ -150,6 +155,7 @@ test_that("mz_to_comp works for custom ppm tol", {
 })
 
 test_that("mz_to_comp handles db with glycans that cannot be calculated m/z values", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   simple_db <- glyrepr::glycan_composition(c(Glc = 1), c(Mur = 1))
   expect_warning(
     result <- mz_to_comp(
@@ -171,6 +177,7 @@ test_that("mz_to_comp handles db with glycans that cannot be calculated m/z valu
 })
 
 test_that("mz_to_comp returns empty tibble with empty mz", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   expect_equal(
     mz_to_comp(
       mz = numeric(0),
@@ -187,6 +194,7 @@ test_that("mz_to_comp returns empty tibble with empty mz", {
 })
 
 test_that("mz_to_comp returns handles NA", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   expect_equal(
     mz_to_comp(
       mz = c(365, NA),
@@ -203,6 +211,7 @@ test_that("mz_to_comp returns handles NA", {
 })
 
 test_that("mz_to_comp with return_best=TRUE preserves NA positions in input", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_composition(c(Hex = 2))
   attr(db, "confidence") <- c(1.0)
 
@@ -222,6 +231,7 @@ test_that("mz_to_comp with return_best=TRUE preserves NA positions in input", {
 })
 
 test_that("mz_to_comp with return_best=TRUE returns all-NA vector for all-NA input", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_composition(c(Hex = 2))
   attr(db, "confidence") <- c(1.0)
 
@@ -239,6 +249,7 @@ test_that("mz_to_comp with return_best=TRUE returns all-NA vector for all-NA inp
 })
 
 test_that("mz_to_comp rejects wrong input types", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   simple_db <- glyrepr::glycan_composition(c(Hex = 2))
   expect_error(mz_to_comp("365", db = simple_db))
   expect_error(mz_to_comp(365, db = simple_db, adduct = "Na"))
@@ -248,6 +259,7 @@ test_that("mz_to_comp rejects wrong input types", {
 })
 
 test_that("mz_to_comp accepts glycan composition strings as db", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   simple_db <- c("Hex(1)", "Hex(2)", "Hex(3)")
   result <- mz_to_comp(
     mz = 365,
@@ -264,6 +276,7 @@ test_that("mz_to_comp accepts glycan composition strings as db", {
 })
 
 test_that("mz_to_comp with return_best=TRUE keeps highest confidence match", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_composition(
     c(Glc = 2),
     c(Gal = 2)
@@ -284,6 +297,7 @@ test_that("mz_to_comp with return_best=TRUE keeps highest confidence match", {
 })
 
 test_that("mz_to_comp with return_best=TRUE returns vector with NA for no match", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_composition(c(Glc = 1))
   attr(db, "confidence") <- c(1.0)
   suppressWarnings(
@@ -313,6 +327,7 @@ test_that("mz_to_comp with return_best=TRUE returns vector with NA for no match"
 })
 
 test_that("mz_to_comp with return_best=TRUE errors without confidence attr", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_composition(c(Hex = 2))
 
   expect_error(
@@ -328,6 +343,7 @@ test_that("mz_to_comp with return_best=TRUE errors without confidence attr", {
 })
 
 test_that("mz_to_comp treats NA confidence as lowest", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_composition(
     c(Glc = 2),
     c(Gal = 2)
@@ -348,6 +364,7 @@ test_that("mz_to_comp treats NA confidence as lowest", {
 })
 
 test_that("mz_to_comp works with db=NULL (regression: confidences undefined)", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   # This test ensures confidences variable is defined when db=NULL
   # Should not error even without return_best
   expect_no_error(
