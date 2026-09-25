@@ -216,6 +216,42 @@
   !is.null(attr(x, "confidence"))
 }
 
+.resolve_annotation_db <- function(db, filters_supplied, fun, kind, filters) {
+  if (lifecycle::is_present(db)) {
+    lifecycle::deprecate_warn(
+      "0.7.0",
+      paste0(fun, "(db)"),
+      details = "Use glycan_type, species, mono_type, mono_range, and (for structures) structure_level to filter glydb. Custom databases remain available through db during deprecation."
+    )
+    if (filters_supplied) {
+      cli::cli_abort(
+        "Cannot combine deprecated {.arg db} with glydb filtering arguments."
+      )
+    }
+    return(db)
+  }
+
+  if (!filters_supplied) {
+    return(NULL)
+  }
+
+  filters$species <- .normalize_glydb_species(filters$species)
+  if (kind == "structure") {
+    do.call(glydb::glydb_structures, filters)
+  } else {
+    do.call(glydb::glydb_compositions, filters)
+  }
+}
+
+.normalize_glydb_species <- function(species) {
+  if (!is.character(species) || length(species) != 1L || is.na(species)) {
+    return(species)
+  }
+  choices <- glydb::glydb_species()
+  matched <- match(tolower(species), tolower(choices))
+  if (is.na(matched)) species else choices[[matched]]
+}
+
 .prepare_result <- function(res, return_best, raw_col, new_col) {
   if (return_best) {
     res |>

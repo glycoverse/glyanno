@@ -85,13 +85,12 @@ comp_to_struc("Gal(1)GalNAc(1)")
 ```
 
 ```{r}
-# Use custom db to narrow down the search space
-my_db <- glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
-comp_to_struc("Gal(1)GalNAc(1)", db = my_db)
+# Filter by glycan type and species
+comp_to_struc("Gal(1)GalNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNAc")
 ```
 
 ```{r}
 # Use `return_best` to pick the most likely match
 # Core 1 is more likely than Core 5
-comp_to_struc("Gal(1)GalNAc(1)", db = my_db, return_best = TRUE)
+comp_to_struc("Gal(1)GalNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNAc", return_best = TRUE)
 ```

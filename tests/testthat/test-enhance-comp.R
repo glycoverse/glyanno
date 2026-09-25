@@ -1,4 +1,5 @@
 test_that("enhance_comp works for a basic case", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   comps <- glyrepr::glycan_composition(c(Hex = 1, HexNAc = 1))
   db <- glyrepr::glycan_composition(
     c(Gal = 1, GalNAc = 1),
@@ -14,6 +15,7 @@ test_that("enhance_comp works for a basic case", {
 })
 
 test_that("enhance_comp accepts character input", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   comps <- "Hex(1)HexNAc(1)"
   db <- c("Gal(1)GalNAc(1)", "Glc(1)GalNAc(1)")
   result <- enhance_comp(comps, db)
@@ -29,6 +31,7 @@ test_that("enhance_comp accepts character input", {
 })
 
 test_that("enhance_comp works with empty input", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   comps <- glyrepr::glycan_composition()
   db <- glyrepr::glycan_composition(
     c(Gal = 1, GalNAc = 1),
@@ -44,6 +47,7 @@ test_that("enhance_comp works with empty input", {
 })
 
 test_that("enhance_comp works with generic and compositions", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   comps <- "Hex(1)HexNAc(1)"
   db <- c("Glc(1)GalNAc(1)", "Glc(1)GlcNAc(1)")
   result <- enhance_comp(comps, db)
@@ -62,6 +66,7 @@ test_that("enhance_comp works with generic and compositions", {
 })
 
 test_that("enhance_comp preserves duplicated compositions", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_composition(
     c(Glc = 2),
     c(Gal = 2),
@@ -86,6 +91,7 @@ test_that("enhance_comp preserves duplicated compositions", {
 })
 
 test_that("enhance_comp works with concrete compositions", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   comps <- "Gal(1)GalNAc(1)"
   db <- c("Glc(1)GalNAc(1)", "Glc(1)GlcNAc(1)")
   result <- enhance_comp(comps, db)
@@ -98,6 +104,7 @@ test_that("enhance_comp works with concrete compositions", {
 })
 
 test_that("enhance_comp handles mixed types element-wise", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_composition(c(
     "Man(2)",
     "Man(1)Gal(1)",
@@ -126,6 +133,7 @@ test_that("enhance_comp handles mixed types element-wise", {
 })
 
 test_that("enhance_comp matches repeated generic inputs once", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   matched <- character()
   local_mocked_bindings(
     .composition_match_ids = function(pattern, index) {
@@ -147,6 +155,7 @@ test_that("enhance_comp matches repeated generic inputs once", {
 })
 
 test_that("enhance_comp matches compositions with substituents", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_composition(c(
     "Gal(1)GalNAc(1)S(1)",
     "Glc(1)GlcNAc(1)S(2)"
@@ -158,6 +167,7 @@ test_that("enhance_comp matches compositions with substituents", {
 })
 
 test_that("enhance_comp errors when db has generic compositions", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   comps <- "Hex(1)HexNAc(1)"
   db <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)") # generic composition
   expect_error(
@@ -167,6 +177,7 @@ test_that("enhance_comp errors when db has generic compositions", {
 })
 
 test_that("enhance_comp with return_best=TRUE keeps highest confidence match", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_composition(
     c(Glc = 2),
     c(Glc = 1, Gal = 1)
@@ -181,6 +192,7 @@ test_that("enhance_comp with return_best=TRUE keeps highest confidence match", {
 })
 
 test_that("enhance_comp with return_best=TRUE errors without confidence attr", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_composition(c(Glc = 1))
   comps <- glyrepr::as_glycan_composition("Hex(1)")
 
@@ -191,6 +203,7 @@ test_that("enhance_comp with return_best=TRUE errors without confidence attr", {
 })
 
 test_that("enhance_comp treats NA confidence as lowest", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_composition(
     c(Glc = 2),
     c(Glc = 1, Gal = 1)
@@ -204,6 +217,7 @@ test_that("enhance_comp treats NA confidence as lowest", {
 })
 
 test_that("enhance_comp works with db=NULL (regression: confidences undefined)", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   # This test ensures confidences variable is defined when db=NULL
   comps <- glyrepr::as_glycan_composition("Hex(1)")
   # Should not error even without return_best
@@ -215,6 +229,7 @@ test_that("enhance_comp works with db=NULL (regression: confidences undefined)",
 })
 
 test_that("enhance_comp reuses the prepared default database", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   comps <- glyrepr::as_glycan_composition("Hex(1)")
 
   first <- enhance_comp(comps, db = NULL, return_best = TRUE)
@@ -224,6 +239,7 @@ test_that("enhance_comp reuses the prepared default database", {
 })
 
 test_that("enhance_comp with return_best=TRUE returns vector with NA for no match", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_composition(
     c(Glc = 2)
   )
@@ -242,6 +258,7 @@ test_that("enhance_comp with return_best=TRUE returns vector with NA for no matc
 })
 
 test_that("enhance_comp with return_best=TRUE and concrete comp returns vector", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::glycan_composition(
     c(Glc = 1, Gal = 1)
   )

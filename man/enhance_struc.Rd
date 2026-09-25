@@ -4,7 +4,16 @@
 \alias{enhance_struc}
 \title{Enhance glycan structure}
 \usage{
-enhance_struc(strucs, db = NULL, return_best = FALSE)
+enhance_struc(
+  strucs,
+  db = lifecycle::deprecated(),
+  return_best = FALSE,
+  glycan_type = NULL,
+  species = NULL,
+  structure_level = "intact",
+  mono_type = "concrete",
+  mono_range = NULL
+)
 }
 \arguments{
 \item{strucs}{A \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector,
@@ -12,15 +21,28 @@ or a character vector of glycan structure strings supported by
 \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}. Inputs with unresolved floating parts or
 substituents are excluded with a warning.}
 
-\item{db}{A \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} vector,
+\item{db}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} A \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} vector,
 or a character vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
 Structures with unresolved floating parts or substituents are excluded
-with a warning. The default is \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "intact"
-level.}
+with a warning. Use the filtering arguments instead. This argument
+cannot be combined with them.}
 
 \item{return_best}{Logical. If \code{TRUE}, only return the best matching
-structure (highest confidence) for each input structure. \code{db} must have a
-\code{confidence} attribute. Default is \code{FALSE}.}
+structure (highest confidence) for each input structure. A custom \code{db}
+must have a \code{confidence} attribute. Default is \code{FALSE}.}
+
+\item{glycan_type}{Glycan type to select from \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.}
+
+\item{species}{Species to select, matched without regard to letter case.}
+
+\item{structure_level}{Structure resolution, \code{"intact"} (default) or
+\code{"topological"}.}
+
+\item{mono_type}{Monosaccharide resolution, \code{"concrete"} (default) or
+\code{"generic"}.}
+
+\item{mono_range}{Named list of monosaccharide count ranges; see
+\code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.}
 }
 \value{
 If \code{return_best=TRUE}:
@@ -48,15 +70,7 @@ well as topological, partial, and intact structures. Each database candidate
 is matched against each input independently.
 }
 \examples{
-# From topological level to intact level
-db_intact <- c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
-enhance_struc("Gal(??-?)GalNAc(??-", db = db_intact)
-
-# Refine generic residues without changing the structure level
-db_topo <- "Gal(??-?)GalNAc(??-"
-enhance_struc("Hex(??-?)HexNAc(??-", db = db_topo)
-
-# From partial level to intact level
-enhance_struc("Gal(b1-?)GalNAc(a1-", db = db_intact)
+enhance_struc("Gal(??-?)GalNAc(??-", glycan_type = "O-GalNAc",
+  species = "Homo sapiens")
 
 }

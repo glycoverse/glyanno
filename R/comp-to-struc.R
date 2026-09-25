@@ -4,21 +4,30 @@
 #' glycan structures in the `glydb` database. Generic, concrete, and mixed
 #' residue identities are matched residue by residue.
 #'
-#' @inheritSection mz_to_comp How to set `db`
+#' Filter the built-in database with `glycan_type`, `species`,
+#' `structure_level`, `mono_type`, and `mono_range`.
 #'
 #' @param comps Glycan compositions to match against. Can be either:
 #'   - A [glyrepr::glycan_composition()] vector.
 #'   - Byonic style composition strings (e.g. Hex(5)HexNAc(2)).
 #'   - Simple style composition strings (e.g. H5N4F1S1).
-#' @param db Glycan structures to match against.
+#' @param db `r lifecycle::badge("deprecated")` Glycan structures to match against.
 #'   Can be a [glyrepr::glycan_structure()] vector or any structure strings
 #'   supported by [glyparse::auto_parse()].
 #'   Structures with unresolved floating parts or substituents are excluded
 #'   with a warning.
-#'   If not provided, `glydb::glydb_structures(structure_level = "intact")` will be used.
+#'   Use the filtering arguments instead. This argument cannot be combined
+#'   with them.
+#' @param glycan_type Glycan type to select from [glydb::glydb_structures()].
+#' @param species Species to select, matched without regard to letter case.
+#' @param structure_level Structure resolution, `"intact"` (default) or
+#'   `"topological"`.
+#' @param mono_type Monosaccharide resolution, `"concrete"` (default) or
+#'   `"generic"`.
+#' @param mono_range Named list of monosaccharide count ranges; see
+#'   [glydb::glydb_structures()].
 #' @param return_best If `TRUE`, only return the highest confidence match for each
-#'   composition. Requires `db` to have a `confidence` attribute.
-#'   Use [glydb::glydb_structures()] for `db` to enable this feature.
+#'   composition. A custom `db` must have a `confidence` attribute.
 #'   Default is `FALSE`.
 #'
 #' @returns If `return_best=TRUE`:
@@ -38,8 +47,34 @@
 #'
 #' @seealso [glyparse::auto_parse()]
 #' @export
-comp_to_struc <- function(comps, db = NULL, return_best = FALSE) {
+comp_to_struc <- function(
+  comps,
+  db = lifecycle::deprecated(),
+  return_best = FALSE,
+  glycan_type = NULL,
+  species = NULL,
+  structure_level = "intact",
+  mono_type = "concrete",
+  mono_range = NULL
+) {
   checkmate::assert_flag(return_best)
+  db <- .resolve_annotation_db(
+    db,
+    !missing(glycan_type) ||
+      !missing(species) ||
+      !missing(structure_level) ||
+      !missing(mono_type) ||
+      !missing(mono_range),
+    "comp_to_struc",
+    "structure",
+    list(
+      glycan_type = glycan_type,
+      species = species,
+      structure_level = structure_level,
+      mono_type = mono_type,
+      mono_range = mono_range
+    )
+  )
   comps <- .ensure_glycan_composition(comps, allow_structure = FALSE)
 
   if (length(comps) == 0) {
