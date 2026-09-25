@@ -630,8 +630,8 @@ test_that("enhance_struc_denovo preserves high-mannose core additions", {
   expect_equal(as.character(result), expected)
 })
 
-test_that("enhance_struc_denovo falls back to database matching", {
-  withr::local_options(lifecycle_verbosity = "quiet")
+test_that("enhance_struc_denovo falls back without deprecation warnings", {
+  withr::local_options(lifecycle_verbosity = "warning")
   db <- glyrepr::as_glycan_structure("Gal(??-?)GlcNAc(??-")
   attr(db, "confidence") <- 1
   input <- c(
@@ -639,9 +639,11 @@ test_that("enhance_struc_denovo falls back to database matching", {
     "Hex(??-?)Hex(??-"
   )
 
-  result <- enhance_struc_denovo(
-    input,
-    fallback_db = db
+  expect_no_warning(
+    result <- enhance_struc_denovo(
+      input,
+      fallback_db = db
+    )
   )
 
   expect_equal(as.character(result), c(as.character(db), NA_character_))

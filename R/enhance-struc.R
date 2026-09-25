@@ -66,6 +66,10 @@ enhance_struc <- function(
       mono_range = mono_range
     )
   )
+  .enhance_struc_impl(strucs, db, return_best)
+}
+
+.enhance_struc_impl <- function(strucs, db, return_best) {
   # Input validation and preparation
   strucs <- .ensure_glycan_structure(strucs)
   floating_input <- .replace_floating_structures(strucs)
@@ -282,10 +286,10 @@ enhance_struc_denovo <- function(strucs, fallback_db = NULL) {
     }
     .check_return_best_arg(fallback_db, TRUE, arg = "fallback_db")
     fallback_strucs <- unique_strucs[unresolved]
-    fallback <- enhance_struc(
+    fallback <- .enhance_struc_impl(
       fallback_strucs,
-      db = fallback_db,
-      return_best = TRUE
+      fallback_db,
+      TRUE
     )
 
     unresolved_ids <- which(unresolved)
