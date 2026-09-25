@@ -44,7 +44,11 @@ four core functions:
 
 library(glyanno)
 library(glydb)
-#> Loading required package: glyrepr
+#> 
+#> Attaching package: 'glydb'
+#> The following object is masked from 'package:glyanno':
+#> 
+#>     struc_to_glytoucan
 ```
 
 **Note:** This package relies on
@@ -63,52 +67,32 @@ m/z value.
 ``` r
 
 mz_to_comp(406.1325, charge = 1, adduct = "Na+")
-#> # A tibble: 4 × 3
-#>      mz composition     confidence
-#>   <dbl> <comp>               <dbl>
-#> 1  406. Gal(1)GalNAc(1)      5.32 
-#> 2  406. Gal(1)GlcNAc(1)      2.71 
-#> 3  406. Glc(1)GlcNAc(1)      0.693
-#> 4  406. Man(1)GlcNAc(1)      2.08
+#> # A tibble: 7 × 3
+#>      mz composition       confidence
+#>   <dbl> <glydb_cm>             <dbl>
+#> 1  406. Gal(1)GalNAc(1)        5.32 
+#> 2  406. Gal(1)GlcNAc(1)        2.71 
+#> 3  406. Glc(1)GlcNAc(1)        0.693
+#> 4  406. Man(1)GlcNAc(1)        2.08 
+#> 5  406. GalNAc(1)L-Gal(1)     -1    
+#> 6  406. GalNAc(1)Galf(1)      -1    
+#> 7  406. GlcNAc(1)Galf(1)      -1
 ```
 
 This returns every composition in `glydb` matching the m/z of 406.1325.
 In practice, returning “all” possibilities can be overwhelming; you will
 often want to constrain the search space based on biological context.
 
-`glydb` provides helper functions to filter the database. For example,
-you might want to limit the search to only human O-GalNAc glycans.
+The annotation functions accept filters for the built-in `glydb`
+database. For example, you might want to limit the search to only human
+O-GalNAc glycans.
 
 ``` r
 
-my_db <- glydb_compositions(species = "Homo sapiens", glycan_type = "O-GalNAc")
-my_db
-#> <glycan_composition[159]>
-#> [1] Gal(1)GalNAc(1)
-#> [2] Gal(1)GlcNAc(1)GalNAc(1)
-#> [3] GlcNAc(1)GalNAc(1)
-#> [4] GlcNAc(2)GalNAc(1)
-#> [5] GalNAc(2)
-#> [6] Gal(1)GlcNAc(1)GalNAc(1)Neu5Ac(1)
-#> [7] Glc(1)Gal(2)GalNAc(1)
-#> [8] Gal(2)GlcNAc(1)GalNAc(1)Neu5Ac(1)
-#> [9] Gal(1)GalNAc(2)Neu5Ac(2)
-#> [10] Gal(1)GalNAc(1)Fuc(1)
-#> ... (149 more not shown)
-```
-
-`my_db` is simply a
-[`glyrepr::glycan_composition()`](https://glycoverse.github.io/glyrepr/reference/glycan_composition.html)
-vector. You can pass it to the `db` argument of
-[`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md)
-to filter results.
-
-``` r
-
-mz_to_comp(406.1325, charge = 1, adduct = "Na+", db = my_db)
+mz_to_comp(406.1325, charge = 1, adduct = "Na+", species = "Homo sapiens", glycan_type = "O-GalNAc")
 #> # A tibble: 1 × 3
 #>      mz composition     confidence
-#>   <dbl> <comp>               <dbl>
+#>   <dbl> <glydb_cm>           <dbl>
 #> 1  406. Gal(1)GalNAc(1)       5.32
 ```
 
@@ -120,21 +104,19 @@ Gal(1)GalNAc(1). What are the possible structures for this composition?
 
 ``` r
 
-struc_db <- glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc")
-comp_to_struc("Gal(1)GalNAc(1)", db = struc_db)
+comp_to_struc("Gal(1)GalNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNAc")
+#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
+#> ℹ Those database structures were excluded from matching.
 #> # A tibble: 3 × 3
 #>   composition     structure           confidence
-#>   <comp>          <struct>                 <dbl>
+#>   <comp>          <glydb_st>               <dbl>
 #> 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-       5.32
 #> 2 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-       1.10
 #> 3 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-       1.61
 ```
 
-Note that here we use
-[`glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
-instead of
-[`glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html)
-to create a structure-specific database.
+[`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md)
+selects structures from `glydb` using the same filters.
 
 Two structures are possible, one is Core 1, the other is Core 5.
 Sometimes we just want a “most possible” result. In this case, you can
@@ -142,8 +124,10 @@ set `return_best` to `TRUE`:
 
 ``` r
 
-comp_to_struc("Gal(1)GalNAc(1)", db = struc_db, return_best = TRUE)
-#> <glycan_structure[1]>
+comp_to_struc("Gal(1)GalNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNAc", return_best = TRUE)
+#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
+#> ℹ Those database structures were excluded from matching.
+#> <glydb_structure[1]>
 #> [1] Gal(b1-3)GalNAc(a1-
 #> # Unique structures: 1
 ```
@@ -159,8 +143,10 @@ Note that all functions in `glyanno` works vectorizedly:
 
 ``` r
 
-comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)
-#> <glycan_structure[2]>
+comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), species = "Homo sapiens", glycan_type = "O-GalNAc", return_best = TRUE)
+#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
+#> ℹ Those database structures were excluded from matching.
+#> <glydb_structure[2]>
 #> [1] Gal(b1-3)GalNAc(a1-
 #> [2] GlcNAc(b1-3)GalNAc(a1-
 #> # Unique structures: 2
@@ -171,8 +157,10 @@ vector:
 
 ``` r
 
-comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_best = TRUE)
-#> <glycan_structure[2]>
+comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), species = "Homo sapiens", glycan_type = "O-GalNAc", return_best = TRUE)
+#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
+#> ℹ Those database structures were excluded from matching.
+#> <glydb_structure[2]>
 #> [1] Gal(b1-3)GalNAc(a1-
 #> [2] GlcNAc(b1-3)GalNAc(a1-
 #> # Unique structures: 2
@@ -181,23 +169,27 @@ comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db, return_
 This vector always has the same length as the input, with `NA` for
 glycans with no match.
 
-One last thing to mention before we move on is that you can set custom
-structure levels for `db`. For example, it is possible to use a database
-with only topology-level structures without linkage information.
+You can also set the structure level used for matching. For example, it
+is possible to use a database with only topology-level structures
+without linkage information.
 
 ``` r
 
-struc_db <- glydb_structures(
+comp_to_struc(
+  c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"),
   structure_level = "topological",
   species = "Homo sapiens",
   glycan_type = "O-GalNAc"
 )
-comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), db = struc_db)
-#> # A tibble: 2 × 3
-#>   composition        structure              confidence
-#>   <comp>             <struct>                    <dbl>
-#> 1 Gal(1)GalNAc(1)    Gal(??-?)GalNAc(??-          5.32
-#> 2 GlcNAc(1)GalNAc(1) GlcNAc(??-?)GalNAc(??-       2.77
+#> Warning: `db` contains 74 structures with unresolved floating parts or substituents.
+#> ℹ Those database structures were excluded from matching.
+#> # A tibble: 4 × 3
+#>   composition        structure                 confidence
+#>   <comp>             <glydb_st>                     <dbl>
+#> 1 Gal(1)GalNAc(1)    Gal(??-?)GalNAc(??-             5.32
+#> 2 Gal(1)GalNAc(1)    Gal(??-?)GalNAc-ol(??-          3.22
+#> 3 GlcNAc(1)GalNAc(1) GlcNAc(??-?)GalNAc(??-          2.77
+#> 4 GlcNAc(1)GalNAc(1) GlcNAc(??-?)GalNAc-ol(??-       2.40
 ```
 
 ## Enhancing Compositions and Structures
@@ -217,24 +209,29 @@ input) and `enhanced` (the potential high-resolution candidates).
 ``` r
 
 enhance_comp("Hex(1)HexNAc(1)")
-#> # A tibble: 4 × 3
-#>   raw             enhanced        confidence
-#>   <comp>          <comp>               <dbl>
-#> 1 Hex(1)HexNAc(1) Gal(1)GalNAc(1)      5.32 
-#> 2 Hex(1)HexNAc(1) Gal(1)GlcNAc(1)      2.71 
-#> 3 Hex(1)HexNAc(1) Glc(1)GlcNAc(1)      0.693
-#> 4 Hex(1)HexNAc(1) Man(1)GlcNAc(1)      2.08
+#> # A tibble: 7 × 3
+#>   raw             enhanced          confidence
+#>   <comp>          <glydb_cm>             <dbl>
+#> 1 Hex(1)HexNAc(1) Gal(1)GalNAc(1)        5.32 
+#> 2 Hex(1)HexNAc(1) Gal(1)GlcNAc(1)        2.71 
+#> 3 Hex(1)HexNAc(1) Glc(1)GlcNAc(1)        0.693
+#> 4 Hex(1)HexNAc(1) Man(1)GlcNAc(1)        2.08 
+#> 5 Hex(1)HexNAc(1) GalNAc(1)L-Gal(1)     -1    
+#> 6 Hex(1)HexNAc(1) GalNAc(1)Galf(1)      -1    
+#> 7 Hex(1)HexNAc(1) GlcNAc(1)Galf(1)      -1
 ```
 
 ``` r
 
 enhance_struc("Gal(??-?)GalNAc(??-")
+#> Warning: `db` contains 564 structures with unresolved floating parts or substituents.
+#> ℹ Those database structures were excluded from matching.
 #> # A tibble: 9 × 3
 #>   raw                 enhanced            confidence
-#>   <struct>            <struct>                 <dbl>
+#>   <struct>            <glydb_st>               <dbl>
 #> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-       5.32
-#> 2 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(b1-       1.10
-#> 3 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(b1-      -1   
+#> 2 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(b1-      -1   
+#> 3 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(b1-       1.10
 #> 4 Gal(??-?)GalNAc(??- Gal(b1-4)GalNAc(b1-      -1   
 #> 5 Gal(??-?)GalNAc(??- Gal(a1-6)GalNAc(a1-      -1   
 #> 6 Gal(??-?)GalNAc(??- Gal(b1-6)GalNAc(a1-      -1   
@@ -243,24 +240,26 @@ enhance_struc("Gal(??-?)GalNAc(??-")
 #> 9 Gal(??-?)GalNAc(??- Gal(b1-4)GalNAc(a1-      -1
 ```
 
-Similarly, providing a custom database will narrow down the results to
-biologically relevant candidates.
+Similarly, filters narrow down results to biologically relevant
+candidates.
 
 ``` r
 
-enhance_comp("Hex(1)HexNAc(1)", db = glydb_compositions(species = "Homo sapiens", glycan_type = "O-GalNAc"))
+enhance_comp("Hex(1)HexNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNAc")
 #> # A tibble: 1 × 3
 #>   raw             enhanced        confidence
-#>   <comp>          <comp>               <dbl>
+#>   <comp>          <glydb_cm>           <dbl>
 #> 1 Hex(1)HexNAc(1) Gal(1)GalNAc(1)       5.32
 ```
 
 ``` r
 
-enhance_struc("Gal(??-?)GalNAc(??-", db = glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc"))
+enhance_struc("Gal(??-?)GalNAc(??-", species = "Homo sapiens", glycan_type = "O-GalNAc")
+#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
+#> ℹ Those database structures were excluded from matching.
 #> # A tibble: 3 × 3
 #>   raw                 enhanced            confidence
-#>   <struct>            <struct>                 <dbl>
+#>   <struct>            <glydb_st>               <dbl>
 #> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-       5.32
 #> 2 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(b1-       1.10
 #> 3 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-       1.61
@@ -272,9 +271,12 @@ You can set `return_best` to `TRUE` as well.
 
 enhance_struc(
   "Gal(??-?)GalNAc(??-",
-  db = glydb_structures(species = "Homo sapiens", glycan_type = "O-GalNAc"),
+  species = "Homo sapiens",
+  glycan_type = "O-GalNAc",
   return_best = TRUE
 )
+#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
+#> ℹ Those database structures were excluded from matching.
 #> <glycan_structure[1]>
 #> [1] Gal(b1-3)GalNAc(a1-
 #> # Unique structures: 1

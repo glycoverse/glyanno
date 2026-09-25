@@ -8,7 +8,16 @@ specific residue identities or linkage information.
 ## Usage
 
 ``` r
-enhance_struc(strucs, db = NULL, return_best = FALSE)
+enhance_struc(
+  strucs,
+  db = lifecycle::deprecated(),
+  return_best = FALSE,
+  glycan_type = NULL,
+  species = NULL,
+  structure_level = "intact",
+  mono_type = "concrete",
+  mono_range = NULL
+)
 ```
 
 ## Arguments
@@ -24,20 +33,41 @@ enhance_struc(strucs, db = NULL, return_best = FALSE)
 
 - db:
 
-  A
+  **\[deprecated\]** A
   [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
   vector, or a character vector of glycan structure strings supported by
   [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
   Structures with unresolved floating parts or substituents are excluded
-  with a warning. The default is
-  [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html)
-  at "intact" level.
+  with a warning. Use the filtering arguments instead. This argument
+  cannot be combined with them.
 
 - return_best:
 
   Logical. If `TRUE`, only return the best matching structure (highest
-  confidence) for each input structure. `db` must have a `confidence`
-  attribute. Default is `FALSE`.
+  confidence) for each input structure. A custom `db` must have a
+  `confidence` attribute. Default is `FALSE`.
+
+- glycan_type:
+
+  Glycan type to select from
+  [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html).
+
+- species:
+
+  Species to select, matched without regard to letter case.
+
+- structure_level:
+
+  Structure resolution, `"intact"` (default) or `"topological"`.
+
+- mono_type:
+
+  Monosaccharide resolution, `"concrete"` (default) or `"generic"`.
+
+- mono_range:
+
+  Named list of monosaccharide count ranges; see
+  [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html).
 
 ## Value
 
@@ -65,28 +95,14 @@ database candidate is matched against each input independently.
 ## Examples
 
 ``` r
-# From topological level to intact level
-db_intact <- c("Gal(b1-3)GalNAc(a1-", "Gal(b1-4)GalNAc(a1-")
-enhance_struc("Gal(??-?)GalNAc(??-", db = db_intact)
-#> # A tibble: 2 × 3
+enhance_struc("Gal(??-?)GalNAc(??-", glycan_type = "O-GalNAc",
+  species = "Homo sapiens")
+#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
+#> ℹ Those database structures were excluded from matching.
+#> # A tibble: 3 × 3
 #>   raw                 enhanced            confidence
-#>   <struct>            <struct>                 <dbl>
-#> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-         NA
-#> 2 Gal(??-?)GalNAc(??- Gal(b1-4)GalNAc(a1-         NA
-
-# Refine generic residues without changing the structure level
-db_topo <- "Gal(??-?)GalNAc(??-"
-enhance_struc("Hex(??-?)HexNAc(??-", db = db_topo)
-#> # A tibble: 1 × 3
-#>   raw                 enhanced            confidence
-#>   <struct>            <struct>                 <dbl>
-#> 1 Hex(??-?)HexNAc(??- Gal(??-?)GalNAc(??-         NA
-
-# From partial level to intact level
-enhance_struc("Gal(b1-?)GalNAc(a1-", db = db_intact)
-#> # A tibble: 2 × 3
-#>   raw                 enhanced            confidence
-#>   <struct>            <struct>                 <dbl>
-#> 1 Gal(b1-?)GalNAc(a1- Gal(b1-3)GalNAc(a1-         NA
-#> 2 Gal(b1-?)GalNAc(a1- Gal(b1-4)GalNAc(a1-         NA
+#>   <struct>            <glydb_st>               <dbl>
+#> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-       5.32
+#> 2 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(b1-       1.10
+#> 3 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-       1.61
 ```

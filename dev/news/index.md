@@ -2,6 +2,16 @@
 
 ## glyanno (development version)
 
+- [`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md),
+  [`enhance_comp()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_comp.md),
+  [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md),
+  and
+  [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md)
+  now accept `glycan_type`, `species`, `mono_type`, and `mono_range`
+  filters directly; the structure functions also accept
+  `structure_level`. The `db` argument is deprecated but remains
+  available for custom databases.
+
 ## glyanno 0.6.1
 
 - [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md),

@@ -44,7 +44,16 @@ residue identities are matched residue by residue.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">comp_to_struc</span><span class="op">(</span><span class="va">comps</span>, db <span class="op">=</span> <span class="cn">NULL</span>, return_best <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">comp_to_struc</span><span class="op">(</span></span>
+<span>  <span class="va">comps</span>,</span>
+<span>  db <span class="op">=</span> <span class="fu">lifecycle</span><span class="fu">::</span><span class="fu"><a href="https://lifecycle.r-lib.org/reference/deprecated.html" class="external-link">deprecated</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  return_best <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  glycan_type <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  species <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  structure_level <span class="op">=</span> <span class="st">"intact"</span>,</span>
+<span>  mono_type <span class="op">=</span> <span class="st">"concrete"</span>,</span>
+<span>  mono_range <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -59,19 +68,42 @@ residue identities are matched residue by residue.</p>
 
 
 <dt id="arg-db">db<a class="anchor" aria-label="anchor" href="#arg-db"></a></dt>
-<dd><p>Glycan structures to match against.
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Glycan structures to match against.
 Can be a <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_structure.html" class="external-link">glyrepr::glycan_structure()</a></code> vector or any structure strings
 supported by <code><a href="https://glycoverse.github.io/glyparse/reference/auto_parse.html" class="external-link">glyparse::auto_parse()</a></code>.
 Structures with unresolved floating parts or substituents are excluded
 with a warning.
-If not provided, <code>glydb::glydb_structures(structure_level = "intact")</code> will be used.</p></dd>
+Use the filtering arguments instead. This argument cannot be combined
+with them.</p></dd>
 
 
 <dt id="arg-return-best">return_best<a class="anchor" aria-label="anchor" href="#arg-return-best"></a></dt>
 <dd><p>If <code>TRUE</code>, only return the highest confidence match for each
-composition. Requires <code>db</code> to have a <code>confidence</code> attribute.
-Use <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code> for <code>db</code> to enable this feature.
+composition. A custom <code>db</code> must have a <code>confidence</code> attribute.
 Default is <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-glycan-type">glycan_type<a class="anchor" aria-label="anchor" href="#arg-glycan-type"></a></dt>
+<dd><p>Glycan type to select from <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code>.</p></dd>
+
+
+<dt id="arg-species">species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
+<dd><p>Species to select, matched without regard to letter case.</p></dd>
+
+
+<dt id="arg-structure-level">structure_level<a class="anchor" aria-label="anchor" href="#arg-structure-level"></a></dt>
+<dd><p>Structure resolution, <code>"intact"</code> (default) or
+<code>"topological"</code>.</p></dd>
+
+
+<dt id="arg-mono-type">mono_type<a class="anchor" aria-label="anchor" href="#arg-mono-type"></a></dt>
+<dd><p>Monosaccharide resolution, <code>"concrete"</code> (default) or
+<code>"generic"</code>.</p></dd>
+
+
+<dt id="arg-mono-range">mono_range<a class="anchor" aria-label="anchor" href="#arg-mono-range"></a></dt>
+<dd><p>Named list of monosaccharide count ranges; see
+<code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -88,21 +120,9 @@ Note that one glycan composition can have multiple rows in the result,
 corresponding to different possible glycan structures.</p></li>
 </ul></div>
     <div class="section level2">
-    <h2 id="how-to-set-db">How to set <code>db</code><a class="anchor" aria-label="anchor" href="#how-to-set-db"></a></h2>
-    <p>The <code>db</code> parameter is very important for all functions in this package.
-By default, it uses all available glycans in the <code>glydb</code> package,
-which is usually larger than what you need.
-You can use helper functions in <code>glydb</code> to narrow down the database,
-e.g. <code><a href="https://glycoverse.github.io/glydb/reference/glydb_compositions.html" class="external-link">glydb::glydb_compositions()</a></code> or <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code>.</p>
-<p>You can use the <code>species</code> and <code>glycan_type</code> parameters to focus on specific species and glycan type.
-For example, if you are only interested in N-glycan compositions in human,
-you can use <code>glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")</code>.
-Also, you can decide the level of information in the database by setting <code>mono_type</code>
-of <code><a href="https://glycoverse.github.io/glydb/reference/glydb_compositions.html" class="external-link">glydb::glydb_compositions()</a></code> and <code>structure_level</code> of <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code>.</p>
-<p>You can then pass the result to the <code>db</code> parameter of this function.
-For example,</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>my_db <span class="ot">&lt;-</span> glydb<span class="sc">::</span><span class="fu">glydb_compositions</span>(<span class="at">species =</span> <span class="st">"Homo sapiens"</span>, <span class="at">glycan_type =</span> <span class="st">"N"</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">mz_to_comp</span>(mz, <span class="at">db =</span> my_db)</span></code></pre><p></p></div>
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Filter the built-in database with <code>glycan_type</code>, <code>species</code>,
+<code>structure_level</code>, <code>mono_type</code>, and <code>mono_range</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -112,20 +132,22 @@ For example,</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">comp_to_struc</span><span class="op">(</span><span class="st">"H5N2"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 79 × 3</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`db` contains 564 structures with unresolved floating parts or substituents.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 81 × 3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    composition     structure                                          confidence</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>                                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;glydb_st&gt;</span>                                              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-2</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #0087D7;">Gl</span>…      -<span style="color: #BB0000;">1</span>   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #0087D7;">GlcNAc</span>(<span style="color: #B2B2B2;">b1-2</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-</span>…      -<span style="color: #BB0000;">1</span>   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-2</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #0087D7;">Gl</span>…       3.22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-4</span>)…       1.39</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-2</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-2</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #0087D7;">Glc</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #0087D7;">Gl</span>…      -<span style="color: #BB0000;">1</span>   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #0087D7;">Gl</span>…      -<span style="color: #BB0000;">1</span>   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #0087D7;">Gl</span>…      -<span style="color: #BB0000;">1</span>   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-2</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-4</span>)<span style="color: #0087D7;">Gl</span>…      -<span style="color: #BB0000;">1</span>   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-2</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #0087D7;">Gl</span>…       1.61</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">a1-6</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-6</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #0087D7;">Gl</span>…      -<span style="color: #BB0000;">1</span>   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 69 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-4</span>)…       5.10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #0087D7;">GlcNAc</span>(<span style="color: #B2B2B2;">b1-2</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-</span>…      -<span style="color: #BB0000;">1</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-2</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #0087D7;">Gl</span>…       3.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-4</span>)…       1.39</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-2</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-2</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #0087D7;">Glc</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #0087D7;">Gl</span>…      -<span style="color: #BB0000;">1</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #0087D7;">Gl</span>…      -<span style="color: #BB0000;">1</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #0087D7;">Gl</span>…      -<span style="color: #BB0000;">1</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #FFD700;">Galf</span>(<span style="color: #B2B2B2;">b1-2</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">b1-4</span>…      -<span style="color: #BB0000;">1</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> <span style="color: #000000;">Hex</span>(5)<span style="color: #000000;">HexNAc</span>(2) <span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-2</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-3</span>)[<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-6</span>)]<span style="color: #00AF5F;">Man</span>(<span style="color: #B2B2B2;">a1-4</span>)<span style="color: #0087D7;">Gl</span>…      -<span style="color: #BB0000;">1</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 71 more rows</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

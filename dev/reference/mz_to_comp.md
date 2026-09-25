@@ -9,11 +9,15 @@ compositions in the `glydb` database.
 mz_to_comp(
   mz,
   tol = ppm(10),
-  db = NULL,
+  db = lifecycle::deprecated(),
   return_best = FALSE,
   charge = 1,
   adduct = "H+",
-  mass_dict = NULL
+  mass_dict = NULL,
+  glycan_type = NULL,
+  species = NULL,
+  mono_type = "concrete",
+  mono_range = NULL
 )
 ```
 
@@ -31,19 +35,17 @@ mz_to_comp(
 
 - db:
 
-  Glycan compositions to match against. Can be a
+  **\[deprecated\]** Glycan compositions to match against. Can be a
   [`glyrepr::glycan_composition()`](https://glycoverse.github.io/glyrepr/reference/glycan_composition.html)
   vector or glycan composition strings in Byonic style (e.g.
-  Hex(5)HexNAc(2)) or simple style (e.g. H5N4F1S1). If not provided,
-  `glydb::glydb_compositions(mono_type = "concrete")` will be used.
+  Hex(5)HexNAc(2)) or simple style (e.g. H5N4F1S1). Use the filtering
+  arguments instead. This argument cannot be combined with them.
 
 - return_best:
 
   A logical scalar. If `TRUE`, only the match with the highest
-  confidence score is returned for each m/z value. The `db` must have a
-  `confidence` attribute. Use
-  [`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html)
-  for `db` to enable this feature. Default is `FALSE`.
+  confidence score is returned for each m/z value. A custom `db` must
+  have a `confidence` attribute. Default is `FALSE`.
 
 - charge:
 
@@ -71,6 +73,24 @@ mz_to_comp(
   the vector are the same as the names in
   [`glyanno_mass_dict()`](https://glycoverse.github.io/glyanno/dev/reference/glyanno_mass_dict.md).
 
+- glycan_type:
+
+  Glycan type to select from
+  [`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html).
+
+- species:
+
+  Species to select, matched without regard to letter case.
+
+- mono_type:
+
+  Monosaccharide resolution, `"concrete"` (default) or `"generic"`.
+
+- mono_range:
+
+  Named list of monosaccharide count ranges; see
+  [`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html).
+
 ## Value
 
 If `return_best=TRUE`: An unnamed
@@ -89,31 +109,14 @@ as `NA`. If `return_best=FALSE`: A tibble with the following columns:
   multiple rows in the result, corresponding to different possible
   glycan compositions.
 
-## How to set `db`
+## Filter the built-in database
 
-The `db` parameter is very important for all functions in this package.
-By default, it uses all available glycans in the `glydb` package, which
-is usually larger than what you need. You can use helper functions in
-`glydb` to narrow down the database, e.g.
-[`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html)
-or
-[`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html).
+Use `glycan_type`, `species`, `mono_type`, and `mono_range` to select
+compositions from
+[`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html).
+For example,
 
-You can use the `species` and `glycan_type` parameters to focus on
-specific species and glycan type. For example, if you are only
-interested in N-glycan compositions in human, you can use
-`glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")`.
-Also, you can decide the level of information in the database by setting
-`mono_type` of
-[`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html)
-and `structure_level` of
-[`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html).
-
-You can then pass the result to the `db` parameter of this function. For
-example,
-
-    my_db <- glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")
-    mz_to_comp(mz, db = my_db)
+    mz_to_comp(mz, species = "Homo sapiens", glycan_type = "N")
 
 ## See also
 
@@ -124,16 +127,17 @@ example,
 
 ``` r
 mz_to_comp(933.3175, charge = 1, adduct = "Na+")
-#> # A tibble: 9 × 3
-#>      mz composition                    confidence
-#>   <dbl> <comp>                              <dbl>
-#> 1  933. Glc(1)Gal(2)GlcNAc(1)GalNAc(1)       1.79
-#> 2  933. Gal(3)GlcNAc(2)                      1.61
-#> 3  933. Glc(1)Gal(2)GlcNAc(2)                1.39
-#> 4  933. Man(1)Gal(2)GlcNAc(2)                0   
-#> 5  933. Man(3)GlcNAc(2)                      5.61
-#> 6  933. Gal(3)GlcNAc(1)GalNAc(1)             1.10
-#> 7  933. Glc(1)Gal(2)GalNAc(2)                2.40
-#> 8  933. Man(2)Gal(1)GlcNAc(2)               -1   
-#> 9  933. Gal(3)GalNAc(2)                     -1   
+#> # A tibble: 10 × 3
+#>       mz composition                    confidence
+#>    <dbl> <glydb_cm>                          <dbl>
+#>  1  933. Man(3)GlcNAc(2)                      5.61
+#>  2  933. Glc(1)Gal(2)GlcNAc(1)GalNAc(1)       1.79
+#>  3  933. Gal(3)GlcNAc(2)                      1.61
+#>  4  933. Glc(1)Gal(2)GlcNAc(2)                1.39
+#>  5  933. Man(1)Gal(2)GlcNAc(2)                0   
+#>  6  933. Gal(3)GlcNAc(1)GalNAc(1)             1.10
+#>  7  933. Glc(1)Gal(2)GalNAc(2)                2.40
+#>  8  933. Man(2)Gal(1)GlcNAc(2)                1.39
+#>  9  933. Glc(1)GlcNAc(2)Galf(2)              -1   
+#> 10  933. Gal(3)GalNAc(2)                     -1   
 ```

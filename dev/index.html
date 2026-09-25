@@ -99,52 +99,60 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glycoverse.github.io/glydb/" class="external-link">glydb</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/mz_to_comp.html">mz_to_comp</a></span><span class="op">(</span><span class="fl">406.1325</span>, charge <span class="op">=</span> <span class="fl">1</span>, adduct <span class="op">=</span> <span class="st">"Na+"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 4 × 2</span></span>
-<span><span class="co">#&gt;      mz composition    </span></span>
-<span><span class="co">#&gt;   &lt;dbl&gt; &lt;comp&gt;         </span></span>
-<span><span class="co">#&gt; 1  406. Gal(1)GalNAc(1)</span></span>
-<span><span class="co">#&gt; 2  406. Gal(1)GlcNAc(1)</span></span>
-<span><span class="co">#&gt; 3  406. Glc(1)GlcNAc(1)</span></span>
-<span><span class="co">#&gt; 4  406. Man(1)GlcNAc(1)</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 7 × 3</span></span>
+<span><span class="co">#&gt;      mz composition       confidence</span></span>
+<span><span class="co">#&gt;   &lt;dbl&gt; &lt;glydb_cm&gt;             &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1  406. Gal(1)GalNAc(1)        5.32</span></span>
+<span><span class="co">#&gt; 2  406. Gal(1)GlcNAc(1)        2.71</span></span>
+<span><span class="co">#&gt; 3  406. Glc(1)GlcNAc(1)        0.693</span></span>
+<span><span class="co">#&gt; 4  406. Man(1)GlcNAc(1)        2.08</span></span>
+<span><span class="co">#&gt; 5  406. GalNAc(1)L-Gal(1)     -1</span></span>
+<span><span class="co">#&gt; 6  406. GalNAc(1)Galf(1)      -1</span></span>
+<span><span class="co">#&gt; 7  406. GlcNAc(1)Galf(1)      -1</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 19 × 2</span></span>
-<span><span class="co">#&gt;    composition     structure          </span></span>
-<span><span class="co">#&gt;    &lt;comp&gt;          &lt;struct&gt;           </span></span>
-<span><span class="co">#&gt;  1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-</span></span>
-<span><span class="co">#&gt;  2 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-</span></span>
-<span><span class="co">#&gt;  3 Gal(1)GalNAc(1) GalNAc(a1-3)Gal(a1-</span></span>
-<span><span class="co">#&gt;  4 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(b1-</span></span>
-<span><span class="co">#&gt;  5 Gal(1)GalNAc(1) Gal(b1-4)GalNAc(b1-</span></span>
-<span><span class="co">#&gt;  6 Gal(1)GalNAc(1) GalNAc(a1-4)Gal(b1-</span></span>
-<span><span class="co">#&gt;  7 Gal(1)GalNAc(1) GalNAc(a1-2)Gal(b1-</span></span>
-<span><span class="co">#&gt;  8 Gal(1)GalNAc(1) GalNAc(b1-2)Gal(a1-</span></span>
-<span><span class="co">#&gt;  9 Gal(1)GalNAc(1) GalNAc(b1-4)Gal(b1-</span></span>
-<span><span class="co">#&gt; 10 Gal(1)GalNAc(1) Gal(a1-6)GalNAc(a1-</span></span>
-<span><span class="co">#&gt; 11 Gal(1)GalNAc(1) Gal(b1-6)GalNAc(a1-</span></span>
-<span><span class="co">#&gt; 12 Gal(1)GalNAc(1) GalNAc(a1-3)Gal(b1-</span></span>
-<span><span class="co">#&gt; 13 Gal(1)GalNAc(1) GalNAc(b1-3)Gal(b1-</span></span>
-<span><span class="co">#&gt; 14 Gal(1)GalNAc(1) Gal(b1-6)GalNAc(b1-</span></span>
-<span><span class="co">#&gt; 15 Gal(1)GalNAc(1) GalNAc(b1-3)Gal(a1-</span></span>
-<span><span class="co">#&gt; 16 Gal(1)GalNAc(1) GalNAc(b1-4)Gal(a1-</span></span>
-<span><span class="co">#&gt; 17 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-</span></span>
-<span><span class="co">#&gt; 18 Gal(1)GalNAc(1) GalNAc(b1-2)Gal(b1-</span></span>
-<span><span class="co">#&gt; 19 Gal(1)GalNAc(1) Gal(b1-4)GalNAc(a1-</span></span></code></pre></div>
+<span><span class="co">#&gt; Warning: `db` contains 564 structures with unresolved floating parts or substituents.</span></span>
+<span><span class="co">#&gt; ℹ Those database structures were excluded from matching.</span></span>
+<span><span class="co">#&gt; # A tibble: 19 × 3</span></span>
+<span><span class="co">#&gt;    composition     structure           confidence</span></span>
+<span><span class="co">#&gt;    &lt;comp&gt;          &lt;glydb_st&gt;               &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-       5.32</span></span>
+<span><span class="co">#&gt;  2 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(b1-      -1</span></span>
+<span><span class="co">#&gt;  3 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-       1.10</span></span>
+<span><span class="co">#&gt;  4 Gal(1)GalNAc(1) GalNAc(a1-3)Gal(a1-      -1</span></span>
+<span><span class="co">#&gt;  5 Gal(1)GalNAc(1) Gal(b1-4)GalNAc(b1-      -1</span></span>
+<span><span class="co">#&gt;  6 Gal(1)GalNAc(1) GalNAc(a1-4)Gal(b1-      -1</span></span>
+<span><span class="co">#&gt;  7 Gal(1)GalNAc(1) GalNAc(a1-2)Gal(b1-      -1</span></span>
+<span><span class="co">#&gt;  8 Gal(1)GalNAc(1) GalNAc(b1-2)Gal(a1-      -1</span></span>
+<span><span class="co">#&gt;  9 Gal(1)GalNAc(1) GalNAc(b1-4)Gal(b1-       0</span></span>
+<span><span class="co">#&gt; 10 Gal(1)GalNAc(1) Gal(a1-6)GalNAc(a1-      -1</span></span>
+<span><span class="co">#&gt; 11 Gal(1)GalNAc(1) Gal(b1-6)GalNAc(a1-      -1</span></span>
+<span><span class="co">#&gt; 12 Gal(1)GalNAc(1) GalNAc(a1-3)Gal(b1-      -1</span></span>
+<span><span class="co">#&gt; 13 Gal(1)GalNAc(1) GalNAc(b1-3)Gal(b1-       0</span></span>
+<span><span class="co">#&gt; 14 Gal(1)GalNAc(1) Gal(b1-6)GalNAc(b1-      -1</span></span>
+<span><span class="co">#&gt; 15 Gal(1)GalNAc(1) GalNAc(b1-3)Gal(a1-      -1</span></span>
+<span><span class="co">#&gt; 16 Gal(1)GalNAc(1) GalNAc(b1-4)Gal(a1-      -1</span></span>
+<span><span class="co">#&gt; 17 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-       1.61</span></span>
+<span><span class="co">#&gt; 18 Gal(1)GalNAc(1) GalNAc(b1-2)Gal(b1-      -1</span></span>
+<span><span class="co">#&gt; 19 Gal(1)GalNAc(1) Gal(b1-4)GalNAc(a1-      -1</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Use custom db to narrow down the search space</span></span>
-<span><span class="va">my_db</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb_structures</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, db <span class="op">=</span> <span class="va">my_db</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 3 × 2</span></span>
-<span><span class="co">#&gt;   composition     structure          </span></span>
-<span><span class="co">#&gt;   &lt;comp&gt;          &lt;struct&gt;           </span></span>
-<span><span class="co">#&gt; 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-</span></span>
-<span><span class="co">#&gt; 2 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-</span></span>
-<span><span class="co">#&gt; 3 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Filter by glycan type and species</span></span>
+<span><span class="fu"><a href="reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: `db` contains 9 structures with unresolved floating parts or substituents.</span></span>
+<span><span class="co">#&gt; ℹ Those database structures were excluded from matching.</span></span>
+<span><span class="co">#&gt; # A tibble: 3 × 3</span></span>
+<span><span class="co">#&gt;   composition     structure           confidence</span></span>
+<span><span class="co">#&gt;   &lt;comp&gt;          &lt;glydb_st&gt;               &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-       5.32</span></span>
+<span><span class="co">#&gt; 2 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-       1.10</span></span>
+<span><span class="co">#&gt; 3 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-       1.61</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Use `return_best` to pick the most likely match</span></span>
 <span><span class="co"># Core 1 is more likely than Core 5</span></span>
-<span><span class="fu"><a href="reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, db <span class="op">=</span> <span class="va">my_db</span>, return_best <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;glycan_structure[1]&gt;</span></span>
+<span><span class="fu"><a href="reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span>, return_best <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: `db` contains 9 structures with unresolved floating parts or substituents.</span></span>
+<span><span class="co">#&gt; ℹ Those database structures were excluded from matching.</span></span>
+<span><span class="co">#&gt; &lt;glydb_structure[1]&gt;</span></span>
 <span><span class="co">#&gt; [1] Gal(b1-3)GalNAc(a1-</span></span>
 <span><span class="co">#&gt; # Unique structures: 1</span></span></code></pre></div>
 </div>

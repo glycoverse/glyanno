@@ -44,7 +44,16 @@ structures with more specific residue identities or linkage information.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">enhance_struc</span><span class="op">(</span><span class="va">strucs</span>, db <span class="op">=</span> <span class="cn">NULL</span>, return_best <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">enhance_struc</span><span class="op">(</span></span>
+<span>  <span class="va">strucs</span>,</span>
+<span>  db <span class="op">=</span> <span class="fu">lifecycle</span><span class="fu">::</span><span class="fu"><a href="https://lifecycle.r-lib.org/reference/deprecated.html" class="external-link">deprecated</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  return_best <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  glycan_type <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  species <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  structure_level <span class="op">=</span> <span class="st">"intact"</span>,</span>
+<span>  mono_type <span class="op">=</span> <span class="st">"concrete"</span>,</span>
+<span>  mono_range <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -59,17 +68,40 @@ substituents are excluded with a warning.</p></dd>
 
 
 <dt id="arg-db">db<a class="anchor" aria-label="anchor" href="#arg-db"></a></dt>
-<dd><p>A <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code> vector,
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> A <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code> vector,
 or a character vector of glycan structure strings supported by <code><a href="https://glycoverse.github.io/glyparse/reference/auto_parse.html" class="external-link">glyparse::auto_parse()</a></code>.
 Structures with unresolved floating parts or substituents are excluded
-with a warning. The default is <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code> at "intact"
-level.</p></dd>
+with a warning. Use the filtering arguments instead. This argument
+cannot be combined with them.</p></dd>
 
 
 <dt id="arg-return-best">return_best<a class="anchor" aria-label="anchor" href="#arg-return-best"></a></dt>
 <dd><p>Logical. If <code>TRUE</code>, only return the best matching
-structure (highest confidence) for each input structure. <code>db</code> must have a
-<code>confidence</code> attribute. Default is <code>FALSE</code>.</p></dd>
+structure (highest confidence) for each input structure. A custom <code>db</code>
+must have a <code>confidence</code> attribute. Default is <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-glycan-type">glycan_type<a class="anchor" aria-label="anchor" href="#arg-glycan-type"></a></dt>
+<dd><p>Glycan type to select from <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code>.</p></dd>
+
+
+<dt id="arg-species">species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
+<dd><p>Species to select, matched without regard to letter case.</p></dd>
+
+
+<dt id="arg-structure-level">structure_level<a class="anchor" aria-label="anchor" href="#arg-structure-level"></a></dt>
+<dd><p>Structure resolution, <code>"intact"</code> (default) or
+<code>"topological"</code>.</p></dd>
+
+
+<dt id="arg-mono-type">mono_type<a class="anchor" aria-label="anchor" href="#arg-mono-type"></a></dt>
+<dd><p>Monosaccharide resolution, <code>"concrete"</code> (default) or
+<code>"generic"</code>.</p></dd>
+
+
+<dt id="arg-mono-range">mono_range<a class="anchor" aria-label="anchor" href="#arg-mono-range"></a></dt>
+<dd><p>Named list of monosaccharide count ranges; see
+<code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -94,30 +126,16 @@ is matched against each input independently.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># From topological level to intact level</span></span></span>
-<span class="r-in"><span><span class="va">db_intact</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gal(b1-3)GalNAc(a1-"</span>, <span class="st">"Gal(b1-4)GalNAc(a1-"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">enhance_struc</span><span class="op">(</span><span class="st">"Gal(??-?)GalNAc(??-"</span>, db <span class="op">=</span> <span class="va">db_intact</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 3</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">enhance_struc</span><span class="op">(</span><span class="st">"Gal(??-?)GalNAc(??-"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span>,</span></span>
+<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Homo sapiens"</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`db` contains 9 structures with unresolved floating parts or substituents.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   raw                 enhanced            confidence</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">??-?</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">??-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span>         <span style="color: #BB0000;">NA</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">??-?</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">??-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span>         <span style="color: #BB0000;">NA</span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Refine generic residues without changing the structure level</span></span></span>
-<span class="r-in"><span><span class="va">db_topo</span> <span class="op">&lt;-</span> <span class="st">"Gal(??-?)GalNAc(??-"</span></span></span>
-<span class="r-in"><span><span class="fu">enhance_struc</span><span class="op">(</span><span class="st">"Hex(??-?)HexNAc(??-"</span>, db <span class="op">=</span> <span class="va">db_topo</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   raw                 enhanced            confidence</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #000000;">Hex</span>(<span style="color: #B2B2B2;">??-?</span>)<span style="color: #000000;">HexNAc</span>(<span style="color: #B2B2B2;">??-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">??-?</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">??-</span>         <span style="color: #BB0000;">NA</span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># From partial level to intact level</span></span></span>
-<span class="r-in"><span><span class="fu">enhance_struc</span><span class="op">(</span><span class="st">"Gal(b1-?)GalNAc(a1-"</span>, db <span class="op">=</span> <span class="va">db_intact</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   raw                 enhanced            confidence</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-?</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span>         <span style="color: #BB0000;">NA</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-?</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span>         <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;glydb_st&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">??-?</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">??-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span>       5.32</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">??-?</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">??-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">b1-</span>       1.10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">??-?</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">??-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span>       1.61</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
