@@ -11,6 +11,6 @@
     Code
       clear_glyanno_cache()
     Condition
-      Error:
+      Error in `clear_glyanno_cache()`:
       ! Cannot clear the cache while a build lock exists.
 

@@ -46,17 +46,17 @@ build_glyanno_cache <- function(force = FALSE) {
   path <- info$path
   dir <- dirname(path)
   if (!dir.exists(dir) && !dir.create(dir, recursive = TRUE)) {
-    stop("Cannot create the glyanno cache directory: ", dir, call. = FALSE)
+    cli::cli_abort(
+      "Cannot create the {.pkg glyanno} cache directory {.file {dir}}."
+    )
   }
   # A directory lock prevents concurrent writers from replacing one another.
   lock <- paste0(path, ".lock")
   if (!dir.create(lock, showWarnings = FALSE)) {
-    stop(
-      "Another cache build may be running. If it was interrupted, remove ",
-      lock,
-      " before retrying.",
-      call. = FALSE
-    )
+    cli::cli_abort(c(
+      "Another cache build may be running.",
+      "i" = "If it was interrupted, remove {.file {lock}} before retrying."
+    ))
   }
   on.exit(unlink(lock, recursive = TRUE), add = TRUE)
   payload <- list(metadata = .cache_metadata(), views = list())
@@ -65,7 +65,7 @@ build_glyanno_cache <- function(force = FALSE) {
     for (level in levels) {
       for (mono in c("concrete", "generic")) {
         key <- .view_key(kind, mono, level)
-        message("Preparing ", key, "...")
+        cli::cli_inform(c("i" = "Preparing {.val {key}}..."))
         payload$views[[key]] <- .build_annotation_view(kind, mono, level)
       }
     }
@@ -75,16 +75,13 @@ build_glyanno_cache <- function(force = FALSE) {
   on.exit(unlink(tmp), add = TRUE)
   saveRDS(payload, tmp, compress = TRUE)
   if (!.valid_cache_payload(readRDS(tmp))) {
-    stop(
-      "Cache validation failed; the previous cache is unchanged.",
-      call. = FALSE
-    )
+    cli::cli_abort("Cache validation failed; the previous cache is unchanged.")
   }
   if (!file.rename(tmp, path)) {
-    stop("Cannot replace the cache file: ", path, call. = FALSE)
+    cli::cli_abort("Cannot replace the cache file {.file {path}}.")
   }
   .reset_annotation_cache()
-  message("Annotation cache saved to ", path)
+  cli::cli_inform(c("v" = "Annotation cache saved to {.file {path}}."))
   invisible(path)
 }
 
@@ -120,10 +117,10 @@ glyanno_cache_info <- function() {
 clear_glyanno_cache <- function() {
   path <- .annotation_cache_path()
   if (dir.exists(paste0(path, ".lock"))) {
-    stop("Cannot clear the cache while a build lock exists.", call. = FALSE)
+    cli::cli_abort("Cannot clear the cache while a build lock exists.")
   }
   if (file.exists(path) && unlink(path) != 0L) {
-    stop("Cannot remove the cache file: ", path, call. = FALSE)
+    cli::cli_abort("Cannot remove the cache file {.file {path}}.")
   }
   .reset_annotation_cache()
   invisible(NULL)
@@ -236,19 +233,22 @@ clear_glyanno_cache <- function() {
     {
       info <- glyanno_cache_info()
       if (info$status != "ready") {
-        packageStartupMessage(
-          "glyanno: annotation cache is ",
-          info$status,
-          " for glydb ",
-          info$expected$glydb,
-          ". Run glyanno::build_glyanno_cache() to build it."
+        cli::cli_inform(
+          c(
+            "i" = "{.pkg glyanno}: annotation cache is {info$status} for {.pkg glydb} {info$expected$glydb}.",
+            "i" = "Run {.code glyanno::build_glyanno_cache()} to build it."
+          ),
+          class = "packageStartupMessage"
         )
       }
     },
     error = function(e) {
-      packageStartupMessage(
-        "glyanno: cannot inspect the annotation cache. ",
-        "Run glyanno::glyanno_cache_info() for details."
+      cli::cli_inform(
+        c(
+          "i" = "{.pkg glyanno}: cannot inspect the annotation cache.",
+          "i" = "Run {.code glyanno::glyanno_cache_info()} for details."
+        ),
+        class = "packageStartupMessage"
       )
     }
   )
