@@ -1,8 +1,13 @@
-# glyanno (development version)
+# glyanno 0.7.0
+
+## New features
+
+* New `build_glyanno_cache()` saves annotation databases, filter memberships, matching indexes, and mass tables in persistent user storage. `library(glyanno)` reminds interactive users when the cache needs building after a glydb update. Use `glyanno_cache_info()` to inspect it and `clear_glyanno_cache()` to remove it. Annotation remains available with a session-only cache. (#26)
+* `mz_to_comp()`, `enhance_comp()`, `comp_to_struc()`, and `enhance_struc()` now accept `glycan_type`, `species`, `mono_type`, and `mono_range` filters directly; the structure functions also accept `structure_level`. The `db` argument is deprecated but remains available for custom databases. (#25)
+
+## Minor improvements and bug fixes
 
 * `comp_to_struc()`, `enhance_struc()`, and `enhance_struc_denovo()` now silently exclude database candidates with unresolved floating parts or substituents from matching.
-* `build_glyanno_cache()` now saves annotation databases, filter memberships, matching indexes, and mass tables in persistent user storage. `library(glyanno)` reminds interactive users when the cache needs building after a glydb update. Use `glyanno_cache_info()` to inspect it and `clear_glyanno_cache()` to remove it. Annotation remains available with a session-only cache.
-* `mz_to_comp()`, `enhance_comp()`, `comp_to_struc()`, and `enhance_struc()` now accept `glycan_type`, `species`, `mono_type`, and `mono_range` filters directly; the structure functions also accept `structure_level`. The `db` argument is deprecated but remains available for custom databases.
 
 # glyanno 0.6.1
 
