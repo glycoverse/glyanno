@@ -116,11 +116,107 @@ basic understanding of IUPAC-condensed notation is recommended for this
 vignette. You can refer to this <a href="https://glycoverse.github.io/glyrepr/articles/iupac.html" class="external-link">tutorial</a>.</p>
 </div>
 <div class="section level2">
+<h2 id="build-the-annotation-cache">Build the annotation cache<a class="anchor" aria-label="anchor" href="#build-the-annotation-cache"></a>
+</h2>
+<p>After installing or updating <code>glydb</code>, an interactive
+<code><a href="https://glycoverse.github.io/glyanno/">library(glyanno)</a></code> call reminds you to build the persistent
+annotation cache:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/build_glyanno_cache.html">build_glyanno_cache</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>The build uses the installed <code>glydb</code> data and saves the
+result in <code>tools::R_user_dir("glyanno", "cache")</code>, following
+the <a href="https://r-pkgs.org/data.html#sec-data-persistent" class="external-link">R
+Packages guidance on persistent user data</a>. Calling the build
+function again reuses the current cache. A changed <code>glydb</code>
+version makes the cache outdated and triggers another reminder on
+attachment. Annotation still works if you defer building: the needed
+views are prepared in memory and discarded when R exits.</p>
+<p>The cache contains:</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Data</th>
+<th>Used for</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Concrete and generic composition views</td>
+<td>Composition enhancement and mass annotation</td>
+</tr>
+<tr class="even">
+<td>Four structure views: intact/topological × concrete/generic,
+including parsed graphs</td>
+<td>Composition-to-structure and structure matching; de novo
+fallback</td>
+</tr>
+<tr class="odd">
+<td>Exact and generic composition lookup groups, residue counts, and
+confidence ranks</td>
+<td>Candidate selection and stable best-match selection</td>
+</tr>
+<tr class="even">
+<td>Species and glycan-type membership; concrete and generic counts</td>
+<td>Database filtering without reprocessing structures</td>
+</tr>
+<tr class="odd">
+<td>Floating-part/substituent flags</td>
+<td>Excluding unsupported candidates with the existing warnings</td>
+</tr>
+<tr class="even">
+<td>Residue masses for six built-in dictionaries and counts for custom
+dictionaries</td>
+<td>Mass annotation across derivatizations, mass types, charges, and
+adducts</td>
+</tr>
+<tr class="odd">
+<td>Structure keys and GlyTouCan accessions</td>
+<td>Local accession lookup</td>
+</tr>
+</tbody>
+</table>
+<p>All views come from <code>glydb</code>’s public getters. Their
+candidate order and confidence scores are preserved, including when
+filters are combined. Query-specific graph matching is still performed
+by <code>glymotif</code>; arbitrary user inputs cannot all be
+precalculated. Custom databases supplied through the deprecated
+<code>db</code> argument are not written to disk.</p>
+<p>Use these commands to inspect, rebuild, or remove the cache:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/build_glyanno_cache.html">glyanno_cache_info</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/build_glyanno_cache.html">build_glyanno_cache</a></span><span class="op">(</span>force <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/build_glyanno_cache.html">clear_glyanno_cache</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>A rebuild writes a complete replacement before replacing the previous
+file, so an interrupted build preserves the previous cache. After
+validation, the old file is moved to a temporary backup so replacement
+also works on Windows. A failed replacement restores that backup; a
+successful replacement removes it. Only one completed cache is kept. A
+directory lock prevents simultaneous writers. If a process is killed and
+leaves a lock, the next build reports the lock’s path for manual
+removal.</p>
+<p>Cache inspection and package attachment read only a small metadata
+header and check the file size. The compressed annotation data are
+loaded and validated when annotation first needs them, then reused in
+the session. If the payload is damaged while its header remains valid,
+use <code>build_glyanno_cache(force = TRUE)</code> to repair it. Caches
+written in the previous format trigger a rebuild reminder.</p>
+<p>For a different storage location, set
+<code>options(glyanno.cache_dir = "/your/path")</code> before building
+or annotating. The cache also checks the representation and
+graph-library versions, R major/minor version, collation locale, and its
+internal schema to avoid reusing incompatible objects. Restart R after
+updating dependencies. Development changes to <code>glydb</code> data
+without a version bump require an explicit rebuild with
+<code>force = TRUE</code>.</p>
+</div>
+<div class="section level2">
 <h2 id="workflow-mz---composition---structure">Workflow: M/z -&gt; Composition -&gt; Structure<a class="anchor" aria-label="anchor" href="#workflow-mz---composition---structure"></a>
 </h2>
 <p>Let’s demonstrate these functions step-by-step, starting with a
 single m/z value.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/mz_to_comp.html">mz_to_comp</a></span><span class="op">(</span><span class="fl">406.1325</span>, charge <span class="op">=</span> <span class="fl">1</span>, adduct <span class="op">=</span> <span class="st">"Na+"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 3</span></span></span>
 <span><span class="co">#&gt;      mz composition       confidence</span></span>
@@ -139,7 +235,7 @@ biological context.</p>
 <p>The annotation functions accept filters for the built-in
 <code>glydb</code> database. For example, you might want to limit the
 search to only human O-GalNAc glycans.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/mz_to_comp.html">mz_to_comp</a></span><span class="op">(</span><span class="fl">406.1325</span>, charge <span class="op">=</span> <span class="fl">1</span>, adduct <span class="op">=</span> <span class="st">"Na+"</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 3</span></span></span>
 <span><span class="co">#&gt;      mz composition     confidence</span></span>
@@ -151,7 +247,7 @@ context.</p>
 potential structures. The m/z value 406.1325 corresponds to the
 composition Gal(1)GalNAc(1). What are the possible structures for this
 composition?</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: `db` contains 9 structures with unresolved floating parts or substituents.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
@@ -166,7 +262,7 @@ composition?</p>
 <p>Two structures are possible, one is Core 1, the other is Core 5.
 Sometimes we just want a “most possible” result. In this case, you can
 set <code>return_best</code> to <code>TRUE</code>:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span>, return_best <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: `db` contains 9 structures with unresolved floating parts or substituents.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
@@ -181,7 +277,7 @@ glycan has no matches, <code>&lt;NA&gt;</code> will be on the
 corresponding position.</p>
 <p>Note that all functions in <code>glyanno</code> works
 vectorizedly:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, <span class="st">"GlcNAc(1)GalNAc(1)"</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span>, return_best <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: `db` contains 9 structures with unresolved floating parts or substituents.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
@@ -191,7 +287,7 @@ vectorizedly:</p>
 <span><span class="co">#&gt; # Unique structures: 2</span></span></code></pre></div>
 <p>If you set <code>return_best</code> to <code>TRUE</code>, the
 function directly returns a vector:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, <span class="st">"GlcNAc(1)GalNAc(1)"</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span>, return_best <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: `db` contains 9 structures with unresolved floating parts or substituents.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
@@ -204,7 +300,7 @@ function directly returns a vector:</p>
 <p>You can also set the structure level used for matching. For example,
 it is possible to use a database with only topology-level structures
 without linkage information.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, <span class="st">"GlcNAc(1)GalNAc(1)"</span><span class="op">)</span>,</span>
 <span>  structure_level <span class="op">=</span> <span class="st">"topological"</span>,</span>
@@ -232,7 +328,7 @@ linkages to a topology-only structure. <code><a href="../reference/enhance_comp.
 <p>Both functions return a tibble with two columns: <code>raw</code>
 (the original input) and <code>enhanced</code> (the potential
 high-resolution candidates).</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enhance_comp.html">enhance_comp</a></span><span class="op">(</span><span class="st">"Hex(1)HexNAc(1)"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 3</span></span></span>
 <span><span class="co">#&gt;   raw             enhanced          confidence</span></span>
@@ -244,7 +340,7 @@ high-resolution candidates).</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> <span style="color: #000000;">Hex</span>(1)<span style="color: #000000;">HexNAc</span>(1) <span style="color: #FFD700;">GalNAc</span>(1)<span style="color: #FFD700;">L-Gal</span>(1)     -<span style="color: #BB0000;">1</span>    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> <span style="color: #000000;">Hex</span>(1)<span style="color: #000000;">HexNAc</span>(1) <span style="color: #FFD700;">GalNAc</span>(1)<span style="color: #FFD700;">Galf</span>(1)      -<span style="color: #BB0000;">1</span>    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> <span style="color: #000000;">Hex</span>(1)<span style="color: #000000;">HexNAc</span>(1) <span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">Galf</span>(1)      -<span style="color: #BB0000;">1</span></span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enhance_struc.html">enhance_struc</a></span><span class="op">(</span><span class="st">"Gal(??-?)GalNAc(??-"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: `db` contains 564 structures with unresolved floating parts or substituents.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
@@ -262,13 +358,13 @@ high-resolution candidates).</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">9</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">??-?</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">??-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-4</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span>      -<span style="color: #BB0000;">1</span></span></span></code></pre></div>
 <p>Similarly, filters narrow down results to biologically relevant
 candidates.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enhance_comp.html">enhance_comp</a></span><span class="op">(</span><span class="st">"Hex(1)HexNAc(1)"</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 3</span></span></span>
 <span><span class="co">#&gt;   raw             enhanced        confidence</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;glydb_cm&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="color: #000000;">Hex</span>(1)<span style="color: #000000;">HexNAc</span>(1) <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)       5.32</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enhance_struc.html">enhance_struc</a></span><span class="op">(</span><span class="st">"Gal(??-?)GalNAc(??-"</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: `db` contains 9 structures with unresolved floating parts or substituents.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
@@ -280,7 +376,7 @@ candidates.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">??-?</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">??-</span> <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">a1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span>       1.61</span></span></code></pre></div>
 <p>You can set <code>return_best</code> to <code>TRUE</code> as
 well.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enhance_struc.html">enhance_struc</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Gal(??-?)GalNAc(??-"</span>,</span>
 <span>  species <span class="op">=</span> <span class="st">"Homo sapiens"</span>,</span>
@@ -305,7 +401,7 @@ optional core fucose and bisecting GlcNAc residues. Inputs that cannot
 be reconstructed are matched against a topological fallback
 database.</p>
 <p><img src="enhance_struc_denovo.png"></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">glycan</span> <span class="op">&lt;-</span> <span class="st">"NeuAc(??-?)Hex(??-?)HexNAc(??-?)Hex(??-?)HexNAc(??-?)Hex(??-?)[HexNAc(??-?)[NeuAc(??-?)]Hex(??-?)HexNAc(??-?)Hex(??-?)]Hex(??-?)HexNAc(??-?)[dHex(??-?)]HexNAc(??-"</span></span>
 <span><span class="fu"><a href="../reference/enhance_struc_denovo.html">enhance_struc_denovo</a></span><span class="op">(</span><span class="va">glycan</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;glycan_structure[1]&gt;</span></span>

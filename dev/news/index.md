@@ -2,6 +2,17 @@
 
 ## glyanno (development version)
 
+- [`build_glyanno_cache()`](https://glycoverse.github.io/glyanno/dev/reference/build_glyanno_cache.md)
+  now saves annotation databases, filter memberships, matching indexes,
+  and mass tables in persistent user storage.
+  [`library(glyanno)`](https://glycoverse.github.io/glyanno/) reminds
+  interactive users when the cache needs building after a glydb update.
+  Use
+  [`glyanno_cache_info()`](https://glycoverse.github.io/glyanno/dev/reference/build_glyanno_cache.md)
+  to inspect it and
+  [`clear_glyanno_cache()`](https://glycoverse.github.io/glyanno/dev/reference/build_glyanno_cache.md)
+  to remove it. Annotation remains available with a session-only cache.
+
 - [`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md),
   [`enhance_comp()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_comp.md),
   [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md),
