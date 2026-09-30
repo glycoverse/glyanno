@@ -56,6 +56,9 @@ glymotif at query time. Custom databases are never persisted.
 
 A complete replacement is written before the previous cache is replaced;
 failed builds preserve the previous file. Only one completed cache is kept.
+Metadata inspection reads a small file header and checks the file size.
+The compressed annotation payload is loaded and validated on first use.
+Use \code{force = TRUE} to repair a damaged payload whose header is still valid.
 }
 \examples{
 glyanno_cache_info()

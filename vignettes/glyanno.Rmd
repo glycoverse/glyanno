@@ -94,9 +94,17 @@ clear_glyanno_cache()
 ```
 
 A rebuild writes a complete replacement before replacing the previous file, so
-an interrupted build preserves the previous cache. Only one completed cache is
-kept. A directory lock prevents simultaneous writers. If a process is killed
+an interrupted build preserves the previous cache. After validation, the old
+file is moved to a temporary backup so replacement also works on Windows. A
+failed replacement restores that backup; a successful replacement removes it.
+Only one completed cache is kept. A directory lock prevents simultaneous writers. If a process is killed
 and leaves a lock, the next build reports the lock's path for manual removal.
+
+Cache inspection and package attachment read only a small metadata header and
+check the file size. The compressed annotation data are loaded and validated
+when annotation first needs them, then reused in the session. If the payload is
+damaged while its header remains valid, use `build_glyanno_cache(force = TRUE)`
+to repair it. Caches written in the previous format trigger a rebuild reminder.
 
 For a different storage location, set `options(glyanno.cache_dir = "/your/path")`
 before building or annotating. The cache also checks the representation and

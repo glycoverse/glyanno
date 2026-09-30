@@ -150,6 +150,93 @@ test_that("build and clear respect a concurrent writer", {
   expect_identical(dir.exists(lock), TRUE)
 })
 
+test_that("forced and outdated rebuilds work without overwriting rename destinations", {
+  local_cache_fixture()
+  local_mocked_bindings(.rename_cache_file = function(from, to) {
+    if (file.exists(to)) {
+      return(FALSE)
+    }
+    file.rename(from, to)
+  })
+  suppressMessages(build_glyanno_cache())
+  expect_no_error(suppressMessages(build_glyanno_cache(force = TRUE)))
+  expect_identical(glyanno_cache_info()$status, "ready")
+  metadata <- .cache_metadata()
+  metadata$glydb <- "99.0.0"
+  local_mocked_bindings(.cache_metadata = function() metadata)
+  expect_identical(glyanno_cache_info()$status, "outdated")
+  expect_no_error(suppressMessages(build_glyanno_cache()))
+  expect_identical(glyanno_cache_info()$stored, metadata)
+  expect_identical(
+    list.files(dirname(.annotation_cache_path()), pattern = "backup"),
+    character()
+  )
+})
+
+test_that("a failed replacement restores the previous cache", {
+  dir <- withr::local_tempdir()
+  withr::local_dir(dir)
+  writeBin(charToRaw("previous cache"), "cache.rds")
+  writeBin(charToRaw("replacement cache"), "new.rds")
+  local_mocked_bindings(.rename_cache_file = function(from, to) {
+    if (identical(from, "new.rds") || file.exists(to)) {
+      return(FALSE)
+    }
+    file.rename(from, to)
+  })
+  expect_snapshot(error = TRUE, .replace_cache_file("new.rds", "cache.rds"))
+  expect_identical(
+    readBin("cache.rds", "raw", n = 100),
+    charToRaw("previous cache")
+  )
+  expect_identical(list.files(pattern = "backup"), character())
+})
+
+test_that("metadata inspection and attachment never deserialize the payload", {
+  local_cache_fixture()
+  suppressMessages(build_glyanno_cache())
+  local_mocked_bindings(
+    .cache_is_interactive = function() TRUE,
+    .read_cache_file = function(...) stop("payload must remain lazy")
+  )
+  expect_identical(glyanno_cache_info()$status, "ready")
+  expect_no_message(.onAttach(NULL, "glyanno"))
+  metadata <- .cache_metadata()
+  metadata$glydb <- "99.0.0"
+  local_mocked_bindings(.cache_metadata = function() metadata)
+  expect_identical(glyanno_cache_info()$status, "outdated")
+  expect_message(.onAttach(NULL, "glyanno"), "outdated")
+})
+
+test_that("payload loading occurs only once on the first annotation", {
+  local_cache_fixture()
+  suppressMessages(build_glyanno_cache())
+  read <- .read_cache_file
+  reads <- 0L
+  local_mocked_bindings(.read_cache_file = function(path) {
+    reads <<- reads + 1L
+    read(path)
+  })
+  glyanno_cache_info()
+  expect_identical(reads, 0L)
+  comp_to_struc("H1N1")
+  comp_to_struc("H1N1")
+  expect_identical(reads, 1L)
+})
+
+test_that("truncated and legacy files are rejected without reading their payloads", {
+  local_cache_fixture()
+  suppressMessages(build_glyanno_cache())
+  path <- .annotation_cache_path()
+  bytes <- readBin(path, "raw", n = file.info(path)$size)
+  writeBin(head(bytes, -1L), path)
+  expect_identical(glyanno_cache_info()$status, "unreadable")
+  expect_null(.read_cache_file(path))
+  saveRDS(list(metadata = .cache_metadata(), views = list()), path)
+  expect_identical(glyanno_cache_info()$status, "unreadable")
+  expect_null(.read_cache_file(path))
+})
+
 test_that("all persisted views preserve live database and annotation semantics", {
   withr::local_options(
     glyanno.cache_dir = tempfile("glyanno-parity-"),

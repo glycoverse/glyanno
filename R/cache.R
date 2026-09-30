@@ -34,6 +34,9 @@
 #'
 #' A complete replacement is written before the previous cache is replaced;
 #' failed builds preserve the previous file. Only one completed cache is kept.
+#' Metadata inspection reads a small file header and checks the file size.
+#' The compressed annotation payload is loaded and validated on first use.
+#' Use `force = TRUE` to repair a damaged payload whose header is still valid.
 #'
 #' @returns `build_glyanno_cache()` invisibly returns the cache file path.
 #'   `glyanno_cache_info()` returns a list with `path`, `status` (one of
@@ -79,13 +82,11 @@ build_glyanno_cache <- function(force = FALSE) {
   payload$accessions <- .build_accession_lookup()
   tmp <- tempfile("annotation-", tmpdir = dir)
   on.exit(unlink(tmp), add = TRUE)
-  saveRDS(payload, tmp, compress = TRUE)
-  if (!.valid_cache_payload(readRDS(tmp))) {
+  .write_cache_file(payload, tmp)
+  if (!.valid_cache_payload(.read_cache_file(tmp))) {
     cli::cli_abort("Cache validation failed; the previous cache is unchanged.")
   }
-  if (!file.rename(tmp, path)) {
-    cli::cli_abort("Cannot replace the cache file {.file {path}}.")
-  }
+  .replace_cache_file(tmp, path)
   .reset_annotation_cache()
   cli::cli_inform(c("v" = "Annotation cache saved to {.file {path}}."))
   invisible(path)
@@ -99,9 +100,9 @@ glyanno_cache_info <- function() {
   stored <- NULL
   status <- "missing"
   if (file.exists(path)) {
-    payload <- .read_cache_file(path)
-    stored <- if (is.list(payload)) payload$metadata else NULL
-    status <- if (!.valid_cache_payload(payload)) {
+    header <- .read_cache_metadata(path)
+    stored <- header$metadata
+    status <- if (is.null(header)) {
       "unreadable"
     } else if (!identical(stored, expected)) {
       "outdated"
@@ -143,7 +144,7 @@ clear_glyanno_cache <- function() {
 # Bump schema when cached representations or mass dictionary semantics change.
 .cache_metadata <- function() {
   list(
-    schema = 1L,
+    schema = 2L,
     glydb = as.character(getNamespaceVersion("glydb")),
     glyrepr = as.character(getNamespaceVersion("glyrepr")),
     igraph = as.character(getNamespaceVersion("igraph")),
@@ -156,8 +157,105 @@ clear_glyanno_cache <- function() {
   )
 }
 
+.cache_file_magic <- charToRaw("glyanno-cache-v2\n")
+
+.write_cache_file <- function(payload, path) {
+  compressed <- memCompress(serialize(payload, NULL), type = "gzip")
+  con <- file(path, "wb")
+  on.exit(close(con), add = TRUE)
+  writeBin(.cache_file_magic, con)
+  saveRDS(
+    list(metadata = payload$metadata, payload_bytes = length(compressed)),
+    con
+  )
+  writeBin(compressed, con)
+}
+
+.read_cache_header <- function(con, path) {
+  if (
+    !identical(
+      readBin(con, "raw", n = length(.cache_file_magic)),
+      .cache_file_magic
+    )
+  ) {
+    return(NULL)
+  }
+  header <- readRDS(con)
+  if (
+    !is.list(header) ||
+      !is.list(header$metadata) ||
+      !checkmate::test_number(header$payload_bytes, lower = 1, finite = TRUE) ||
+      header$payload_bytes != floor(header$payload_bytes) ||
+      seek(con) + header$payload_bytes != file.info(path)$size
+  ) {
+    return(NULL)
+  }
+  header
+}
+
+.read_cache_metadata <- function(path) {
+  tryCatch(
+    suppressWarnings({
+      con <- file(path, "rb")
+      on.exit(close(con), add = TRUE)
+      .read_cache_header(con, path)
+    }),
+    error = function(e) NULL
+  )
+}
+
 .read_cache_file <- function(path) {
-  tryCatch(suppressWarnings(readRDS(path)), error = function(e) NULL)
+  tryCatch(
+    suppressWarnings({
+      con <- file(path, "rb")
+      on.exit(close(con), add = TRUE)
+      header <- .read_cache_header(con, path)
+      if (is.null(header)) {
+        return(NULL)
+      }
+      compressed <- readBin(con, "raw", n = header$payload_bytes)
+      payload <- unserialize(memDecompress(compressed, type = "gzip"))
+      if (!is.list(payload) || !identical(payload$metadata, header$metadata)) {
+        return(NULL)
+      }
+      payload
+    }),
+    error = function(e) NULL
+  )
+}
+
+.rename_cache_file <- function(from, to) file.rename(from, to)
+
+.replace_cache_file <- function(tmp, path) {
+  backup <- tempfile("annotation-backup-", tmpdir = dirname(path))
+  installed <- FALSE
+  on.exit(
+    {
+      if (file.exists(backup)) {
+        if (installed) {
+          unlink(backup)
+        } else {
+          if (file.exists(path)) {
+            unlink(path)
+          }
+          if (!.rename_cache_file(backup, path)) {
+            cli::cli_warn(
+              "Cannot restore the previous cache; recover it from {.file {backup}}."
+            )
+          }
+        }
+      }
+    },
+    add = TRUE
+  )
+  if (file.exists(path) && !.rename_cache_file(path, backup)) {
+    cli::cli_abort("Cannot back up the cache file {.file {path}}.")
+  }
+  if (!.rename_cache_file(tmp, path)) {
+    cli::cli_abort("Cannot replace the cache file {.file {path}}.")
+  }
+  installed <- TRUE
+  invisible(NULL)
 }
 
 .valid_cache_payload <- function(x) {
@@ -215,7 +313,12 @@ clear_glyanno_cache <- function() {
   if (!identical(.annotation_cache$identity, identity)) {
     .reset_annotation_cache()
     .annotation_cache$identity <- identity
-    payload <- .read_cache_file(identity$path)
+    header <- .read_cache_metadata(identity$path)
+    payload <- if (identical(header$metadata, identity$metadata)) {
+      .read_cache_file(identity$path)
+    } else {
+      NULL
+    }
     if (
       .valid_cache_payload(payload) &&
         identical(payload$metadata, identity$metadata)
