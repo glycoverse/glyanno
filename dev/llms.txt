@@ -74,41 +74,39 @@ mz_to_comp(406.1325, charge = 1, adduct = "Na+")
 #> # A tibble: 7 × 3
 #>      mz composition       confidence
 #>   <dbl> <glydb_cm>             <dbl>
-#> 1  406. Gal(1)GalNAc(1)        5.32
-#> 2  406. Gal(1)GlcNAc(1)        2.71
+#> 1  406. Gal(1)GalNAc(1)        5.32 
+#> 2  406. Gal(1)GlcNAc(1)        2.71 
 #> 3  406. Glc(1)GlcNAc(1)        0.693
-#> 4  406. Man(1)GlcNAc(1)        2.08
-#> 5  406. GalNAc(1)L-Gal(1)     -1
-#> 6  406. GalNAc(1)Galf(1)      -1
+#> 4  406. Man(1)GlcNAc(1)        2.08 
+#> 5  406. GalNAc(1)L-Gal(1)     -1    
+#> 6  406. GalNAc(1)Galf(1)      -1    
 #> 7  406. GlcNAc(1)Galf(1)      -1
 ```
 
 ``` r
 
 comp_to_struc("Gal(1)GalNAc(1)")
-#> Warning: `db` contains 564 structures with unresolved floating parts or substituents.
-#> ℹ Those database structures were excluded from matching.
 #> # A tibble: 19 × 3
 #>    composition     structure           confidence
 #>    <comp>          <glydb_st>               <dbl>
 #>  1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-       5.32
-#>  2 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(b1-      -1
+#>  2 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(b1-      -1   
 #>  3 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-       1.10
-#>  4 Gal(1)GalNAc(1) GalNAc(a1-3)Gal(a1-      -1
-#>  5 Gal(1)GalNAc(1) Gal(b1-4)GalNAc(b1-      -1
-#>  6 Gal(1)GalNAc(1) GalNAc(a1-4)Gal(b1-      -1
-#>  7 Gal(1)GalNAc(1) GalNAc(a1-2)Gal(b1-      -1
-#>  8 Gal(1)GalNAc(1) GalNAc(b1-2)Gal(a1-      -1
-#>  9 Gal(1)GalNAc(1) GalNAc(b1-4)Gal(b1-       0
-#> 10 Gal(1)GalNAc(1) Gal(a1-6)GalNAc(a1-      -1
-#> 11 Gal(1)GalNAc(1) Gal(b1-6)GalNAc(a1-      -1
-#> 12 Gal(1)GalNAc(1) GalNAc(a1-3)Gal(b1-      -1
-#> 13 Gal(1)GalNAc(1) GalNAc(b1-3)Gal(b1-       0
-#> 14 Gal(1)GalNAc(1) Gal(b1-6)GalNAc(b1-      -1
-#> 15 Gal(1)GalNAc(1) GalNAc(b1-3)Gal(a1-      -1
-#> 16 Gal(1)GalNAc(1) GalNAc(b1-4)Gal(a1-      -1
+#>  4 Gal(1)GalNAc(1) GalNAc(a1-3)Gal(a1-      -1   
+#>  5 Gal(1)GalNAc(1) Gal(b1-4)GalNAc(b1-      -1   
+#>  6 Gal(1)GalNAc(1) GalNAc(a1-4)Gal(b1-      -1   
+#>  7 Gal(1)GalNAc(1) GalNAc(a1-2)Gal(b1-      -1   
+#>  8 Gal(1)GalNAc(1) GalNAc(b1-2)Gal(a1-      -1   
+#>  9 Gal(1)GalNAc(1) GalNAc(b1-4)Gal(b1-       0   
+#> 10 Gal(1)GalNAc(1) Gal(a1-6)GalNAc(a1-      -1   
+#> 11 Gal(1)GalNAc(1) Gal(b1-6)GalNAc(a1-      -1   
+#> 12 Gal(1)GalNAc(1) GalNAc(a1-3)Gal(b1-      -1   
+#> 13 Gal(1)GalNAc(1) GalNAc(b1-3)Gal(b1-       0   
+#> 14 Gal(1)GalNAc(1) Gal(b1-6)GalNAc(b1-      -1   
+#> 15 Gal(1)GalNAc(1) GalNAc(b1-3)Gal(a1-      -1   
+#> 16 Gal(1)GalNAc(1) GalNAc(b1-4)Gal(a1-      -1   
 #> 17 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-       1.61
-#> 18 Gal(1)GalNAc(1) GalNAc(b1-2)Gal(b1-      -1
+#> 18 Gal(1)GalNAc(1) GalNAc(b1-2)Gal(b1-      -1   
 #> 19 Gal(1)GalNAc(1) Gal(b1-4)GalNAc(a1-      -1
 ```
 
@@ -116,8 +114,6 @@ comp_to_struc("Gal(1)GalNAc(1)")
 
 # Filter by glycan type and species
 comp_to_struc("Gal(1)GalNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNAc")
-#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
-#> ℹ Those database structures were excluded from matching.
 #> # A tibble: 3 × 3
 #>   composition     structure           confidence
 #>   <comp>          <glydb_st>               <dbl>
@@ -131,8 +127,6 @@ comp_to_struc("Gal(1)GalNAc(1)", species = "Homo sapiens", glycan_type = "O-GalN
 # Use `return_best` to pick the most likely match
 # Core 1 is more likely than Core 5
 comp_to_struc("Gal(1)GalNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNAc", return_best = TRUE)
-#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
-#> ℹ Those database structures were excluded from matching.
 #> <glydb_structure[1]>
 #> [1] Gal(b1-3)GalNAc(a1-
 #> # Unique structures: 1
