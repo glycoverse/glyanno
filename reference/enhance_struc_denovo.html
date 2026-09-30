@@ -27,7 +27,7 @@ precursor.'><meta property="og:image" content="https://glycoverse.github.io/glya
 
     <a class="navbar-brand me-2" href="../index.html">glyanno</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +89,7 @@ vector of glycan structure strings supported by <code><a href="https://glycovers
 The default is <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code> at "topological" level. Every
 non-missing candidate must have concrete residues. Linkage information is
 removed before fallback matching. Candidates with unresolved floating
-parts or substituents are excluded with a warning. Fallback candidates
+parts or substituents are excluded silently. Fallback candidates
 require a <code>confidence</code> attribute.</p></dd>
 
 </dl></div>

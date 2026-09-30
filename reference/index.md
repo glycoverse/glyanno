@@ -20,6 +20,10 @@
 
 ## Utilities
 
+- [`build_glyanno_cache()`](https://glycoverse.github.io/glyanno/reference/build_glyanno_cache.md)
+  [`glyanno_cache_info()`](https://glycoverse.github.io/glyanno/reference/build_glyanno_cache.md)
+  [`clear_glyanno_cache()`](https://glycoverse.github.io/glyanno/reference/build_glyanno_cache.md)
+  : Manage the persistent annotation cache
 - [`ppm()`](https://glycoverse.github.io/glyanno/reference/ppm.md) :
   Calculate PPM
 - [`glyanno_mass_dict()`](https://glycoverse.github.io/glyanno/reference/glyanno_mass_dict.md)

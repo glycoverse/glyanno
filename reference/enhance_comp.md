@@ -7,7 +7,15 @@ function gives all possible compatible concrete glycan compositions
 ## Usage
 
 ``` r
-enhance_comp(comps, db = NULL, return_best = FALSE)
+enhance_comp(
+  comps,
+  db = lifecycle::deprecated(),
+  return_best = FALSE,
+  glycan_type = NULL,
+  species = NULL,
+  mono_type = "concrete",
+  mono_range = NULL
+)
 ```
 
 ## Arguments
@@ -23,19 +31,37 @@ enhance_comp(comps, db = NULL, return_best = FALSE)
 
 - db:
 
-  A
+  **\[deprecated\]** A
   [`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html)
   vector, or a character vector of glycan composition strings of Byonic
   or simple style (e.g. "Man(5)GlcNAc(2)", "H5N4F1S1"). All compositions
-  in `db` must be concrete (e.g. Man(5)GlcNAc(2)). If not provided,
-  `glydb::glydb_compositions(mono_type = "concrete")` will be used.
+  in `db` must be concrete (e.g. Man(5)GlcNAc(2)). Use the filtering
+  arguments instead. This argument cannot be combined with them.
 
 - return_best:
 
   Logical. If `TRUE`, only return the highest confidence match for each
-  input composition. Requires `db` to have a `confidence` attribute. Use
-  [`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html)
-  for `db` to enable this feature. Defaults to `FALSE`.
+  input composition. A custom `db` must have a `confidence` attribute.
+  Defaults to `FALSE`.
+
+- glycan_type:
+
+  Glycan type to select from
+  [`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html).
+
+- species:
+
+  Species to select, matched without regard to letter case.
+
+- mono_type:
+
+  Monosaccharide resolution; only `"concrete"` is supported for
+  enhancement.
+
+- mono_range:
+
+  Named list of monosaccharide count ranges; see
+  [`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html).
 
 ## Value
 
@@ -54,42 +80,22 @@ columns:
   composition can have different `enhanced` compositions as multiple
   rows in the result.
 
-## How to set `db`
+## Details
 
-The `db` parameter is very important for all functions in this package.
-By default, it uses all available glycans in the `glydb` package, which
-is usually larger than what you need. You can use helper functions in
-`glydb` to narrow down the database, e.g.
-[`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html)
-or
-[`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html).
-
-You can use the `species` and `glycan_type` parameters to focus on
-specific species and glycan type. For example, if you are only
-interested in N-glycan compositions in human, you can use
-`glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")`.
-Also, you can decide the level of information in the database by setting
-`mono_type` of
-[`glydb::glydb_compositions()`](https://glycoverse.github.io/glydb/reference/glydb_compositions.html)
-and `structure_level` of
-[`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html).
-
-You can then pass the result to the `db` parameter of this function. For
-example,
-
-    my_db <- glydb::glydb_compositions(species = "Homo sapiens", glycan_type = "N")
-    mz_to_comp(mz, db = my_db)
+Filter the built-in database with `glycan_type`, `species`, `mono_type`,
+and `mono_range`.
 
 ## Examples
 
 ``` r
 enhance_comp("Hex(5)HexNAc(2)")
-#> # A tibble: 5 × 3
-#>   raw             enhanced              confidence
-#>   <comp>          <comp>                     <dbl>
-#> 1 Hex(5)HexNAc(2) Glc(1)Gal(4)GlcNAc(2)      1.10 
-#> 2 Hex(5)HexNAc(2) Man(5)GlcNAc(2)            5.10 
-#> 3 Hex(5)HexNAc(2) Glc(1)Man(4)GlcNAc(2)      0.693
-#> 4 Hex(5)HexNAc(2) Man(3)Gal(2)GlcNAc(2)     -1    
-#> 5 Hex(5)HexNAc(2) Man(4)Gal(1)GlcNAc(2)     -1    
+#> # A tibble: 6 × 3
+#>   raw             enhanced               confidence
+#>   <comp>          <glydb_cm>                  <dbl>
+#> 1 Hex(5)HexNAc(2) Man(5)GlcNAc(2)             5.10 
+#> 2 Hex(5)HexNAc(2) Glc(1)Gal(4)GlcNAc(2)       1.10 
+#> 3 Hex(5)HexNAc(2) Man(4)GlcNAc(2)Galf(1)     -1    
+#> 4 Hex(5)HexNAc(2) Man(4)Gal(1)GlcNAc(2)       0    
+#> 5 Hex(5)HexNAc(2) Man(3)Gal(2)GlcNAc(2)       0.693
+#> 6 Hex(5)HexNAc(2) Glc(1)Man(4)GlcNAc(2)       0.693
 ```

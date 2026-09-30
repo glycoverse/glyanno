@@ -1,5 +1,40 @@
 # Changelog
 
+## glyanno 0.7.0
+
+### New features
+
+- New
+  [`build_glyanno_cache()`](https://glycoverse.github.io/glyanno/reference/build_glyanno_cache.md)
+  saves annotation databases, filter memberships, matching indexes, and
+  mass tables in persistent user storage.
+  [`library(glyanno)`](https://glycoverse.github.io/glyanno/) reminds
+  interactive users when the cache needs building after a glydb update.
+  Use
+  [`glyanno_cache_info()`](https://glycoverse.github.io/glyanno/reference/build_glyanno_cache.md)
+  to inspect it and
+  [`clear_glyanno_cache()`](https://glycoverse.github.io/glyanno/reference/build_glyanno_cache.md)
+  to remove it. Annotation remains available with a session-only cache.
+  (#26)
+- [`mz_to_comp()`](https://glycoverse.github.io/glyanno/reference/mz_to_comp.md),
+  [`enhance_comp()`](https://glycoverse.github.io/glyanno/reference/enhance_comp.md),
+  [`comp_to_struc()`](https://glycoverse.github.io/glyanno/reference/comp_to_struc.md),
+  and
+  [`enhance_struc()`](https://glycoverse.github.io/glyanno/reference/enhance_struc.md)
+  now accept `glycan_type`, `species`, `mono_type`, and `mono_range`
+  filters directly; the structure functions also accept
+  `structure_level`. The `db` argument is deprecated but remains
+  available for custom databases. (#25)
+
+### Minor improvements and bug fixes
+
+- [`comp_to_struc()`](https://glycoverse.github.io/glyanno/reference/comp_to_struc.md),
+  [`enhance_struc()`](https://glycoverse.github.io/glyanno/reference/enhance_struc.md),
+  and
+  [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/reference/enhance_struc_denovo.md)
+  now silently exclude database candidates with unresolved floating
+  parts or substituents from matching.
+
 ## glyanno 0.6.1
 
 - [`comp_to_struc()`](https://glycoverse.github.io/glyanno/reference/comp_to_struc.md),
@@ -11,7 +46,6 @@
   inputs and database candidates with a warning, and
   [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/reference/enhance_struc_denovo.md)
   now requires generic topological inputs. (#24)
-
 - [`mz_to_comp()`](https://glycoverse.github.io/glyanno/reference/mz_to_comp.md),
   [`enhance_comp()`](https://glycoverse.github.io/glyanno/reference/enhance_comp.md),
   [`comp_to_struc()`](https://glycoverse.github.io/glyanno/reference/comp_to_struc.md),
