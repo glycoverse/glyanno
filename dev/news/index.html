@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">glyanno</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.6.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.7.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,13 +33,21 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="glyanno-development-version">glyanno (development version)<a class="anchor" aria-label="anchor" href="#glyanno-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.0" id="glyanno-070">glyanno 0.7.0<a class="anchor" aria-label="anchor" href="#glyanno-070"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-7-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-7-0"></a></h3>
+<ul><li>New <code><a href="../reference/build_glyanno_cache.html">build_glyanno_cache()</a></code> saves annotation databases, filter memberships, matching indexes, and mass tables in persistent user storage. <code><a href="https://glycoverse.github.io/glyanno/">library(glyanno)</a></code> reminds interactive users when the cache needs building after a glydb update. Use <code><a href="../reference/build_glyanno_cache.html">glyanno_cache_info()</a></code> to inspect it and <code><a href="../reference/build_glyanno_cache.html">clear_glyanno_cache()</a></code> to remove it. Annotation remains available with a session-only cache. (#26)</li>
+<li>
+<code><a href="../reference/mz_to_comp.html">mz_to_comp()</a></code>, <code><a href="../reference/enhance_comp.html">enhance_comp()</a></code>, <code><a href="../reference/comp_to_struc.html">comp_to_struc()</a></code>, and <code><a href="../reference/enhance_struc.html">enhance_struc()</a></code> now accept <code>glycan_type</code>, <code>species</code>, <code>mono_type</code>, and <code>mono_range</code> filters directly; the structure functions also accept <code>structure_level</code>. The <code>db</code> argument is deprecated but remains available for custom databases. (#25)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-improvements-and-bug-fixes-0-7-0">Minor improvements and bug fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-bug-fixes-0-7-0"></a></h3>
 <ul><li>
 <code><a href="../reference/comp_to_struc.html">comp_to_struc()</a></code>, <code><a href="../reference/enhance_struc.html">enhance_struc()</a></code>, and <code><a href="../reference/enhance_struc_denovo.html">enhance_struc_denovo()</a></code> now silently exclude database candidates with unresolved floating parts or substituents from matching.</li>
-<li>
-<code><a href="../reference/build_glyanno_cache.html">build_glyanno_cache()</a></code> now saves annotation databases, filter memberships, matching indexes, and mass tables in persistent user storage. <code><a href="https://glycoverse.github.io/glyanno/">library(glyanno)</a></code> reminds interactive users when the cache needs building after a glydb update. Use <code><a href="../reference/build_glyanno_cache.html">glyanno_cache_info()</a></code> to inspect it and <code><a href="../reference/build_glyanno_cache.html">clear_glyanno_cache()</a></code> to remove it. Annotation remains available with a session-only cache.</li>
-<li>
-<code><a href="../reference/mz_to_comp.html">mz_to_comp()</a></code>, <code><a href="../reference/enhance_comp.html">enhance_comp()</a></code>, <code><a href="../reference/comp_to_struc.html">comp_to_struc()</a></code>, and <code><a href="../reference/enhance_struc.html">enhance_struc()</a></code> now accept <code>glycan_type</code>, <code>species</code>, <code>mono_type</code>, and <code>mono_range</code> filters directly; the structure functions also accept <code>structure_level</code>. The <code>db</code> argument is deprecated but remains available for custom databases.</li>
 </ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.1" id="glyanno-061">glyanno 0.6.1<a class="anchor" aria-label="anchor" href="#glyanno-061"></a></h2>
 <ul><li>
