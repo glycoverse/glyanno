@@ -79,6 +79,5 @@ struc_to_glytoucan <- function(strucs) {
 #'   not available in [glydb::glydb_data].
 #' @noRd
 local_struc_glytoucan_accessions <- function(strucs) {
-  data_position <- match(strucs, glydb::glydb_data$glycan_structure)
-  glydb::glydb_data$glytoucan_ac[data_position]
+  .cached_accessions(strucs)
 }

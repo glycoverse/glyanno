@@ -104,16 +104,21 @@ mz_to_comp <- function(
     mass_dict <- glyanno_mass_dict(deriv = "none", mass_type = "mono")
   }
 
-  db <- .prepare_comp_db(db)
-  suppressWarnings(
-    db_mz <- calculate_mz(
-      db,
-      charge = charge,
-      adduct = adduct,
-      mass_dict = mass_dict,
-      safe = FALSE
+  if (.is_cached_db(db)) {
+    db_mz <- .cached_mz(db, charge, adduct, mass_dict)
+    db <- .prepare_comp_db(db)
+  } else {
+    db <- .prepare_comp_db(db)
+    suppressWarnings(
+      db_mz <- calculate_mz(
+        db,
+        charge = charge,
+        adduct = adduct,
+        mass_dict = mass_dict,
+        safe = FALSE
+      )
     )
-  )
+  }
   na_count <- sum(is.na(db_mz))
   if (na_count > 0 && !.is_glydb_vector(db)) {
     cli::cli_warn(c(

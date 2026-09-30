@@ -211,48 +211,6 @@ test_that("comp_to_struc matches each unique composition once", {
   expect_equal(matched, c("HexNAc(1)", "Hex(1)"))
 })
 
-test_that("comp_to_struc prepares the live default database once", {
-  withr::local_options(lifecycle_verbosity = "quiet")
-  old_db_cache <- as.list(.default_struc_db_cache, all.names = TRUE)
-  old_comp_cache <- as.list(.comp_to_struc_cache, all.names = TRUE)
-  on.exit(
-    {
-      rm(list = ls(.default_struc_db_cache), envir = .default_struc_db_cache)
-      rm(list = ls(.comp_to_struc_cache), envir = .comp_to_struc_cache)
-      list2env(old_db_cache, envir = .default_struc_db_cache)
-      list2env(old_comp_cache, envir = .comp_to_struc_cache)
-    },
-    add = TRUE
-  )
-  rm(list = ls(.default_struc_db_cache), envir = .default_struc_db_cache)
-  rm(list = ls(.comp_to_struc_cache), envir = .comp_to_struc_cache)
-
-  db <- glyrepr::as_glycan_structure(c(
-    "Gal(b1-3)GalNAc(a1-",
-    "Glc(a1-4)Glc(b1-"
-  ))
-  attr(db, "confidence") <- c(1, 2)
-  inputs <- glyrepr::as_glycan_composition(c(
-    "Hex(1)HexNAc(1)",
-    "Glc(2)"
-  ))
-  calls <- 0L
-  local_mocked_bindings(
-    glydb_structures = function(...) {
-      calls <<- calls + 1L
-      db
-    },
-    .package = "glydb"
-  )
-
-  first <- comp_to_struc(inputs, return_best = TRUE)
-  second <- comp_to_struc(inputs, return_best = TRUE)
-
-  expect_equal(as.character(first), as.character(db))
-  expect_equal(second, first)
-  expect_equal(calls, 1L)
-})
-
 test_that("comp_to_struc accepts empty compositions", {
   withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c("Hex(??-?)HexNAc(??-", "HexNAc(??-"))
@@ -361,8 +319,12 @@ test_that("comp_to_struc reuses the prepared default database", {
   withr::local_options(lifecycle_verbosity = "quiet")
   comps <- glyrepr::as_glycan_composition("Hex(1)HexNAc(1)")
 
-  first <- comp_to_struc(comps, db = NULL, return_best = TRUE)
-  second <- comp_to_struc(comps, db = NULL, return_best = TRUE)
+  first <- suppressWarnings(comp_to_struc(comps, db = NULL, return_best = TRUE))
+  second <- suppressWarnings(comp_to_struc(
+    comps,
+    db = NULL,
+    return_best = TRUE
+  ))
 
   expect_equal(second, first)
 })

@@ -50,6 +50,69 @@ We recommend familiarizing yourself with these packages, especially `glyrepr`, b
 Additionally, a basic understanding of IUPAC-condensed notation is recommended for this vignette.
 You can refer to this [tutorial](https://glycoverse.github.io/glyrepr/articles/iupac.html).
 
+## Build the annotation cache
+
+After installing or updating `glydb`, an interactive `library(glyanno)` call
+reminds you to build the persistent annotation cache:
+
+```r
+build_glyanno_cache()
+```
+
+The build uses the installed `glydb` data and saves the result in
+`tools::R_user_dir("glyanno", "cache")`, following the
+[R Packages guidance on persistent user data](https://r-pkgs.org/data.html#sec-data-persistent).
+Calling the build function again reuses the current cache. A changed `glydb`
+version makes the cache outdated and triggers another reminder on attachment.
+Annotation still works if you defer building: the needed views are prepared in
+memory and discarded when R exits.
+
+The cache contains:
+
+| Data | Used for |
+|---|---|
+| Concrete and generic composition views | Composition enhancement and mass annotation |
+| Four structure views: intact/topological × concrete/generic, including parsed graphs | Composition-to-structure and structure matching; de novo fallback |
+| Exact and generic composition lookup groups, residue counts, and confidence ranks | Candidate selection and stable best-match selection |
+| Species and glycan-type membership; concrete and generic counts | Database filtering without reprocessing structures |
+| Floating-part/substituent flags | Excluding unsupported candidates with the existing warnings |
+| Residue masses for six built-in dictionaries and counts for custom dictionaries | Mass annotation across derivatizations, mass types, charges, and adducts |
+| Structure keys and GlyTouCan accessions | Local accession lookup |
+
+All views come from `glydb`'s public getters. Their candidate order and confidence
+scores are preserved, including when filters are combined. Query-specific graph
+matching is still performed by `glymotif`; arbitrary user inputs cannot all be
+precalculated. Custom databases supplied through the deprecated `db` argument
+are not written to disk.
+
+Use these commands to inspect, rebuild, or remove the cache:
+
+```r
+glyanno_cache_info()
+build_glyanno_cache(force = TRUE)
+clear_glyanno_cache()
+```
+
+A rebuild writes a complete replacement before replacing the previous file, so
+an interrupted build preserves the previous cache. After validation, the old
+file is moved to a temporary backup so replacement also works on Windows. A
+failed replacement restores that backup; a successful replacement removes it.
+Only one completed cache is kept. A directory lock prevents simultaneous writers. If a process is killed
+and leaves a lock, the next build reports the lock's path for manual removal.
+
+Cache inspection and package attachment read only a small metadata header and
+check the file size. The compressed annotation data are loaded and validated
+when annotation first needs them, then reused in the session. If the payload is
+damaged while its header remains valid, use `build_glyanno_cache(force = TRUE)`
+to repair it. Caches written in the previous format trigger a rebuild reminder.
+
+For a different storage location, set `options(glyanno.cache_dir = "/your/path")`
+before building or annotating. The cache also checks the representation and
+graph-library versions, R major/minor version, collation locale, and its internal
+schema to avoid reusing incompatible objects. Restart R after updating
+dependencies. Development changes to `glydb` data without a version bump require
+an explicit rebuild with `force = TRUE`.
+
 ## Workflow: M/z -> Composition -> Structure
 
 Let's demonstrate these functions step-by-step,

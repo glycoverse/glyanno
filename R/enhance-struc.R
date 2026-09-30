@@ -77,6 +77,11 @@ enhance_struc <- function(
   rejected_floating <- floating_input$rejected
   checkmate::assert_flag(return_best)
 
+  cached_rank <- if (.is_cached_db(db)) {
+    db$view$best_rank[db$ids[!db$view$floating[db$ids]]]
+  } else {
+    NULL
+  }
   db <- .prepare_struc_db(db)
   .check_return_best_arg(db, return_best)
 
@@ -131,12 +136,14 @@ enhance_struc <- function(
     as.character(unique_to_enhance)
   )
   confidence <- attr(db, "confidence") %||% rep(NA_real_, length(db))
-  best_order <- order(
-    replace(confidence, is.na(confidence), -Inf),
-    decreasing = TRUE,
-    method = "radix"
-  )
-  best_rank <- match(seq_along(db), best_order)
+  best_order <- if (is.null(cached_rank)) {
+    order(
+      replace(confidence, is.na(confidence), -Inf),
+      decreasing = TRUE,
+      method = "radix"
+    )
+  }
+  best_rank <- cached_rank %||% match(seq_along(db), best_order)
 
   if (return_best) {
     result <- purrr::map(seq_along(strucs), function(i) {
