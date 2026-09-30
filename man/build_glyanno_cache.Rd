@@ -23,10 +23,16 @@ clear_glyanno_cache()
 \code{clear_glyanno_cache()} invisibly returns \code{NULL}.
 }
 \description{
-Precalculate database views and annotation indexes from the installed glydb.
-\code{build_glyanno_cache()} reuses a valid cache unless \code{force = TRUE}.
-\code{glyanno_cache_info()} inspects it without building it, and
-\code{clear_glyanno_cache()} removes it and clears the session cache.
+\code{build_glyanno_cache()} is the magic that makes \code{glyanno} fast.
+It precalculates database views and annotation indexes from the installed \code{glydb}.
+You will only need to call this function once on your computer.
+When \code{glydb} is updated, you'll also need to call this function to update the cache.
+But don't worry. We'll remind you then.
+\itemize{
+\item \code{build_glyanno_cache()} reuses a valid cache unless \code{force = TRUE}.
+\item \code{glyanno_cache_info()} inspects it without building it, and
+\item \code{clear_glyanno_cache()} removes it and clears the session cache.
+}
 }
 \details{
 The cache lives in \code{tools::R_user_dir("glyanno", "cache")}. Set the

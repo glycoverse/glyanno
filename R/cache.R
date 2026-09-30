@@ -1,9 +1,15 @@
 #' Manage the persistent annotation cache
 #'
-#' Precalculate database views and annotation indexes from the installed glydb.
-#' `build_glyanno_cache()` reuses a valid cache unless `force = TRUE`.
-#' `glyanno_cache_info()` inspects it without building it, and
-#' `clear_glyanno_cache()` removes it and clears the session cache.
+#' @description
+#' `build_glyanno_cache()` is the magic that makes `glyanno` fast.
+#' It precalculates database views and annotation indexes from the installed `glydb`.
+#' You will only need to call this function once on your computer.
+#' When `glydb` is updated, you'll also need to call this function to update the cache.
+#' But don't worry. We'll remind you then.
+#'
+#' - `build_glyanno_cache()` reuses a valid cache unless `force = TRUE`.
+#' - `glyanno_cache_info()` inspects it without building it, and
+#' - `clear_glyanno_cache()` removes it and clears the session cache.
 #'
 #' @param force Rebuild even when the cache is current.
 #' @details
