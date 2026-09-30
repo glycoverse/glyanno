@@ -17,5 +17,6 @@ reference:
   - struc_to_glytoucan
 - title: Utilities
   contents:
+  - build_glyanno_cache
   - ppm
   - glyanno_mass_dict

@@ -144,19 +144,22 @@ enhance_comp <- function(
   )
 }
 
-.enhance_comp_cache <- new.env(parent = emptyenv())
-
 .prepare_enhance_comp_index <- function(db) {
-  if (!is.null(db)) {
-    return(.new_enhance_comp_index(.prepare_comp_db(db)))
+  if (is.null(db)) {
+    db <- .cached_db("composition")
   }
-
-  cache_key <- "default"
-  if (!exists(cache_key, envir = .enhance_comp_cache, inherits = FALSE)) {
-    index <- .new_enhance_comp_index(glydb::glydb_compositions())
-    assign(cache_key, index, envir = .enhance_comp_cache)
+  if (.is_cached_db(db)) {
+    if (
+      any(
+        is.na(db$view$mono_types[db$ids]) |
+          db$view$mono_types[db$ids] != "concrete"
+      )
+    ) {
+      cli::cli_abort("All compositions in `db` must be concrete.")
+    }
+    return(.cached_match_index(db))
   }
-  get(cache_key, envir = .enhance_comp_cache, inherits = FALSE)
+  .new_enhance_comp_index(.prepare_comp_db(db))
 }
 
 .new_enhance_comp_index <- function(db) {

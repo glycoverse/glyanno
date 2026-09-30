@@ -97,52 +97,28 @@
   }
 }
 
-.default_struc_db_cache <- new.env(parent = emptyenv())
-
 .prepare_struc_db <- function(db, arg = "db") {
   if (is.null(db)) {
-    cache_key <- "intact"
-    if (!exists(cache_key, envir = .default_struc_db_cache, inherits = FALSE)) {
-      db <- glydb::glydb_structures(structure_level = "intact")
-      prepared <- .prepare_default_struc_db(db, arg)
-      assign(cache_key, prepared$db, envir = .default_struc_db_cache)
-      assign(
-        "intact_composition",
-        prepared$composition,
-        envir = .default_struc_db_cache
-      )
-      assign(
-        "intact_generic_keys",
-        prepared$generic_keys,
-        envir = .default_struc_db_cache
-      )
+    db <- .cached_db("structure")
+  }
+  if (.is_cached_db(db)) {
+    return(.subset_cached_db(db$view$db, .cached_structure_ids(db, arg)))
+  }
+  if (!.is_glydb_vector(db)) {
+    if (length(db) == 0) {
+      cli::cli_abort("{.arg db} cannot be of 0 length.")
     }
-    return(get(cache_key, envir = .default_struc_db_cache, inherits = FALSE))
-  } else {
-    if (!.is_glydb_vector(db)) {
-      if (length(db) == 0) {
-        cli::cli_abort("{.arg db} cannot be of 0 length.")
-      }
-      db <- .ensure_glycan_structure(db)
-      db <- unique(db)
-    }
+    db <- unique(.ensure_glycan_structure(db))
   }
   .drop_floating_structures(db, arg)
 }
 
-.prepare_default_struc_db <- function(db, arg) {
-  db <- .drop_floating_structures(db, arg)
-  composition <- glyrepr::as_glycan_composition(db)
-  list(
-    db = db,
-    composition = composition,
-    generic_keys = as.character(glyrepr::convert_to_generic(composition))
-  )
-}
-
 .prepare_denovo_struc_db <- function(fallback_db) {
   if (is.null(fallback_db)) {
-    fallback_db <- glydb::glydb_structures(structure_level = "topological")
+    return(.prepare_struc_db(
+      .cached_db("structure", list(structure_level = "topological")),
+      arg = "fallback_db"
+    ))
   }
 
   db <- .prepare_struc_db(fallback_db, arg = "fallback_db")
@@ -198,8 +174,11 @@
 }
 
 .prepare_comp_db <- function(db) {
+  if (.is_cached_db(db)) {
+    return(.subset_cached_db(db$view$db, db$ids))
+  }
   if (is.null(db)) {
-    db <- glydb::glydb_compositions()
+    return(.prepare_comp_db(.cached_db("composition")))
   } else {
     if (!.is_glydb_vector(db)) {
       if (length(db) == 0) {
@@ -231,16 +210,8 @@
     return(db)
   }
 
-  if (!filters_supplied) {
-    return(NULL)
-  }
-
   filters$species <- .normalize_glydb_species(filters$species)
-  if (kind == "structure") {
-    do.call(glydb::glydb_structures, filters)
-  } else {
-    do.call(glydb::glydb_compositions, filters)
-  }
+  .cached_db(kind, filters)
 }
 
 .normalize_glydb_species <- function(species) {
@@ -352,6 +323,12 @@
 }
 
 .composition_match_ids <- function(pattern, index) {
+  if (!is.null(index$active_ids)) {
+    active <- index$active_ids
+    index$active_ids <- NULL
+    matches <- .composition_match_ids(pattern, index)
+    return(as.integer(stats::na.omit(match(matches, active))))
+  }
   if (length(pattern) == 0 || is.na(pattern)) {
     return(integer())
   }

@@ -140,52 +140,18 @@ comp_to_struc <- function(
   )
 }
 
-.comp_to_struc_cache <- new.env(parent = emptyenv())
-
 .prepare_comp_to_struc_index <- function(db, match_mode) {
-  if (!is.null(db)) {
-    return(.new_comp_to_struc_index(
-      .prepare_struc_db(db),
-      match_mode
+  if (is.null(db)) {
+    db <- .cached_db("structure")
+  }
+  if (.is_cached_db(db)) {
+    return(.cached_match_index(
+      db,
+      if (match_mode == "exact") "exact" else "compatible",
+      "structure"
     ))
   }
-
-  db <- .prepare_struc_db(NULL)
-  composition_key <- "default_composition"
-  if (
-    !exists(
-      composition_key,
-      envir = .comp_to_struc_cache,
-      inherits = FALSE
-    )
-  ) {
-    composition <- get(
-      "intact_composition",
-      envir = .default_struc_db_cache,
-      inherits = FALSE
-    )
-    assign(composition_key, composition, envir = .comp_to_struc_cache)
-  }
-
-  cache_key <- paste0("default_", match_mode)
-  if (!exists(cache_key, envir = .comp_to_struc_cache, inherits = FALSE)) {
-    index <- .new_comp_to_struc_index(
-      db,
-      match_mode,
-      get(
-        composition_key,
-        envir = .comp_to_struc_cache,
-        inherits = FALSE
-      ),
-      get(
-        "intact_generic_keys",
-        envir = .default_struc_db_cache,
-        inherits = FALSE
-      )
-    )
-    assign(cache_key, index, envir = .comp_to_struc_cache)
-  }
-  get(cache_key, envir = .comp_to_struc_cache, inherits = FALSE)
+  .new_comp_to_struc_index(.prepare_struc_db(db), match_mode)
 }
 
 .new_comp_to_struc_index <- function(
