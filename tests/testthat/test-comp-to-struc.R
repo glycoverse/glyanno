@@ -92,7 +92,7 @@ test_that("comp_to_struc matches mixed compositions residue by residue", {
   )
 })
 
-test_that("comp_to_struc excludes floating database structures", {
+test_that("comp_to_struc silently excludes floating database structures", {
   withr::local_options(lifecycle_verbosity = "quiet")
   db <- glyrepr::as_glycan_structure(c(
     "Gal(??-?)Man(??-?)[Man(??-?)]GlcNAc(??-",
@@ -101,7 +101,7 @@ test_that("comp_to_struc excludes floating database structures", {
   attr(db, "confidence") <- c(1, 2)
   comps <- glyrepr::as_glycan_composition("Hex(3)HexNAc(1)")
 
-  expect_snapshot(
+  expect_no_warning(
     result <- comp_to_struc(comps, db, return_best = TRUE)
   )
 

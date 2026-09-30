@@ -34,6 +34,34 @@ test_that("structure filters match the corresponding glydb database", {
   expect_equal(actual_struc$confidence, expected_struc$confidence)
 })
 
+test_that("built-in structure matching silently excludes floating candidates", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+  db <- glydb::glydb_structures()
+  expect_gt(sum(.has_unresolved_floating(db)), 0L)
+
+  expect_no_warning(
+    actual_comp <- comp_to_struc("H5N2", return_best = TRUE)
+  )
+  expect_no_warning(
+    expected_comp <- comp_to_struc("H5N2", db = db, return_best = TRUE)
+  )
+  expect_equal(actual_comp, expected_comp)
+
+  expect_no_warning(
+    actual_struc <- enhance_struc("Hex(??-?)HexNAc(??-", return_best = TRUE)
+  )
+  expect_no_warning(
+    expected_struc <- enhance_struc(
+      "Hex(??-?)HexNAc(??-",
+      db = db,
+      return_best = TRUE
+    )
+  )
+  expect_equal(actual_struc, expected_struc)
+
+  expect_no_warning(enhance_struc_denovo("Hex(??-?)HexNAc(??-"))
+})
+
 test_that("composition filters match the corresponding glydb database", {
   withr::local_options(lifecycle_verbosity = "quiet")
   filters <- list(

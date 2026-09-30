@@ -15,7 +15,7 @@
 #' @param db `r lifecycle::badge("deprecated")` A [glydb::glydb_structures()] vector,
 #'   or a character vector of glycan structure strings supported by [glyparse::auto_parse()].
 #'   Structures with unresolved floating parts or substituents are excluded
-#'   with a warning. Use the filtering arguments instead. This argument
+#'   silently. Use the filtering arguments instead. This argument
 #'   cannot be combined with them.
 #' @inheritParams comp_to_struc
 #' @param return_best Logical. If `TRUE`, only return the best matching
@@ -229,7 +229,7 @@ enhance_struc <- function(
 #'   The default is [glydb::glydb_structures()] at "topological" level. Every
 #'   non-missing candidate must have concrete residues. Linkage information is
 #'   removed before fallback matching. Candidates with unresolved floating
-#'   parts or substituents are excluded with a warning. Fallback candidates
+#'   parts or substituents are excluded silently. Fallback candidates
 #'   require a `confidence` attribute.
 #'
 #' @returns An unnamed [glyrepr::glycan_structure()] vector with the same length

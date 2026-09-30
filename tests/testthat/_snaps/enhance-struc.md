@@ -6,9 +6,6 @@
       Warning:
       `strucs` contains 1 structure with unresolved floating parts or substituents.
       i Those input structures were excluded from matching and are returned as missing values in aligned outputs.
-      Warning:
-      `db` contains 1 structure with unresolved floating parts or substituents.
-      i Those database structures were excluded from matching.
 
 # enhance_struc_denovo rejects a non-concrete fallback database
 

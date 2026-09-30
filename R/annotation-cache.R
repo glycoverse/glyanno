@@ -219,12 +219,7 @@
 
 .is_cached_db <- function(db) inherits(db, "glyanno_cached_db")
 
-.cached_structure_ids <- function(db, arg = "db") {
-  .warn_floating_mask(
-    db$view$floating[db$ids],
-    arg,
-    "Those database structures were excluded from matching."
-  )
+.cached_structure_ids <- function(db) {
   db$ids[!db$view$floating[db$ids]]
 }
 

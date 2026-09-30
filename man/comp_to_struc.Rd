@@ -27,7 +27,7 @@ comp_to_struc(
 Can be a \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector or any structure strings
 supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
 Structures with unresolved floating parts or substituents are excluded
-with a warning.
+silently.
 Use the filtering arguments instead. This argument cannot be combined
 with them.}
 

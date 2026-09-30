@@ -97,12 +97,12 @@
   }
 }
 
-.prepare_struc_db <- function(db, arg = "db") {
+.prepare_struc_db <- function(db) {
   if (is.null(db)) {
     db <- .cached_db("structure")
   }
   if (.is_cached_db(db)) {
-    return(.subset_cached_db(db$view$db, .cached_structure_ids(db, arg)))
+    return(.subset_cached_db(db$view$db, .cached_structure_ids(db)))
   }
   if (!.is_glydb_vector(db)) {
     if (length(db) == 0) {
@@ -110,18 +110,17 @@
     }
     db <- unique(.ensure_glycan_structure(db))
   }
-  .drop_floating_structures(db, arg)
+  .drop_floating_structures(db)
 }
 
 .prepare_denovo_struc_db <- function(fallback_db) {
   if (is.null(fallback_db)) {
     return(.prepare_struc_db(
-      .cached_db("structure", list(structure_level = "topological")),
-      arg = "fallback_db"
+      .cached_db("structure", list(structure_level = "topological"))
     ))
   }
 
-  db <- .prepare_struc_db(fallback_db, arg = "fallback_db")
+  db <- .prepare_struc_db(fallback_db)
   mono_types <- glyrepr::get_mono_type(db)
   if (any(!is.na(mono_types) & mono_types != "concrete")) {
     cli::cli_abort(
@@ -262,13 +261,9 @@
   invisible(floating)
 }
 
-.drop_floating_structures <- function(strucs, arg) {
+.drop_floating_structures <- function(strucs) {
   confidence <- attr(strucs, "confidence")
-  floating <- .warn_floating_structures(
-    strucs,
-    arg,
-    "Those database structures were excluded from matching."
-  )
+  floating <- .has_unresolved_floating(strucs)
   strucs <- strucs[!floating]
   if (!is.null(confidence)) {
     attr(strucs, "confidence") <- confidence[!floating]

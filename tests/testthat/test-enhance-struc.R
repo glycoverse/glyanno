@@ -250,6 +250,11 @@ test_that("enhance_struc rejects floating inputs and database candidates", {
   ))
   attr(db, "confidence") <- c(1, 2)
 
+  expect_no_warning(
+    supported <- enhance_struc(input[1], db = db, return_best = TRUE)
+  )
+  expect_equal(as.character(supported), "Gal(??-?)GalNAc(??-")
+
   expect_snapshot(
     best <- enhance_struc(input, db = db, return_best = TRUE)
   )

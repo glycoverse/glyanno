@@ -24,7 +24,7 @@ substituents are excluded with a warning.}
 \item{db}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} A \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} vector,
 or a character vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
 Structures with unresolved floating parts or substituents are excluded
-with a warning. Use the filtering arguments instead. This argument
+silently. Use the filtering arguments instead. This argument
 cannot be combined with them.}
 
 \item{return_best}{Logical. If \code{TRUE}, only return the best matching

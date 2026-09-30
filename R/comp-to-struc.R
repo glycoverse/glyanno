@@ -15,7 +15,7 @@
 #'   Can be a [glyrepr::glycan_structure()] vector or any structure strings
 #'   supported by [glyparse::auto_parse()].
 #'   Structures with unresolved floating parts or substituents are excluded
-#'   with a warning.
+#'   silently.
 #'   Use the filtering arguments instead. This argument cannot be combined
 #'   with them.
 #' @param glycan_type Glycan type to select from [glydb::glydb_structures()].

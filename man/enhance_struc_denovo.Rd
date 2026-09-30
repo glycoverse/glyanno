@@ -18,7 +18,7 @@ vector of glycan structure strings supported by \code{\link[glyparse:auto_parse]
 The default is \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}} at "topological" level. Every
 non-missing candidate must have concrete residues. Linkage information is
 removed before fallback matching. Candidates with unresolved floating
-parts or substituents are excluded with a warning. Fallback candidates
+parts or substituents are excluded silently. Fallback candidates
 require a \code{confidence} attribute.}
 }
 \value{
