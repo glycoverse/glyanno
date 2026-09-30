@@ -2,6 +2,13 @@
 
 ## glyanno (development version)
 
+- [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md),
+  [`enhance_struc()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc.md),
+  and
+  [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc_denovo.md)
+  now silently exclude database candidates with unresolved floating
+  parts or substituents from matching.
+
 - [`build_glyanno_cache()`](https://glycoverse.github.io/glyanno/dev/reference/build_glyanno_cache.md)
   now saves annotation databases, filter memberships, matching indexes,
   and mass tables in persistent user storage.

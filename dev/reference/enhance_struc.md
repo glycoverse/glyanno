@@ -38,8 +38,8 @@ enhance_struc(
   vector, or a character vector of glycan structure strings supported by
   [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
   Structures with unresolved floating parts or substituents are excluded
-  with a warning. Use the filtering arguments instead. This argument
-  cannot be combined with them.
+  silently. Use the filtering arguments instead. This argument cannot be
+  combined with them.
 
 - return_best:
 
@@ -97,8 +97,6 @@ database candidate is matched against each input independently.
 ``` r
 enhance_struc("Gal(??-?)GalNAc(??-", glycan_type = "O-GalNAc",
   species = "Homo sapiens")
-#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
-#> ℹ Those database structures were excluded from matching.
 #> # A tibble: 3 × 3
 #>   raw                 enhanced            confidence
 #>   <struct>            <glydb_st>               <dbl>

@@ -249,8 +249,6 @@ composition Gal(1)GalNAc(1). What are the possible structures for this
 composition?</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `db` contains 9 structures with unresolved floating parts or substituents.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
 <span><span class="co">#&gt;   composition     structure           confidence</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;glydb_st&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -264,8 +262,6 @@ Sometimes we just want a “most possible” result. In this case, you can
 set <code>return_best</code> to <code>TRUE</code>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span>, return_best <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `db` contains 9 structures with unresolved floating parts or substituents.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
 <span><span class="co">#&gt; &lt;glydb_structure[1]&gt;</span></span>
 <span><span class="co">#&gt; [1] <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
 <span><span class="co">#&gt; # Unique structures: 1</span></span></code></pre></div>
@@ -279,8 +275,6 @@ corresponding position.</p>
 vectorizedly:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, <span class="st">"GlcNAc(1)GalNAc(1)"</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span>, return_best <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `db` contains 9 structures with unresolved floating parts or substituents.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
 <span><span class="co">#&gt; &lt;glydb_structure[2]&gt;</span></span>
 <span><span class="co">#&gt; [1] <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
 <span><span class="co">#&gt; [2] <span style="color: #0087D7;">GlcNAc</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
@@ -289,8 +283,6 @@ vectorizedly:</p>
 function directly returns a vector:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/comp_to_struc.html">comp_to_struc</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gal(1)GalNAc(1)"</span>, <span class="st">"GlcNAc(1)GalNAc(1)"</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span>, return_best <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `db` contains 9 structures with unresolved floating parts or substituents.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
 <span><span class="co">#&gt; &lt;glydb_structure[2]&gt;</span></span>
 <span><span class="co">#&gt; [1] <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
 <span><span class="co">#&gt; [2] <span style="color: #0087D7;">GlcNAc</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
@@ -307,8 +299,6 @@ without linkage information.</p>
 <span>  species <span class="op">=</span> <span class="st">"Homo sapiens"</span>,</span>
 <span>  glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `db` contains 74 structures with unresolved floating parts or substituents.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 3</span></span></span>
 <span><span class="co">#&gt;   composition        structure                 confidence</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;glydb_st&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -342,8 +332,6 @@ high-resolution candidates).</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> <span style="color: #000000;">Hex</span>(1)<span style="color: #000000;">HexNAc</span>(1) <span style="color: #0087D7;">GlcNAc</span>(1)<span style="color: #FFD700;">Galf</span>(1)      -<span style="color: #BB0000;">1</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enhance_struc.html">enhance_struc</a></span><span class="op">(</span><span class="st">"Gal(??-?)GalNAc(??-"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `db` contains 564 structures with unresolved floating parts or substituents.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 9 × 3</span></span></span>
 <span><span class="co">#&gt;   raw                 enhanced            confidence</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;glydb_st&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -366,8 +354,6 @@ candidates.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="color: #000000;">Hex</span>(1)<span style="color: #000000;">HexNAc</span>(1) <span style="color: #FFD700;">Gal</span>(1)<span style="color: #FFD700;">GalNAc</span>(1)       5.32</span></span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enhance_struc.html">enhance_struc</a></span><span class="op">(</span><span class="st">"Gal(??-?)GalNAc(??-"</span>, species <span class="op">=</span> <span class="st">"Homo sapiens"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `db` contains 9 structures with unresolved floating parts or substituents.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
 <span><span class="co">#&gt;   raw                 enhanced            confidence</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;glydb_st&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -383,8 +369,6 @@ well.</p>
 <span>  glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span>,</span>
 <span>  return_best <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `db` contains 9 structures with unresolved floating parts or substituents.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span></span>
 <span><span class="co">#&gt; &lt;glycan_structure[1]&gt;</span></span>
 <span><span class="co">#&gt; [1] <span style="color: #FFD700;">Gal</span>(<span style="color: #B2B2B2;">b1-3</span>)<span style="color: #FFD700;">GalNAc</span>(<span style="color: #B2B2B2;">a1-</span></span></span>
 <span><span class="co">#&gt; # Unique structures: 1</span></span></code></pre></div>

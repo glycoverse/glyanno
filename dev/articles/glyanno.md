@@ -176,8 +176,6 @@ Gal(1)GalNAc(1). What are the possible structures for this composition?
 ``` r
 
 comp_to_struc("Gal(1)GalNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNAc")
-#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
-#> ℹ Those database structures were excluded from matching.
 #> # A tibble: 3 × 3
 #>   composition     structure           confidence
 #>   <comp>          <glydb_st>               <dbl>
@@ -196,8 +194,6 @@ set `return_best` to `TRUE`:
 ``` r
 
 comp_to_struc("Gal(1)GalNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNAc", return_best = TRUE)
-#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
-#> ℹ Those database structures were excluded from matching.
 #> <glydb_structure[1]>
 #> [1] Gal(b1-3)GalNAc(a1-
 #> # Unique structures: 1
@@ -215,8 +211,6 @@ Note that all functions in `glyanno` works vectorizedly:
 ``` r
 
 comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), species = "Homo sapiens", glycan_type = "O-GalNAc", return_best = TRUE)
-#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
-#> ℹ Those database structures were excluded from matching.
 #> <glydb_structure[2]>
 #> [1] Gal(b1-3)GalNAc(a1-
 #> [2] GlcNAc(b1-3)GalNAc(a1-
@@ -229,8 +223,6 @@ vector:
 ``` r
 
 comp_to_struc(c("Gal(1)GalNAc(1)", "GlcNAc(1)GalNAc(1)"), species = "Homo sapiens", glycan_type = "O-GalNAc", return_best = TRUE)
-#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
-#> ℹ Those database structures were excluded from matching.
 #> <glydb_structure[2]>
 #> [1] Gal(b1-3)GalNAc(a1-
 #> [2] GlcNAc(b1-3)GalNAc(a1-
@@ -252,8 +244,6 @@ comp_to_struc(
   species = "Homo sapiens",
   glycan_type = "O-GalNAc"
 )
-#> Warning: `db` contains 74 structures with unresolved floating parts or substituents.
-#> ℹ Those database structures were excluded from matching.
 #> # A tibble: 4 × 3
 #>   composition        structure                 confidence
 #>   <comp>             <glydb_st>                     <dbl>
@@ -295,8 +285,6 @@ enhance_comp("Hex(1)HexNAc(1)")
 ``` r
 
 enhance_struc("Gal(??-?)GalNAc(??-")
-#> Warning: `db` contains 564 structures with unresolved floating parts or substituents.
-#> ℹ Those database structures were excluded from matching.
 #> # A tibble: 9 × 3
 #>   raw                 enhanced            confidence
 #>   <struct>            <glydb_st>               <dbl>
@@ -326,8 +314,6 @@ enhance_comp("Hex(1)HexNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNA
 ``` r
 
 enhance_struc("Gal(??-?)GalNAc(??-", species = "Homo sapiens", glycan_type = "O-GalNAc")
-#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
-#> ℹ Those database structures were excluded from matching.
 #> # A tibble: 3 × 3
 #>   raw                 enhanced            confidence
 #>   <struct>            <glydb_st>               <dbl>
@@ -346,8 +332,6 @@ enhance_struc(
   glycan_type = "O-GalNAc",
   return_best = TRUE
 )
-#> Warning: `db` contains 9 structures with unresolved floating parts or substituents.
-#> ℹ Those database structures were excluded from matching.
 #> <glycan_structure[1]>
 #> [1] Gal(b1-3)GalNAc(a1-
 #> # Unique structures: 1

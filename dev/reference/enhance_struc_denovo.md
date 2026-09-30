@@ -44,7 +44,7 @@ enhance_struc_denovo(strucs, fallback_db = NULL)
   at "topological" level. Every non-missing candidate must have concrete
   residues. Linkage information is removed before fallback matching.
   Candidates with unresolved floating parts or substituents are excluded
-  with a warning. Fallback candidates require a `confidence` attribute.
+  silently. Fallback candidates require a `confidence` attribute.
 
 ## Value
 

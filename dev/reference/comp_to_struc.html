@@ -72,7 +72,7 @@ residue identities are matched residue by residue.</p>
 Can be a <code><a href="https://glycoverse.github.io/glyrepr/reference/glycan_structure.html" class="external-link">glyrepr::glycan_structure()</a></code> vector or any structure strings
 supported by <code><a href="https://glycoverse.github.io/glyparse/reference/auto_parse.html" class="external-link">glyparse::auto_parse()</a></code>.
 Structures with unresolved floating parts or substituents are excluded
-with a warning.
+silently.
 Use the filtering arguments instead. This argument cannot be combined
 with them.</p></dd>
 
@@ -132,8 +132,6 @@ corresponding to different possible glycan structures.</p></li>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">comp_to_struc</span><span class="op">(</span><span class="st">"H5N2"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`db` contains 564 structures with unresolved floating parts or substituents.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 81 × 3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    composition     structure                                          confidence</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;comp&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;glydb_st&gt;</span>                                              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>

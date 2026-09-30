@@ -71,7 +71,7 @@ substituents are excluded with a warning.</p></dd>
 <dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> A <code><a href="https://glycoverse.github.io/glydb/reference/glydb_structures.html" class="external-link">glydb::glydb_structures()</a></code> vector,
 or a character vector of glycan structure strings supported by <code><a href="https://glycoverse.github.io/glyparse/reference/auto_parse.html" class="external-link">glyparse::auto_parse()</a></code>.
 Structures with unresolved floating parts or substituents are excluded
-with a warning. Use the filtering arguments instead. This argument
+silently. Use the filtering arguments instead. This argument
 cannot be combined with them.</p></dd>
 
 
@@ -128,8 +128,6 @@ is matched against each input independently.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">enhance_struc</span><span class="op">(</span><span class="st">"Gal(??-?)GalNAc(??-"</span>, glycan_type <span class="op">=</span> <span class="st">"O-GalNAc"</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Homo sapiens"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`db` contains 9 structures with unresolved floating parts or substituents.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Those database structures were excluded from matching.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   raw                 enhanced            confidence</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;struct&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;glydb_st&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
