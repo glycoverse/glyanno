@@ -176,10 +176,12 @@ test_that("cached neutral mass ignores the adduct argument", {
   mass_dict <- glyanno_mass_dict()
   db <- list(
     ids = c(2L, 1L),
-    view = list(masses = list(list(
-      dictionary = mass_dict,
-      residue = c(162.0528, 365.1322)
-    )))
+    view = list(
+      masses = list(list(
+        dictionary = mass_dict,
+        residue = c(162.0528, 365.1322)
+      ))
+    )
   )
   expected <- c(365.1322, 162.0528) + unname(mass_dict["red_end"])
 
