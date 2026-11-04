@@ -1,5 +1,7 @@
 # glyanno (development version)
 
+* De-novo structure enhancement preserves substituents on core fucose and bisecting GlcNAc instead of silently dropping them.
+
 # glyanno 0.7.0
 
 ## New features
