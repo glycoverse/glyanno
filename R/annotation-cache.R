@@ -132,6 +132,7 @@
 }
 
 .residue_mass <- function(counts, dictionary) {
+  dictionary <- .generic_mass_dict(dictionary)
   present <- colnames(counts) %in% names(dictionary)
   # Keep calculate_mz's summation order, including zero-count components.
   values <- sweep(

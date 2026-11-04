@@ -173,3 +173,9 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
   checkmate::assert_named(mass_dict)
   checkmate::assert_set_equal(names(mass_dict), names(glyanno_mass_dict()))
 }
+
+# Preserve the public dictionary names while matching glyrepr's generic counts.
+.generic_mass_dict <- function(mass_dict) {
+  mass_dict[c("gNeu", "gKdn")] <- mass_dict[c("Neu", "Kdn")]
+  mass_dict
+}
