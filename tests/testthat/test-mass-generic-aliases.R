@@ -9,11 +9,14 @@ test_that("Neu and Kdn dictionary entries match generic residue names", {
   for (deriv in c("none", "permethyl", "peracetyl")) {
     for (mass_type in c("mono", "average")) {
       dictionary <- glyanno_mass_dict(deriv, mass_type)
-      expected <- unname(c(
-        dictionary["Neu"],
-        dictionary["Kdn"],
-        dictionary["Neu"] + dictionary["Kdn"]
-      ) + dictionary["red_end"])
+      expected <- unname(
+        c(
+          dictionary["Neu"],
+          dictionary["Kdn"],
+          dictionary["Neu"] + dictionary["Kdn"]
+        ) +
+          dictionary["red_end"]
+      )
       expect_equal(
         calculate_mz(compositions, charge = 0, mass_dict = dictionary),
         expected
