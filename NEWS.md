@@ -1,5 +1,7 @@
 # glyanno (development version)
 
+* Corrected underivatized HexN residue masses to 161.0688 Da (monoisotopic) and 161.1558 Da (average), consistent with Unimod accession 454. Previous values underestimated each HexN residue by about 18 Da. Existing annotation caches are marked outdated and must be rebuilt.
+
 # glyanno 0.7.0
 
 ## New features

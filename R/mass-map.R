@@ -26,6 +26,8 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
   checkmate::assert_choice(deriv, c("none", "permethyl", "peracetyl"))
   checkmate::assert_choice(mass_type, c("mono", "average"))
 
+  # Underivatized HexN is the C6H11NO4 residue (Unimod accession 454).
+  # Its residue mass excludes one H2O; do not subtract a second H2O.
   variable_mass <- switch(
     paste(deriv, mass_type, sep = "_"),
     "none_mono" = c(
@@ -36,7 +38,7 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "ddHex" = 130.0584,
       "Pen" = 132.0423,
       "HexA" = 176.03209,
-      "HexN" = 143.0536,
+      "HexN" = 161.0688,
       "NeuAc" = 291.0954,
       "NeuGc" = 307.0903,
       "Kdn" = 250.0689,
@@ -53,7 +55,7 @@ glyanno_mass_dict <- function(deriv = "none", mass_type = "mono") {
       "ddHex" = 130.1428,
       "Pen" = 132.1161,
       "HexA" = 176.1259,
-      "HexN" = 143.1452,
+      "HexN" = 161.1558,
       "NeuAc" = 291.2579,
       "NeuGc" = 307.2573,
       "Kdn" = 250.2053,

@@ -144,7 +144,7 @@ clear_glyanno_cache <- function() {
 # Bump schema when cached representations or mass dictionary semantics change.
 .cache_metadata <- function() {
   list(
-    schema = 2L,
+    schema = 3L,
     glydb = as.character(getNamespaceVersion("glydb")),
     glyrepr = as.character(getNamespaceVersion("glyrepr")),
     igraph = as.character(getNamespaceVersion("igraph")),
