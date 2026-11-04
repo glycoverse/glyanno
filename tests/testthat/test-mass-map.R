@@ -40,7 +40,6 @@ test_that("underivatized HexN uses the hexosamine residue mass", {
   )
 })
 
-
 test_that("underivatized residue masses agree with elemental compositions", {
   # Residue formulas exclude one water molecule from each free sugar.
   # HUPO-PSI ProForma: HexN C6H11NO4 and Neu C9H15NO7.
@@ -57,9 +56,13 @@ test_that("underivatized residue masses agree with elemental compositions", {
     ddHex = c(C = 6, H = 10, O = 3),
     Neu = c(C = 9, H = 15, N = 1, O = 7)
   )
-  exact <- vapply(formulas, function(formula) {
-    sum(formula * atoms[names(formula)])
-  }, numeric(1))
+  exact <- vapply(
+    formulas,
+    function(formula) {
+      sum(formula * atoms[names(formula)])
+    },
+    numeric(1)
+  )
   mass_dict <- glyanno_mass_dict()
   expect_equal(mass_dict[names(formulas)], round(exact, 4))
   for (residue in names(formulas)) {
