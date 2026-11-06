@@ -581,7 +581,7 @@ enhance_struc_denovo <- function(strucs, fallback_db = NULL) {
       parent_node = context$central_core,
       input_node = bisecting,
       mono = "GlcNAc",
-      sub = ""
+      sub = igraph::vertex_attr(input_graph, "sub", index = bisecting)
     )
   }
   if (length(core_fuc) == 1) {
@@ -591,7 +591,7 @@ enhance_struc_denovo <- function(strucs, fallback_db = NULL) {
       parent_node = context$reducing_core,
       input_node = core_fuc,
       mono = "Fuc",
-      sub = ""
+      sub = igraph::vertex_attr(input_graph, "sub", index = core_fuc)
     )
   }
   additions
