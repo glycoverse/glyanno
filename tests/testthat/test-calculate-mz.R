@@ -162,3 +162,30 @@ test_that("calculate_mz works for charge -1 and adduct Cl-", {
   mz <- calculate_mz("HexNAc(2)Hex(3)", charge = -1, adduct = "Cl-")
   expect_mass(mz, 945.30)
 })
+
+test_that("neutral mass ignores the adduct argument", {
+  glycans <- c("Hex(1)", "HexNAc(2)Hex(3)", NA_character_)
+  expected <- calculate_mz(glycans, charge = 0)
+
+  for (adduct in list(NULL, NA_character_, "unsupported", c("H+", "Na+"))) {
+    expect_equal(calculate_mz(glycans, charge = 0, adduct = adduct), expected)
+  }
+})
+
+test_that("cached neutral mass ignores the adduct argument", {
+  mass_dict <- glyanno_mass_dict()
+  db <- list(
+    ids = c(2L, 1L),
+    view = list(
+      masses = list(list(
+        dictionary = mass_dict,
+        residue = c(162.0528, 365.1322)
+      ))
+    )
+  )
+  expected <- c(365.1322, 162.0528) + unname(mass_dict["red_end"])
+
+  for (adduct in list(NULL, NA_character_, "unsupported", c("H+", "Na+"))) {
+    expect_equal(.cached_mz(db, 0, adduct, mass_dict), expected)
+  }
+})
