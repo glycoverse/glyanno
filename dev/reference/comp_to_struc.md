@@ -105,18 +105,18 @@ Filter the built-in database with `glycan_type`, `species`,
 
 ``` r
 comp_to_struc("H5N2")
-#> # A tibble: 81 × 3
+#> # A tibble: 86 × 3
 #>    composition     structure                                          confidence
 #>    <comp>          <glydb_st>                                              <dbl>
 #>  1 Hex(5)HexNAc(2) Man(b1-2)Man(b1-3)[Man(b1-3)Man(b1-6)]Man(b1-4)Gl…      -1   
-#>  2 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)[Man(a1-3)]Man(b1-4)…       5.10
-#>  3 Hex(5)HexNAc(2) GlcNAc(b1-2)Man(a1-3)[Man(a1-3)[Man(a1-6)]Man(a1-…      -1   
-#>  4 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)[Man(a1-3)Man(a1-6)]Man(b1-4)Gl…       3.22
-#>  5 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)[Man(a1-3)]Man(a1-4)…       1.39
-#>  6 Hex(5)HexNAc(2) Man(a1-2)Man(a1-2)Man(a1-3)[Glc(a1-6)]Man(b1-4)Gl…      -1   
-#>  7 Hex(5)HexNAc(2) Man(a1-3)Man(a1-3)[Man(a1-3)Man(a1-6)]Man(b1-4)Gl…      -1   
-#>  8 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)Man(a1-3)Man(b1-4)Gl…      -1   
-#>  9 Hex(5)HexNAc(2) Galf(b1-2)[Man(a1-3)]Man(a1-6)[Man(a1-3)]Man(b1-4…      -1   
-#> 10 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)[Man(a1-6)Man(a1-6)]Man(a1-4)Gl…      -1   
-#> # ℹ 71 more rows
+#>  2 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)Man(a1-6)[Man(a1-3)]Man(b1-4)Gl…      -1   
+#>  3 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)[Man(a1-3)]Man(b1-4)…       4.64
+#>  4 Hex(5)HexNAc(2) GlcNAc(b1-2)Man(a1-3)[Man(a1-3)[Man(a1-6)]Man(a1-…      -1   
+#>  5 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)[Man(a1-3)Man(a1-6)]Man(b1-4)Gl…       0   
+#>  6 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)[Man(a1-3)]Man(a1-4)…      -1   
+#>  7 Hex(5)HexNAc(2) Man(a1-2)Man(a1-2)Man(a1-3)[Glc(a1-6)]Man(b1-4)Gl…      -1   
+#>  8 Hex(5)HexNAc(2) Man(a1-3)Man(a1-3)[Man(a1-3)Man(a1-6)]Man(b1-4)Gl…      -1   
+#>  9 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)Man(a1-3)Man(b1-4)Gl…      -1   
+#> 10 Hex(5)HexNAc(2) Galf(b1-2)[Man(a1-3)]Man(a1-6)[Man(a1-3)]Man(b1-4…      -1   
+#> # ℹ 76 more rows
 ```

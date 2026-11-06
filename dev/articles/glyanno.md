@@ -142,9 +142,9 @@ mz_to_comp(406.1325, charge = 1, adduct = "Na+")
 #>      mz composition       confidence
 #>   <dbl> <glydb_cm>             <dbl>
 #> 1  406. Gal(1)GalNAc(1)        5.32 
-#> 2  406. Gal(1)GlcNAc(1)        2.71 
+#> 2  406. Gal(1)GlcNAc(1)        2.56 
 #> 3  406. Glc(1)GlcNAc(1)        0.693
-#> 4  406. Man(1)GlcNAc(1)        2.08 
+#> 4  406. Man(1)GlcNAc(1)        0    
 #> 5  406. GalNAc(1)L-Gal(1)     -1    
 #> 6  406. GalNAc(1)Galf(1)      -1    
 #> 7  406. GlcNAc(1)Galf(1)      -1
@@ -176,12 +176,11 @@ Gal(1)GalNAc(1). What are the possible structures for this composition?
 ``` r
 
 comp_to_struc("Gal(1)GalNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNAc")
-#> # A tibble: 3 × 3
+#> # A tibble: 2 × 3
 #>   composition     structure           confidence
 #>   <comp>          <glydb_st>               <dbl>
 #> 1 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(a1-       5.32
-#> 2 Gal(1)GalNAc(1) Gal(b1-3)GalNAc(b1-       1.10
-#> 3 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-       1.61
+#> 2 Gal(1)GalNAc(1) Gal(a1-3)GalNAc(a1-       1.61
 ```
 
 [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md)
@@ -274,9 +273,9 @@ enhance_comp("Hex(1)HexNAc(1)")
 #>   raw             enhanced          confidence
 #>   <comp>          <glydb_cm>             <dbl>
 #> 1 Hex(1)HexNAc(1) Gal(1)GalNAc(1)        5.32 
-#> 2 Hex(1)HexNAc(1) Gal(1)GlcNAc(1)        2.71 
+#> 2 Hex(1)HexNAc(1) Gal(1)GlcNAc(1)        2.56 
 #> 3 Hex(1)HexNAc(1) Glc(1)GlcNAc(1)        0.693
-#> 4 Hex(1)HexNAc(1) Man(1)GlcNAc(1)        2.08 
+#> 4 Hex(1)HexNAc(1) Man(1)GlcNAc(1)        0    
 #> 5 Hex(1)HexNAc(1) GalNAc(1)L-Gal(1)     -1    
 #> 6 Hex(1)HexNAc(1) GalNAc(1)Galf(1)      -1    
 #> 7 Hex(1)HexNAc(1) GlcNAc(1)Galf(1)      -1
@@ -314,12 +313,11 @@ enhance_comp("Hex(1)HexNAc(1)", species = "Homo sapiens", glycan_type = "O-GalNA
 ``` r
 
 enhance_struc("Gal(??-?)GalNAc(??-", species = "Homo sapiens", glycan_type = "O-GalNAc")
-#> # A tibble: 3 × 3
+#> # A tibble: 2 × 3
 #>   raw                 enhanced            confidence
 #>   <struct>            <glydb_st>               <dbl>
 #> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-       5.32
-#> 2 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(b1-       1.10
-#> 3 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-       1.61
+#> 2 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-       1.61
 ```
 
 You can set `return_best` to `TRUE` as well.

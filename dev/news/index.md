@@ -2,6 +2,9 @@
 
 ## glyanno (development version)
 
+- Neutral-mass calculations (`charge = 0`) now ignore `adduct` as
+  documented, including in cached annotation searches.
+
 ## glyanno 0.7.0
 
 ### New features

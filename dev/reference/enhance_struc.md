@@ -97,10 +97,9 @@ database candidate is matched against each input independently.
 ``` r
 enhance_struc("Gal(??-?)GalNAc(??-", glycan_type = "O-GalNAc",
   species = "Homo sapiens")
-#> # A tibble: 3 × 3
+#> # A tibble: 2 × 3
 #>   raw                 enhanced            confidence
 #>   <struct>            <glydb_st>               <dbl>
 #> 1 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(a1-       5.32
-#> 2 Gal(??-?)GalNAc(??- Gal(b1-3)GalNAc(b1-       1.10
-#> 3 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-       1.61
+#> 2 Gal(??-?)GalNAc(??- Gal(a1-3)GalNAc(a1-       1.61
 ```

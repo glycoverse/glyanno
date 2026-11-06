@@ -127,10 +127,10 @@ For example,
 
 ``` r
 mz_to_comp(933.3175, charge = 1, adduct = "Na+")
-#> # A tibble: 10 × 3
+#> # A tibble: 12 × 3
 #>       mz composition                    confidence
 #>    <dbl> <glydb_cm>                          <dbl>
-#>  1  933. Man(3)GlcNAc(2)                      5.61
+#>  1  933. Man(3)GlcNAc(2)                      3.76
 #>  2  933. Glc(1)Gal(2)GlcNAc(1)GalNAc(1)       1.79
 #>  3  933. Gal(3)GlcNAc(2)                      1.61
 #>  4  933. Glc(1)Gal(2)GlcNAc(2)                1.39
@@ -139,5 +139,7 @@ mz_to_comp(933.3175, charge = 1, adduct = "Na+")
 #>  7  933. Glc(1)Gal(2)GalNAc(2)                2.40
 #>  8  933. Man(2)Gal(1)GlcNAc(2)                1.39
 #>  9  933. Glc(1)GlcNAc(2)Galf(2)              -1   
-#> 10  933. Gal(3)GalNAc(2)                     -1   
+#> 10  933. Glc(1)Man(2)GlcNAc(2)               -1   
+#> 11  933. Gal(3)GalNAc(2)                     -1   
+#> 12  933. Glc(2)Man(1)GlcNAc(2)               -1   
 ```
