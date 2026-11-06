@@ -14,7 +14,6 @@ reference:
   - enhance_comp
   - enhance_struc
   - enhance_struc_denovo
-  - struc_to_glytoucan
 - title: Utilities
   contents:
   - build_glyanno_cache

@@ -50,7 +50,7 @@ require \code{force = TRUE}.
 Cached data include concrete/generic compositions, intact/topological
 structures, confidence ranks, exact and compatible composition indexes,
 residue counts, species/type membership, floating-structure flags, masses for
-all built-in dictionaries, and local GlyTouCan accession keys. Structure
+all built-in dictionaries. Structure
 vectors retain their parsed graphs. Arbitrary structure matching still uses
 glymotif at query time. Custom databases are never persisted.
 

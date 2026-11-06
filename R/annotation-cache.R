@@ -146,20 +146,6 @@
   unname(mass)
 }
 
-.build_accession_lookup <- function() {
-  keys <- as.character(glydb::glydb_data$glycan_structure)
-  keep <- !duplicated(keys)
-  stats::setNames(glydb::glydb_data$glytoucan_ac[keep], keys[keep])
-}
-
-.cached_accessions <- function(strucs) {
-  state <- .cache_session()
-  if (is.null(state$accessions)) {
-    state$accessions <- .build_accession_lookup()
-  }
-  unname(state$accessions[match(as.character(strucs), names(state$accessions))])
-}
-
 .cached_db <- function(kind, filters = list()) {
   mono <- if ("mono_type" %in% names(filters)) filters$mono_type else "concrete"
   level <- if ("structure_level" %in% names(filters)) {

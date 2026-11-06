@@ -1,5 +1,11 @@
 # glyanno (development version)
 
+## Breaking changes
+
+* Remove `struc_to_glytoucan()` and its online GlycanFormatConverter fallback. Use `glydb::struc_to_glytoucan()` for local database lookup; it does not replace online queries. The unused `httr2` dependency and accession cache are also removed. Existing annotation caches remain usable.
+
+## Minor improvements and bug fixes
+
 * Direct and cached mass calculations now recognize glyrepr's generic `gNeu` and `gKdn` names using the documented `Neu` and `Kdn` dictionary entries, including custom dictionaries.
 * Corrected underivatized HexN residue masses and monoisotopic dHexNAc, ddHex, and Neu residue masses using residue formulas and primary reference data. Existing annotation caches are marked outdated and must be rebuilt.
 * Neutral-mass calculations (`charge = 0`) now ignore `adduct` as documented, including in cached annotation searches.
