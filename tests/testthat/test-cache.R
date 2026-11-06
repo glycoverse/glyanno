@@ -377,6 +377,9 @@ test_that("annotation caches no longer need accession data", {
     stop("must reuse disk cache")
   })
   expect_identical(glyanno_cache_info()$status, "ready")
-  expect_equal(.annotation_view("composition"), payload$views$composition_concrete)
+  expect_equal(
+    .annotation_view("composition"),
+    payload$views$composition_concrete
+  )
   expect_false("accessions" %in% ls(.cache_session()))
 })
