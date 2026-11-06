@@ -132,6 +132,7 @@
 }
 
 .residue_mass <- function(counts, dictionary) {
+  dictionary <- .generic_mass_dict(dictionary)
   present <- colnames(counts) %in% names(dictionary)
   # Keep calculate_mz's summation order, including zero-count components.
   values <- sweep(
@@ -247,7 +248,8 @@
   } else {
     .residue_mass(view$mass_counts, mass_dict)
   }
-  mz <- residue[db$ids] + mass_dict[adduct] * abs(charge) + mass_dict["red_end"]
+  adduct_mass <- if (charge == 0) 0 else mass_dict[adduct] * abs(charge)
+  mz <- residue[db$ids] + adduct_mass + mass_dict["red_end"]
   if (charge != 0) {
     mz <- mz / abs(charge)
   }
