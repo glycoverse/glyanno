@@ -15,8 +15,6 @@
 - [`enhance_struc_denovo()`](https://glycoverse.github.io/glyanno/dev/reference/enhance_struc_denovo.md)
   **\[experimental\]** : Reconstruct topological N-glycan structures de
   novo
-- [`struc_to_glytoucan()`](https://glycoverse.github.io/glyanno/dev/reference/struc_to_glytoucan.md)
-  : Assign GlyTouCan accessions to glycan structures
 
 ## Utilities
 

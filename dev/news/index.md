@@ -2,6 +2,18 @@
 
 ## glyanno (development version)
 
+### Breaking changes
+
+- Remove
+  [`struc_to_glytoucan()`](https://glycoverse.github.io/glydb/reference/struc_to_glytoucan.html)
+  and its online GlycanFormatConverter fallback. Use
+  [`glydb::struc_to_glytoucan()`](https://glycoverse.github.io/glydb/reference/struc_to_glytoucan.html)
+  for local database lookup; it does not replace online queries. The
+  unused `httr2` dependency and accession cache are also removed.
+  Existing annotation caches remain usable.
+
+### Minor improvements and bug fixes
+
 - De-novo structure enhancement preserves substituents on core fucose
   and bisecting GlcNAc instead of silently dropping them.
 - Direct and cached mass calculations now recognize glyrepr’s generic
@@ -98,7 +110,7 @@
   [`mz_to_comp()`](https://glycoverse.github.io/glyanno/dev/reference/mz_to_comp.md)
   now process vector inputs substantially faster by reusing prepared
   databases and direct lookups. (#20)
-- [`struc_to_glytoucan()`](https://glycoverse.github.io/glyanno/dev/reference/struc_to_glytoucan.md)
+- [`struc_to_glytoucan()`](https://glycoverse.github.io/glydb/reference/struc_to_glytoucan.html)
   now looks up accessions from
   [`glydb::glydb_data`](https://glycoverse.github.io/glydb/reference/glydb_data.html)
   first and only falls back to the online GlycanFormatConverter API for
@@ -109,7 +121,7 @@
 ### New features
 
 - Add
-  [`struc_to_glytoucan()`](https://glycoverse.github.io/glyanno/dev/reference/struc_to_glytoucan.md)
+  [`struc_to_glytoucan()`](https://glycoverse.github.io/glydb/reference/struc_to_glytoucan.html)
   to map glycan structures to GlyTouCan accessions (#11).
 - Add
   [`fill_anomer_pos()`](https://glycoverse.github.io/glyrepr/reference/fill_anomer_pos.html)

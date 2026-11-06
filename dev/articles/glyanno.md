@@ -44,11 +44,6 @@ four core functions:
 
 library(glyanno)
 library(glydb)
-#> 
-#> Attaching package: 'glydb'
-#> The following object is masked from 'package:glyanno':
-#> 
-#>     struc_to_glytoucan
 ```
 
 **Note:** This package relies on
@@ -89,7 +84,6 @@ The cache contains:
 | Species and glycan-type membership; concrete and generic counts | Database filtering without reprocessing structures |
 | Floating-part/substituent flags | Excluding unsupported candidates with the existing warnings |
 | Residue masses for six built-in dictionaries and counts for custom dictionaries | Mass annotation across derivatizations, mass types, charges, and adducts |
-| Structure keys and GlyTouCan accessions | Local accession lookup |
 
 All views come from `glydb`’s public getters. Their candidate order and
 confidence scores are preserved, including when filters are combined.
