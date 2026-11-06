@@ -112,10 +112,9 @@ calculate_mz <- function(
   }
 
   mono_masses <- purrr::map2(c(monos, subs), counts, ~ mass_dict[.x] * .y)
+  adduct_mass <- if (charge == 0) 0 else mass_dict[adduct] * abs(charge)
   mz <- unname(
-    colSums(do.call(rbind, mono_masses)) +
-      mass_dict[adduct] * abs(charge) +
-      mass_dict["red_end"]
+    colSums(do.call(rbind, mono_masses)) + adduct_mass + mass_dict["red_end"]
   )
   if (charge != 0) {
     mz <- mz / abs(charge)
