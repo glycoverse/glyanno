@@ -68,6 +68,8 @@ calculate_mz <- function(
     mass_dict <- glyanno_mass_dict(deriv = "none", mass_type = "mono")
   }
 
+  mass_dict <- .generic_mass_dict(mass_dict)
+
   # ===== m/z calculation =====
   monos <- intersect(
     glyrepr::available_monosaccharides("generic"),

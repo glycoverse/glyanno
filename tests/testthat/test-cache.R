@@ -359,3 +359,16 @@ test_that("all persisted views preserve live database and annotation semantics",
     )]
   )
 })
+
+test_that("older mass schemas invalidate persisted annotation caches", {
+  local_cache_fixture()
+  suppressMessages(build_glyanno_cache())
+  path <- .annotation_cache_path()
+  payload <- .read_cache_file(path)
+  payload$metadata$schema <- 2L
+  .write_cache_file(payload, path)
+  .reset_annotation_cache()
+
+  expect_identical(glyanno_cache_info()$status, "outdated")
+  expect_null(.cache_session()$views[["composition_concrete"]])
+})
