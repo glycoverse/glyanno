@@ -2,6 +2,13 @@
 
 ## glyanno (development version)
 
+- Direct and cached mass calculations now recognize glyrepr’s generic
+  `gNeu` and `gKdn` names using the documented `Neu` and `Kdn`
+  dictionary entries, including custom dictionaries.
+- Corrected underivatized HexN residue masses and monoisotopic dHexNAc,
+  ddHex, and Neu residue masses using residue formulas and primary
+  reference data. Existing annotation caches are marked outdated and
+  must be rebuilt.
 - Neutral-mass calculations (`charge = 0`) now ignore `adduct` as
   documented, including in cached annotation searches.
 

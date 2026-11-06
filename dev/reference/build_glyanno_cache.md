@@ -81,7 +81,7 @@ glyanno_cache_info()
 #> 
 #> $expected
 #> $expected$schema
-#> [1] 2
+#> [1] 3
 #> 
 #> $expected$glydb
 #> [1] "0.7.2"

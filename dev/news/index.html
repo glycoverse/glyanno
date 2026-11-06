@@ -33,7 +33,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="glyanno-development-version">glyanno (development version)<a class="anchor" aria-label="anchor" href="#glyanno-development-version"></a></h2>
-<ul><li>Neutral-mass calculations (<code>charge = 0</code>) now ignore <code>adduct</code> as documented, including in cached annotation searches.</li>
+<ul><li>Direct and cached mass calculations now recognize glyrepr’s generic <code>gNeu</code> and <code>gKdn</code> names using the documented <code>Neu</code> and <code>Kdn</code> dictionary entries, including custom dictionaries.</li>
+<li>Corrected underivatized HexN residue masses and monoisotopic dHexNAc, ddHex, and Neu residue masses using residue formulas and primary reference data. Existing annotation caches are marked outdated and must be rebuilt.</li>
+<li>Neutral-mass calculations (<code>charge = 0</code>) now ignore <code>adduct</code> as documented, including in cached annotation searches.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.0" id="glyanno-070">glyanno 0.7.0<a class="anchor" aria-label="anchor" href="#glyanno-070"></a></h2>
