@@ -24,10 +24,6 @@ local_cache_fixture <- function(env = parent.frame()) {
     .package = "glydb",
     .env = env
   )
-  local_mocked_bindings(
-    .build_accession_lookup = function() c(test = "G00001"),
-    .env = env
-  )
 }
 
 annotation_semantics <- function(x) {
@@ -350,14 +346,6 @@ test_that("all persisted views preserve live database and annotation semantics",
     .cached_mz(selected, 1L, "H+", dict),
     suppressWarnings(calculate_mz(comp_db, mass_dict = dict, safe = FALSE))
   )
-  strucs <- glydb::glydb_data$glycan_structure[c(1L, 10L, 1L, NA_integer_)]
-  expect_identical(
-    local_struc_glytoucan_accessions(strucs),
-    glydb::glydb_data$glytoucan_ac[match(
-      strucs,
-      glydb::glydb_data$glycan_structure
-    )]
-  )
 })
 
 test_that("older mass schemas invalidate persisted annotation caches", {
@@ -371,4 +359,27 @@ test_that("older mass schemas invalidate persisted annotation caches", {
 
   expect_identical(glyanno_cache_info()$status, "outdated")
   expect_null(.cache_session()$views[["composition_concrete"]])
+})
+
+test_that("annotation caches no longer need accession data", {
+  local_cache_fixture()
+  suppressMessages(build_glyanno_cache())
+  path <- .annotation_cache_path()
+  payload <- .read_cache_file(path)
+  expect_false("accessions" %in% names(payload))
+  expect_true(.valid_cache_payload(payload))
+
+  # Existing caches may contain the retired field; reuse their annotation views.
+  payload$accessions <- c(test = "G00001")
+  .write_cache_file(payload, path)
+  .reset_annotation_cache()
+  local_mocked_bindings(.build_annotation_view = function(...) {
+    stop("must reuse disk cache")
+  })
+  expect_identical(glyanno_cache_info()$status, "ready")
+  expect_equal(
+    .annotation_view("composition"),
+    payload$views$composition_concrete
+  )
+  expect_false("accessions" %in% ls(.cache_session()))
 })
