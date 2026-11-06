@@ -2,6 +2,8 @@
 
 ## glyanno (development version)
 
+- De-novo structure enhancement preserves substituents on core fucose
+  and bisecting GlcNAc instead of silently dropping them.
 - Direct and cached mass calculations now recognize glyrepr’s generic
   `gNeu` and `gKdn` names using the documented `Neu` and `Kdn`
   dictionary entries, including custom dictionaries.
