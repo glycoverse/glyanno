@@ -1,6 +1,6 @@
 # glyanno (development version)
 
-* `comp_to_struc()` gains `include_floating = TRUE` to include structures with unresolved floating parts or substituents when matching compositions; the default remains `FALSE`.
+* `comp_to_struc()` gains `include_floating = TRUE` to include structures with unresolved floating parts or substituents when matching compositions; the default remains `FALSE`. (#34)
 
 ## Breaking changes
 
