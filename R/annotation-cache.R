@@ -206,12 +206,21 @@
 
 .is_cached_db <- function(db) inherits(db, "glyanno_cached_db")
 
-.cached_structure_ids <- function(db) {
-  db$ids[!db$view$floating[db$ids]]
+.cached_structure_ids <- function(db, include_floating = FALSE) {
+  if (include_floating) db$ids else db$ids[!db$view$floating[db$ids]]
 }
 
-.cached_match_index <- function(db, mode = "compatible", kind = "composition") {
-  ids <- if (kind == "structure") .cached_structure_ids(db) else db$ids
+.cached_match_index <- function(
+  db,
+  mode = "compatible",
+  kind = "composition",
+  include_floating = FALSE
+) {
+  ids <- if (kind == "structure") {
+    .cached_structure_ids(db, include_floating)
+  } else {
+    db$ids
+  }
   index <- db$view[[mode]]
   # Store full-database IDs; map only the query's matches into the selected view.
   index$active_ids <- ids

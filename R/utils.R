@@ -97,12 +97,15 @@
   }
 }
 
-.prepare_struc_db <- function(db) {
+.prepare_struc_db <- function(db, include_floating = FALSE) {
   if (is.null(db)) {
     db <- .cached_db("structure")
   }
   if (.is_cached_db(db)) {
-    return(.subset_cached_db(db$view$db, .cached_structure_ids(db)))
+    return(.subset_cached_db(
+      db$view$db,
+      .cached_structure_ids(db, include_floating)
+    ))
   }
   if (!.is_glydb_vector(db)) {
     if (length(db) == 0) {
@@ -110,7 +113,7 @@
     }
     db <- unique(.ensure_glycan_structure(db))
   }
-  .drop_floating_structures(db)
+  if (include_floating) db else .drop_floating_structures(db)
 }
 
 .prepare_denovo_struc_db <- function(fallback_db) {

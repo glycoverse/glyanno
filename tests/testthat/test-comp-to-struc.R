@@ -109,6 +109,130 @@ test_that("comp_to_struc silently excludes floating database structures", {
     as.character(result),
     "Gal(??-?)Man(??-?)[Man(??-?)]GlcNAc(??-"
   )
+  expect_equal(
+    comp_to_struc(comps, db, return_best = TRUE, include_floating = FALSE),
+    result
+  )
+})
+
+test_that("comp_to_struc can match full compositions of floating structures", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+  db <- glyrepr::as_glycan_structure(c(
+    "Gal(??-?)Man(??-?)[Man(??-?)]GlcNAc(??-",
+    "{Gal(??-?)|2,3}Man(??-?)[Man(??-?)]GlcNAc(??-"
+  ))
+  attr(db, "confidence") <- c(1, 2)
+
+  for (comp in c(
+    "Hex(3)HexNAc(1)",
+    "Man(2)Gal(1)GlcNAc(1)",
+    "Man(2)Hex(1)HexNAc(1)"
+  )) {
+    comps <- c(comp, NA, "Man(2)GlcNAc(1)", comp)
+    expect_no_warning(
+      result <- comp_to_struc(comps, db, include_floating = TRUE)
+    )
+    expect_equal(as.character(result$structure), rep(as.character(db), 2))
+    expect_equal(result$confidence, c(1, 2, 1, 2))
+    expect_equal(
+      as.character(result$composition),
+      rep(as.character(glyrepr::as_glycan_composition(comp)), 4)
+    )
+    best <- comp_to_struc(
+      comps,
+      db,
+      return_best = TRUE,
+      include_floating = TRUE
+    )
+    expect_equal(
+      as.character(best),
+      c(as.character(db[2]), NA, NA, as.character(db[2]))
+    )
+  }
+})
+
+test_that("comp_to_struc includes floating substituents only when requested", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+  db <- glyrepr::as_glycan_structure(c(
+    "{3S|1,2}Gal(b1-4)Glc(?1-",
+    "Gal3S(b1-4)Glc(?1-"
+  ))
+  attr(db, "confidence") <- c(2, 1)
+
+  for (comp in c("Glc(1)Gal(1)S(1)", "Hex(2)S(1)")) {
+    expect_equal(
+      as.character(comp_to_struc(comp, db)$structure),
+      as.character(db[2])
+    )
+    expect_equal(
+      as.character(comp_to_struc(comp, db, include_floating = TRUE)$structure),
+      as.character(db)
+    )
+    expect_equal(
+      as.character(comp_to_struc(
+        comp,
+        db,
+        return_best = TRUE,
+        include_floating = TRUE
+      )),
+      as.character(db[1])
+    )
+  }
+  expect_equal(nrow(comp_to_struc("Hex(2)", db, include_floating = TRUE)), 0L)
+})
+
+test_that("comp_to_struc handles floating-only custom databases and empty inputs", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+  db <- glyrepr::as_glycan_structure("{Gal(??-?)|2,3}Man(??-?)GlcNAc(??-")
+  attr(db, "confidence") <- 1
+  expect_true(glyrepr::has_floating_parts(db))
+  expect_equal(nrow(comp_to_struc("H2N1", db)), 0L)
+  expect_true(is.na(comp_to_struc("H2N1", db, return_best = TRUE)))
+  expect_equal(
+    as.character(comp_to_struc(
+      "H2N1",
+      db,
+      return_best = TRUE,
+      include_floating = TRUE
+    )),
+    as.character(db)
+  )
+  expect_equal(
+    comp_to_struc(character(), db, include_floating = TRUE),
+    comp_to_struc(character(), db)
+  )
+  expect_equal(
+    comp_to_struc(character(), db, return_best = TRUE, include_floating = TRUE),
+    glyrepr::glycan_structure()
+  )
+  expect_equal(
+    as.character(
+      comp_to_struc("H2N1", as.character(db), include_floating = TRUE)$structure
+    ),
+    as.character(db)
+  )
+  expect_error(
+    comp_to_struc(
+      "H2N1",
+      as.character(db),
+      return_best = TRUE,
+      include_floating = TRUE
+    ),
+    "must have a .*confidence.* attribute"
+  )
+})
+
+test_that("comp_to_struc validates include_floating as a single nonmissing flag", {
+  for (flag in list(NA, NULL, logical(), c(TRUE, FALSE), 1, "TRUE")) {
+    expect_error(
+      comp_to_struc("H1N1", include_floating = flag),
+      "include_floating"
+    )
+    expect_error(
+      comp_to_struc(character(), include_floating = flag),
+      "include_floating"
+    )
+  }
 })
 
 test_that("comp_to_struc works for concrete db and concrete comps", {

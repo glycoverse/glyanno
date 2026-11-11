@@ -62,6 +62,59 @@ test_that("built-in structure matching silently excludes floating candidates", {
   expect_no_warning(enhance_struc_denovo("Hex(??-?)HexNAc(??-"))
 })
 
+test_that("floating matches respect filters and structure resolutions", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+  for (level in c("intact", "topological")) {
+    for (mono in c("concrete", "generic")) {
+      filters <- list(
+        glycan_type = "N",
+        species = "Homo sapiens",
+        structure_level = level,
+        mono_type = mono,
+        mono_range = list(
+          Hex = c(0L, Inf),
+          HexNAc = c(0L, Inf),
+          dHex = c(0L, Inf),
+          NeuAc = c(0L, Inf)
+        )
+      )
+      db <- do.call(glydb::glydb_structures, filters)
+      floating <- db[.has_unresolved_floating(db)]
+      expect_gt(length(floating), 0L)
+      comp <- glyrepr::as_glycan_composition(floating[1])
+      for (query in list(comp, glyrepr::convert_to_generic(comp))) {
+        for (best in c(FALSE, TRUE)) {
+          actual <- do.call(
+            comp_to_struc,
+            c(
+              list(query, return_best = best, include_floating = TRUE),
+              filters
+            )
+          )
+          expected <- comp_to_struc(
+            query,
+            db = db,
+            return_best = best,
+            include_floating = TRUE
+          )
+          if (best) {
+            expect_equal(as.character(actual), as.character(expected))
+          } else {
+            expect_equal(
+              as.character(actual$structure),
+              as.character(expected$structure)
+            )
+            expect_equal(actual$confidence, expected$confidence)
+            expect_true(
+              as.character(floating[1]) %in% as.character(actual$structure)
+            )
+          }
+        }
+      }
+    }
+  }
+})
+
 test_that("composition filters match the corresponding glydb database", {
   withr::local_options(lifecycle_verbosity = "quiet")
   filters <- list(
