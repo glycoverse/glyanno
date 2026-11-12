@@ -4,6 +4,10 @@
 
 * Remove `struc_to_glytoucan()` and its online GlycanFormatConverter fallback. Use `glydb::struc_to_glytoucan()` for local database lookup; it does not replace online queries. The unused `httr2` dependency and accession cache are also removed. Existing annotation caches remain usable.
 
+## New features
+
+* `comp_to_struc()` gains `include_floating = TRUE` to include structures with unresolved floating parts or substituents when matching compositions; the default remains `FALSE`. (#34)
+
 ## Minor improvements and bug fixes
 
 * De-novo structure enhancement preserves substituents on core fucose and bisecting GlcNAc instead of silently dropping them.

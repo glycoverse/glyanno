@@ -89,6 +89,48 @@ test_that("cache persists and unchanged versions do not rebuild", {
   expect_identical(ls(.annotation_cache), character())
 })
 
+test_that("floating inclusion can change without rebuilding persisted indexes", {
+  local_cache_fixture()
+  db <- glyrepr::as_glycan_structure(c(
+    "{Gal(b1-3)|2,3}Gal(b1-4)GlcNAc(a1-",
+    "Gal(b1-3)Gal(b1-4)GlcNAc(a1-",
+    "{3S|1,2}Gal(b1-4)Glc(?1-"
+  ))
+  attr(db, "confidence") <- c(3, 1, 2)
+  expect_equal(.has_unresolved_floating(db), c(TRUE, FALSE, TRUE))
+  local_mocked_bindings(glydb_structures = function(...) db, .package = "glydb")
+  suppressMessages(build_glyanno_cache())
+  .reset_annotation_cache()
+  local_mocked_bindings(.build_annotation_view = function(...) {
+    stop("must reuse disk cache")
+  })
+
+  for (queries in list(
+    c("Gal(2)GlcNAc(1)", "Glc(1)Gal(1)S(1)", NA),
+    c("H2N1", "Hex(2)S(1)", NA)
+  )) {
+    for (include in c(FALSE, TRUE, FALSE)) {
+      result <- comp_to_struc(queries, include_floating = include)
+      ids <- if (include) c(1L, 2L, 3L) else 2L
+      expect_equal(as.character(result$structure), as.character(db[ids]))
+      expect_equal(result$confidence, attr(db, "confidence")[ids])
+      expect_equal(
+        as.character(comp_to_struc(
+          queries,
+          return_best = TRUE,
+          include_floating = include
+        )),
+        if (include) {
+          c(as.character(db[c(1, 3)]), NA)
+        } else {
+          c(as.character(db[2]), NA, NA)
+        }
+      )
+    }
+  }
+  expect_identical(glyanno_cache_info()$status, "ready")
+})
+
 test_that("version changes invalidate disk and session caches", {
   local_cache_fixture()
   suppressMessages(build_glyanno_cache())

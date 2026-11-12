@@ -15,7 +15,7 @@
 #'   Can be a [glyrepr::glycan_structure()] vector or any structure strings
 #'   supported by [glyparse::auto_parse()].
 #'   Structures with unresolved floating parts or substituents are excluded
-#'   silently.
+#'   silently unless `include_floating = TRUE`.
 #'   Use the filtering arguments instead. This argument cannot be combined
 #'   with them.
 #' @param glycan_type Glycan type to select from [glydb::glydb_structures()].
@@ -28,6 +28,11 @@
 #'   [glydb::glydb_structures()].
 #' @param return_best If `TRUE`, only return the highest confidence match for each
 #'   composition. A custom `db` must have a `confidence` attribute.
+#'   Default is `FALSE`.
+#' @param include_floating If `TRUE`, also consider structures with unresolved
+#'   floating parts or substituents. Their full compositions are matched,
+#'   including floating residues and substituents, without resolving attachment
+#'   positions. Applies to both the built-in database and a custom `db`.
 #'   Default is `FALSE`.
 #'
 #' @returns If `return_best=TRUE`:
@@ -44,6 +49,7 @@
 #'
 #' @examples
 #' comp_to_struc("H5N2")
+#' comp_to_struc("H5N2", include_floating = TRUE)
 #'
 #' @seealso [glyparse::auto_parse()]
 #' @export
@@ -55,9 +61,11 @@ comp_to_struc <- function(
   species = NULL,
   structure_level = "intact",
   mono_type = "concrete",
-  mono_range = NULL
+  mono_range = NULL,
+  include_floating = FALSE
 ) {
   checkmate::assert_flag(return_best)
+  checkmate::assert_flag(include_floating)
   db <- .resolve_annotation_db(
     db,
     !missing(glycan_type) ||
@@ -78,7 +86,7 @@ comp_to_struc <- function(
   comps <- .ensure_glycan_composition(comps, allow_structure = FALSE)
 
   if (length(comps) == 0) {
-    db <- .prepare_struc_db(db)
+    db <- .prepare_struc_db(db, include_floating)
     .check_return_best_arg(db, return_best)
     if (return_best) {
       return(glyrepr::glycan_structure())
@@ -96,7 +104,7 @@ comp_to_struc <- function(
   } else {
     "compatible"
   }
-  db_index <- .prepare_comp_to_struc_index(db, match_mode)
+  db_index <- .prepare_comp_to_struc_index(db, match_mode, include_floating)
   db <- db_index$db
   .check_return_best_arg(db, return_best)
 
@@ -140,7 +148,11 @@ comp_to_struc <- function(
   )
 }
 
-.prepare_comp_to_struc_index <- function(db, match_mode) {
+.prepare_comp_to_struc_index <- function(
+  db,
+  match_mode,
+  include_floating = FALSE
+) {
   if (is.null(db)) {
     db <- .cached_db("structure")
   }
@@ -148,10 +160,11 @@ comp_to_struc <- function(
     return(.cached_match_index(
       db,
       if (match_mode == "exact") "exact" else "compatible",
-      "structure"
+      "structure",
+      include_floating = include_floating
     ))
   }
-  .new_comp_to_struc_index(.prepare_struc_db(db), match_mode)
+  .new_comp_to_struc_index(.prepare_struc_db(db, include_floating), match_mode)
 }
 
 .new_comp_to_struc_index <- function(

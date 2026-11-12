@@ -12,7 +12,8 @@ comp_to_struc(
   species = NULL,
   structure_level = "intact",
   mono_type = "concrete",
-  mono_range = NULL
+  mono_range = NULL,
+  include_floating = FALSE
 )
 }
 \arguments{
@@ -27,7 +28,7 @@ comp_to_struc(
 Can be a \code{\link[glyrepr:glycan_structure]{glyrepr::glycan_structure()}} vector or any structure strings
 supported by \code{\link[glyparse:auto_parse]{glyparse::auto_parse()}}.
 Structures with unresolved floating parts or substituents are excluded
-silently.
+silently unless \code{include_floating = TRUE}.
 Use the filtering arguments instead. This argument cannot be combined
 with them.}
 
@@ -47,6 +48,12 @@ Default is \code{FALSE}.}
 
 \item{mono_range}{Named list of monosaccharide count ranges; see
 \code{\link[glydb:glydb_structures]{glydb::glydb_structures()}}.}
+
+\item{include_floating}{If \code{TRUE}, also consider structures with unresolved
+floating parts or substituents. Their full compositions are matched,
+including floating residues and substituents, without resolving attachment
+positions. Applies to both the built-in database and a custom \code{db}.
+Default is \code{FALSE}.}
 }
 \value{
 If \code{return_best=TRUE}:
@@ -74,6 +81,7 @@ Filter the built-in database with \code{glycan_type}, \code{species},
 }
 \examples{
 comp_to_struc("H5N2")
+comp_to_struc("H5N2", include_floating = TRUE)
 
 }
 \seealso{
