@@ -86,7 +86,7 @@ glyanno_cache_info()
 #> [1] "0.7.2"
 #> 
 #> $expected$glyrepr
-#> [1] "1.2.0"
+#> [1] "1.2.1"
 #> 
 #> $expected$igraph
 #> [1] "2.3.4"

@@ -15,7 +15,8 @@ comp_to_struc(
   species = NULL,
   structure_level = "intact",
   mono_type = "concrete",
-  mono_range = NULL
+  mono_range = NULL,
+  include_floating = FALSE
 )
 ```
 
@@ -40,8 +41,8 @@ comp_to_struc(
   vector or any structure strings supported by
   [`glyparse::auto_parse()`](https://glycoverse.github.io/glyparse/reference/auto_parse.html).
   Structures with unresolved floating parts or substituents are excluded
-  silently. Use the filtering arguments instead. This argument cannot be
-  combined with them.
+  silently unless `include_floating = TRUE`. Use the filtering arguments
+  instead. This argument cannot be combined with them.
 
 - return_best:
 
@@ -70,6 +71,14 @@ comp_to_struc(
 
   Named list of monosaccharide count ranges; see
   [`glydb::glydb_structures()`](https://glycoverse.github.io/glydb/reference/glydb_structures.html).
+
+- include_floating:
+
+  If `TRUE`, also consider structures with unresolved floating parts or
+  substituents. Their full compositions are matched, including floating
+  residues and substituents, without resolving attachment positions.
+  Applies to both the built-in database and a custom `db`. Default is
+  `FALSE`.
 
 ## Value
 
@@ -105,6 +114,21 @@ Filter the built-in database with `glycan_type`, `species`,
 
 ``` r
 comp_to_struc("H5N2")
+#> # A tibble: 86 × 3
+#>    composition     structure                                          confidence
+#>    <comp>          <glydb_st>                                              <dbl>
+#>  1 Hex(5)HexNAc(2) Man(b1-2)Man(b1-3)[Man(b1-3)Man(b1-6)]Man(b1-4)Gl…      -1   
+#>  2 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)Man(a1-6)[Man(a1-3)]Man(b1-4)Gl…      -1   
+#>  3 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)[Man(a1-3)]Man(b1-4)…       4.64
+#>  4 Hex(5)HexNAc(2) GlcNAc(b1-2)Man(a1-3)[Man(a1-3)[Man(a1-6)]Man(a1-…      -1   
+#>  5 Hex(5)HexNAc(2) Man(a1-2)Man(a1-3)[Man(a1-3)Man(a1-6)]Man(b1-4)Gl…       0   
+#>  6 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)[Man(a1-3)]Man(a1-4)…      -1   
+#>  7 Hex(5)HexNAc(2) Man(a1-2)Man(a1-2)Man(a1-3)[Glc(a1-6)]Man(b1-4)Gl…      -1   
+#>  8 Hex(5)HexNAc(2) Man(a1-3)Man(a1-3)[Man(a1-3)Man(a1-6)]Man(b1-4)Gl…      -1   
+#>  9 Hex(5)HexNAc(2) Man(a1-3)[Man(a1-6)]Man(a1-6)Man(a1-3)Man(b1-4)Gl…      -1   
+#> 10 Hex(5)HexNAc(2) Galf(b1-2)[Man(a1-3)]Man(a1-6)[Man(a1-3)]Man(b1-4…      -1   
+#> # ℹ 76 more rows
+comp_to_struc("H5N2", include_floating = TRUE)
 #> # A tibble: 86 × 3
 #>    composition     structure                                          confidence
 #>    <comp>          <glydb_st>                                              <dbl>

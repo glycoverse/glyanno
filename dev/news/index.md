@@ -12,6 +12,13 @@
   unused `httr2` dependency and accession cache are also removed.
   Existing annotation caches remain usable.
 
+### New features
+
+- [`comp_to_struc()`](https://glycoverse.github.io/glyanno/dev/reference/comp_to_struc.md)
+  gains `include_floating = TRUE` to include structures with unresolved
+  floating parts or substituents when matching compositions; the default
+  remains `FALSE`. (#34)
+
 ### Minor improvements and bug fixes
 
 - De-novo structure enhancement preserves substituents on core fucose
